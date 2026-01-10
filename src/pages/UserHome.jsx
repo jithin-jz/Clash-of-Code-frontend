@@ -406,7 +406,7 @@ const UserHome = () => {
             </motion.div>
 
             {/* ===== SCROLLABLE LEVEL MAP ===== */}
-            <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden">
+            <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden no-scrollbar">
                 <div className="relative w-full" style={{ height: '1200px' }}>
                     
                     {/* Sky & Clouds */}
