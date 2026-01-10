@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import useAuthStore from '../stores/useAuthStore';
 
+import { User } from 'lucide-react';
+
 const Home = () => {
     const { user, isAuthenticated } = useAuthStore();
 
@@ -10,13 +12,26 @@ const Home = () => {
             style={{ background: 'linear-gradient(180deg, #1a3a1a 0%, #0d1f0d 50%, #0a0a0a 100%)' }}>
             
             {/* Grass effect at bottom */}
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#2d5a27] to-transparent opacity-50"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-[#2d5a27] to-transparent opacity-50"></div>
             
             {/* Decorative elements */}
             <div className="absolute top-24 left-10 text-5xl opacity-20">🏰</div>
             <div className="absolute top-32 right-12 text-4xl opacity-20">⚔️</div>
             <div className="absolute bottom-40 left-16 text-4xl opacity-15">💎</div>
             <div className="absolute bottom-48 right-20 text-5xl opacity-15">🛡️</div>
+
+            {/* Fixed Top-Right Profile Icon */}
+            <Link 
+                to={isAuthenticated ? "/profile" : "/login"}
+                className="fixed top-4 right-4 z-50 w-12 h-12 rounded-full border-2 border-[#ffd700] flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95"
+                style={{ background: 'linear-gradient(180deg, #4a3810 0%, #2e2208 100%)' }}
+            >
+                {isAuthenticated && user?.profile?.avatar_url ? (
+                    <img src={user.profile.avatar_url} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                ) : (
+                    <User className="text-[#ffd700]" size={24} />
+                )}
+            </Link>
 
             {/* Main Content */}
             <div className="relative z-10 w-full max-w-md mx-4">
@@ -90,9 +105,9 @@ const Home = () => {
                                         </div>
                                     </div>
 
-                                    {/* Action Button */}
+                                    {/* Action Button: Enter Village */}
                                     <Link 
-                                        to="/profile" 
+                                        to="/game" 
                                         className="block w-full py-4 rounded-xl text-center text-white font-bold uppercase tracking-wide transition-all active:translate-y-1"
                                         style={{ 
                                             background: 'linear-gradient(180deg, #5dbd3a 0%, #3d8a24 100%)',
@@ -100,7 +115,7 @@ const Home = () => {
                                             border: '2px solid #6fd04a'
                                         }}
                                     >
-                                        👤 View Profile
+                                        🏰 Enter Village
                                     </Link>
                                 </div>
                             </div>
@@ -114,10 +129,10 @@ const Home = () => {
                         </div>
                         
                         {/* Corner decorations */}
-                        <div className="absolute -top-2 -left-2 w-5 h-5 rounded-full bg-gradient-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
-                        <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-gradient-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
-                        <div className="absolute -bottom-2 -left-2 w-5 h-5 rounded-full bg-gradient-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
-                        <div className="absolute -bottom-2 -right-2 w-5 h-5 rounded-full bg-gradient-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
+                        <div className="absolute -top-2 -left-2 w-5 h-5 rounded-full bg-linear-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
+                        <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-linear-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
+                        <div className="absolute -bottom-2 -left-2 w-5 h-5 rounded-full bg-linear-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
+                        <div className="absolute -bottom-2 -right-2 w-5 h-5 rounded-full bg-linear-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
                     </div>
                 ) : (
                     /* Guest View */
@@ -168,7 +183,7 @@ const Home = () => {
                                         </div>
                                     </div>
 
-                                    {/* CTA Button */}
+                                    {/* CTA Button: Start Playing -> Login */}
                                     <Link 
                                         to="/login" 
                                         className="block w-full py-4 rounded-xl text-center text-white font-bold uppercase tracking-wide text-lg transition-all active:translate-y-1"
@@ -192,10 +207,10 @@ const Home = () => {
                         </div>
                         
                         {/* Corner decorations */}
-                        <div className="absolute -top-2 -left-2 w-5 h-5 rounded-full bg-gradient-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
-                        <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-gradient-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
-                        <div className="absolute -bottom-2 -left-2 w-5 h-5 rounded-full bg-gradient-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
-                        <div className="absolute -bottom-2 -right-2 w-5 h-5 rounded-full bg-gradient-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
+                        <div className="absolute -top-2 -left-2 w-5 h-5 rounded-full bg-linear-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
+                        <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-linear-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
+                        <div className="absolute -bottom-2 -left-2 w-5 h-5 rounded-full bg-linear-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
+                        <div className="absolute -bottom-2 -right-2 w-5 h-5 rounded-full bg-linear-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F]"></div>
                     </div>
                 )}
             </div>

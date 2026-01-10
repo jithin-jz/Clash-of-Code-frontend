@@ -26,22 +26,25 @@ const DiscordIcon = () => (
 
 const Login = () => {
     const navigate = useNavigate();
-    const { user, loading, openOAuthPopup, checkAuth, isAuthenticated } = useAuthStore();
+    const { loading, openOAuthPopup, checkAuth } = useAuthStore();
 
 
     useEffect(() => {
         const handleMessage = async (event) => {
-            if (event.origin !== window.location.origin) return;
+            // Relaxed origin check for development to handle port changes (5173 vs 5174 etc)
+            if (event.origin !== window.location.origin) {
+                console.warn('Login: Received message from different origin:', event.origin, 'Expected:', window.location.origin);
+                // In production, you might want to force strict equality or a whitelist
+                if (!event.origin.startsWith('http://localhost') && !event.origin.startsWith('https://souled.jithin.site')) {
+                     return;
+                }
+            }
+            
             const { type, provider, error } = event.data;
             if (type === 'oauth-success') {
                 await checkAuth();
-                // Get fresh user data and redirect based on role
-                const currentUser = useAuthStore.getState().user;
-                if (currentUser?.is_staff || currentUser?.is_superuser) {
-                    navigate('/admin/dashboard', { replace: true });
-                } else {
-                    navigate('/home', { replace: true });
-                }
+                // Get fresh user data - Router will handle redirection via PublicOnlyRoute
+                await checkAuth();
             } else if (type === 'oauth-error') {
                 console.error(`OAuth error from ${provider}:`, error);
             }
@@ -50,17 +53,8 @@ const Login = () => {
         return () => window.removeEventListener('message', handleMessage);
     }, [checkAuth, navigate]);
 
-
-    useEffect(() => {
-        if (isAuthenticated) {
-            // Redirect admins to command center
-            if (user?.is_staff || user?.is_superuser) {
-                navigate('/admin/dashboard', { replace: true });
-            } else {
-                navigate('/home', { replace: true });
-            }
-        }
-    }, [isAuthenticated, user, navigate]);
+    // Note: Redirection is handled by the PublicOnlyRoute wrapper in App.jsx
+    // when isAuthenticated becomes true.
 
     const handleOAuthClick = async (provider) => {
         await openOAuthPopup(provider);

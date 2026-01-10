@@ -33,7 +33,7 @@ const OAuthCallback = ({ provider }) => {
                         type: 'oauth-error', 
                         provider, 
                         error: errorParam 
-                    }, window.location.origin);
+                    }, '*');
                     window.close();
                 }
                 return;
@@ -63,7 +63,7 @@ const OAuthCallback = ({ provider }) => {
                         window.opener.postMessage({ 
                             type: 'oauth-success', 
                             provider 
-                        }, window.location.origin);
+                        }, '*'); // Use '*' to allow port mismatches in dev
                         window.close();
                     } else {
                         // Get fresh user data from store and redirect based on role
@@ -82,7 +82,7 @@ const OAuthCallback = ({ provider }) => {
                         type: 'oauth-error', 
                         provider, 
                         error: err.message 
-                    }, window.location.origin);
+                    }, '*');
                     window.close();
                 }
             } finally {

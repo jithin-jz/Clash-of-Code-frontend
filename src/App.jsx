@@ -11,6 +11,8 @@ import UserHome from './pages/UserHome';
 // Admin pages
 import AdminDashboard from './admin/Dashboard';
 
+import Loader from './components/Loader';
+
 // Auth initializer component
 const AuthInitializer = ({ children }) => {
     const { loading, checkAuth } = useAuthStore();
@@ -19,15 +21,12 @@ const AuthInitializer = ({ children }) => {
         checkAuth();
     }, [checkAuth]);
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-900 via-purple-900 to-slate-900">
-                <div className="w-12 h-12 border-4 border-white/10 border-t-indigo-500 rounded-full animate-spin"></div>
-            </div>
-        );
-    }
-
-    return children;
+    return (
+        <>
+            <Loader isLoading={loading} />
+            {!loading && children}
+        </>
+    );
 };
 
 const AppContent = () => {
@@ -36,17 +35,19 @@ const AppContent = () => {
             <div className="min-h-screen">
                 <main>
                     <Routes>
-                        <Route path="/" element={
+                        {/* Public Landing (Game Map) - Visible to all */}
+                        <Route path="/" element={<UserHome />} />
+
+                        {/* Authentication - Public Only */}
+                        <Route path="/login" element={
                             <PublicOnlyRoute>
                                 <Login />
                             </PublicOnlyRoute>
                         } />
-                        <Route path="/home" element={
-                            <ProtectedRoute>
-                                <UserHome />
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/login" element={<Navigate to="/" replace />} />
+
+                        {/* Redirect legacy routes to / */}
+                        <Route path="/game" element={<Navigate to="/" replace />} />
+                        <Route path="/home" element={<Navigate to="/" replace />} />
                         
                         {/* OAuth Callbacks */}
                         <Route 
@@ -93,9 +94,18 @@ const App = () => {
 };
 
 // Helper component to redirect authenticated users
+// Helper component to redirect authenticated users based on role
 const PublicOnlyRoute = ({ children }) => {
-    const { isAuthenticated } = useAuthStore();
-    return isAuthenticated ? <Navigate to="/home" replace /> : children;
+    const { isAuthenticated, user } = useAuthStore();
+    
+    if (isAuthenticated) {
+        if (user?.is_staff || user?.is_superuser) {
+            return <Navigate to="/admin/dashboard" replace />;
+        }
+        return <Navigate to="/" replace />;
+    }
+    
+    return children;
 };
 
 export default App;
