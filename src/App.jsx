@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import useAuthStore from './stores/useAuthStore';
-import Navbar from './components/Navbar';
 import Login from './components/Login';
 import Profile from './components/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -34,8 +33,7 @@ const AuthInitializer = ({ children }) => {
 const AppContent = () => {
     return (
         <AuthInitializer>
-            <div className="min-h-screen bg-slate-900">
-                <Navbar />
+            <div className="min-h-screen">
                 <main>
                     <Routes>
                         <Route path="/" element={
