@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useAuthStore from '../../stores/useAuthStore';
+import useAuthStore from '../stores/useAuthStore';
 
 // SVG Icons for providers
 const GithubIcon = () => (
@@ -65,7 +65,7 @@ const Login = () => {
             style={{ background: 'linear-gradient(180deg, #1a3a1a 0%, #0d1f0d 50%, #0a0a0a 100%)' }}>
             
             {/* Animated grass/ground effect at bottom */}
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#2d5a27] to-transparent opacity-50"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-[#2d5a27] to-transparent opacity-50"></div>
             
             {/* Decorative elements */}
             <div className="absolute top-10 left-10 text-6xl opacity-20 animate-pulse">⚔️</div>
@@ -164,10 +164,10 @@ const Login = () => {
                 </div>
                 
                 {/* Corner decorations */}
-                <div className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-gradient-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F] shadow-lg"></div>
-                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-gradient-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F] shadow-lg"></div>
-                <div className="absolute -bottom-2 -left-2 w-6 h-6 rounded-full bg-gradient-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F] shadow-lg"></div>
-                <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-gradient-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F] shadow-lg"></div>
+                <div className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-linear-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F] shadow-lg"></div>
+                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-linear-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F] shadow-lg"></div>
+                <div className="absolute -bottom-2 -left-2 w-6 h-6 rounded-full bg-linear-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F] shadow-lg"></div>
+                <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-linear-to-br from-[#ffd700] to-[#8B6914] border-2 border-[#5C4A0F] shadow-lg"></div>
             </div>
 
             {/* TOS */}

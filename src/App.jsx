@@ -3,18 +3,20 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import useAuthStore from './stores/useAuthStore';
 
 // Pages
-// Pages
-import Login from './pages/auth/Login';
+
+import Login from './auth/Login';
 import Profile from './pages/Profile';
 import Home from './pages/Home';
 import OAuthCallback from './pages/OAuthCallback';
-import AdminDashboard from './pages/admin/Dashboard';
+import AdminDashboard from './admin/Dashboard';
 
 // Route Guards
-import { ProtectedRoute, PublicOnlyRoute, AdminRoute } from './routes';
+import ProtectedRoute from './routes/ProtectedRoute';
+import PublicOnlyRoute from './routes/PublicOnlyRoute';
+import AdminRoute from './routes/AdminRoute';
 
 // Components
-import Loader from './components/common/Loader';
+import Loader from './common/Loader';
 
 // Auth initializer component
 const AuthInitializer = ({ children }) => {

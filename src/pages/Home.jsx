@@ -1,33 +1,49 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../stores/useAuthStore';
 
 // Components
-import Loader from '../components/common/Loader';
-import { LevelModal } from '../components/game';
-import ProfilePanel from '../components/home/ProfilePanel';
-import ChatDrawer from '../components/home/ChatDrawer';
-import ShopButton from '../components/home/ShopButton';
-import RightSideUI from '../components/home/RightSideUI';
-import PlayButton from '../components/home/PlayButton';
-import LevelMap from '../components/home/LevelMap';
+
+import Loader from '../common/Loader';
+import LevelModal from '../game/LevelModal';
+import ProfilePanel from '../home/ProfilePanel';
+import ChatDrawer from '../home/ChatDrawer';
+import ShopButton from '../home/ShopButton';
+import RightSideUI from '../home/RightSideUI';
+import PlayButton from '../home/PlayButton';
+import LevelMap from '../home/LevelMap';
 
 // Data
-import { levels, pathPositions, decorations, snowflakePositions } from '../constants/levelData.jsx';
+import { generateLevels } from '../constants/levelData.jsx';
 
 // Hooks
-import { useAudio } from '../hooks/useAudio';
+
 
 const Home = () => {
     const navigate = useNavigate();
     const { user, logout } = useAuthStore();
-    const { isBgmMuted, isSfxMuted, toggleBgm, toggleSfx, playClick } = useAudio(); // Audio Hook
+    // Audio Removed
     
+    // State
     const [selectedLevel, setSelectedLevel] = useState(null);
     const [isChatOpen, setChatOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
-    const scrollRef = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
+
+    // Initialize Levels
+    const levels = useMemo(() => {
+        const initialLevels = generateLevels(25); // Spiral Logic expects 25
+        
+        if (user?.profile?.xp) {
+            const userLevel = Math.floor(user.profile.xp / 1000) + 1;
+            return initialLevels.map((lvl) => ({
+                ...lvl,
+                unlocked: lvl.id <= userLevel,
+                stars: 0 // Default 0 stars -> will show as 3 empty small stars
+            }));
+        }
+        return initialLevels;
+    }, [user]);
 
     // Loading logic
     useEffect(() => {
@@ -36,14 +52,7 @@ const Home = () => {
         return () => clearTimeout(timeout);
     }, [isLoading]);
 
-    // Scroll to bottom on mount
-    useEffect(() => {
-        if (!isLoading && scrollRef.current) {
-            setTimeout(() => {
-                scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-            }, 100);
-        }
-    }, [isLoading]);
+
 
     // Keyboard Shortcuts
     useEffect(() => {
@@ -64,7 +73,6 @@ const Home = () => {
     };
 
     const handleLevelClick = (level) => {
-        playClick(); // SFX
         if (!user) {
             navigate('/login');
             return;
@@ -75,55 +83,39 @@ const Home = () => {
     };
 
     return (
-        <div className="h-screen relative select-none overflow-hidden" style={{ backgroundColor: '#3d8a24' }}>
+        <div className="h-screen relative select-none overflow-hidden bg-[#0a0a0a] text-white">
             <Loader isLoading={isLoading} />
             
-            {/* Vignette Overlay */}
-            <div className="absolute inset-0 pointer-events-none" 
-                style={{ background: 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.5) 100%)' }} 
+            {/* Background Texture */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none" 
+                style={{ 
+                    backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)', 
+                    backgroundSize: '40px 40px' 
+                }} 
             />
+            <div className="absolute inset-0 bg-linear-to-b from-black/50 via-transparent to-black/80 pointer-events-none" />
 
-            <div onClick={playClick}>
-                <ProfilePanel user={user} />
-            </div>
-            
-            <div onClick={playClick}>
-                <ChatDrawer 
-                    isChatOpen={isChatOpen} 
-                    setChatOpen={setChatOpen} 
-                    user={user} 
-                />
-            </div>
-            
-            <div onClick={playClick}>
-                <ShopButton />
-            </div>
-            
-            <div onClick={playClick}>
-                <RightSideUI 
-                    user={user} 
-                    handleLogout={handleLogout} 
-                    settingsOpen={settingsOpen} 
-                    setSettingsOpen={setSettingsOpen}
-                    isBgmMuted={isBgmMuted}
-                    isSfxMuted={isSfxMuted}
-                    toggleBgm={toggleBgm}
-                    toggleSfx={toggleSfx}
-                />
-            </div>
-            
-            <div onClick={playClick}>
-                <PlayButton />
-            </div>
-            
-            <LevelMap 
-                scrollRef={scrollRef}
-                levels={levels}
-                pathPositions={pathPositions}
-                decorations={decorations}
-                snowflakePositions={snowflakePositions}
-                handleLevelClick={handleLevelClick}
+            <ProfilePanel user={user} />
+            <ChatDrawer 
+                isChatOpen={isChatOpen} 
+                setChatOpen={setChatOpen} 
+                user={user} 
             />
+            <ShopButton />
+            <RightSideUI 
+                user={user} 
+                handleLogout={handleLogout} 
+                settingsOpen={settingsOpen} 
+                setSettingsOpen={setSettingsOpen}
+            />
+            <PlayButton user={user} />
+            
+            {!isLoading && (
+                <LevelMap 
+                    levels={levels}
+                    handleLevelClick={handleLevelClick}
+                />
+            )}
 
             {/* Level Modal */}
             {selectedLevel && <LevelModal selectedLevel={selectedLevel} onClose={() => setSelectedLevel(null)} />}

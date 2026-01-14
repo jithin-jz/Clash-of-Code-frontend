@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useAuthStore from '../stores/useAuthStore';
 import { 
-    Users, Camera, Trophy, MapPin, Calendar, Edit3, Shield, Star, Sword, Crown, Camera as CameraIcon, Home, LogOut, Sparkles
+    Users, Camera, Trophy, MapPin, Calendar, Edit3, Shield, Star, Sword, Crown, Home, LogOut, Sparkles
 } from 'lucide-react';
-import { Loader } from '../components/common';
-import ReferralSection from '../components/ReferralSection';
+import Loader from '../common/Loader';
+import ReferralSection from '../profile/ReferralSection';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -140,7 +140,10 @@ const Profile = () => {
             <div className="relative h-80 md:h-96 w-full overflow-hidden">
                 {uploadingBanner && (
                     <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-md">
-                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#FFD700]"></div>
+                        <div className="relative w-10 h-10">
+                            <div className="absolute inset-0 border-4 border-[#FFD700]/20 rounded-full"></div>
+                            <div className="absolute inset-0 border-4 border-t-[#FFD700] rounded-full animate-spin"></div>
+                        </div>
                     </div>
                 )}
                 
@@ -153,13 +156,13 @@ const Profile = () => {
                             className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-1000" 
                         />
                     ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-indigo-900 via-purple-900 to-black relative">
+                        <div className="w-full h-full bg-linear-to-br from-indigo-900 via-purple-900 to-black relative">
                              <div className="absolute inset-0 opacity-30" 
                                   style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")' }}></div>
                         </div>
                     )}
                     {/* Gradient Overlay for Text Readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-[#050505] via-[#050505]/60 to-transparent" />
                 </div>
 
                 {/* Navigation Buttons */}
@@ -206,23 +209,26 @@ const Profile = () => {
                 <div className="flex flex-col lg:flex-row gap-8">
                     
                     {/* Left Sidebar: Profile Card & Referral */}
-                    <div className="w-full lg:w-80 flex-shrink-0 space-y-6">
+                    <div className="w-full lg:w-80 shrink-0 space-y-6">
                         {/* Profile Info Card */}
                         <div className="bg-[#121212]/90 backdrop-blur-xl border border-white/5 rounded-3xl p-6 shadow-2xl">
                             
                             {/* Avatar */}
                             <div className="relative -mt-20 mb-6 flex justify-center">
-                                <div className="w-40 h-40 rounded-full border-4 border-[#050505] p-1 bg-gradient-to-br from-[#FFD700] via-orange-500 to-purple-600 shadow-xl relative group">
+                                <div className="w-40 h-40 rounded-full border-4 border-[#050505] p-1 bg-linear-to-br from-[#FFD700] via-orange-500 to-purple-600 shadow-xl relative group">
                                     <div className="w-full h-full rounded-full overflow-hidden bg-[#242424] relative">
                                         {uploadingAvatar && (
                                             <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
+                                                <div className="relative w-8 h-8">
+                                                    <div className="absolute inset-0 border-3 border-white/10 rounded-full"></div>
+                                                    <div className="absolute inset-0 border-3 border-t-white rounded-full animate-spin"></div>
+                                                </div>
                                             </div>
                                         )}
                                         {profileUser.profile?.avatar_url ? (
                                             <img src={profileUser.profile.avatar_url} alt="Avatar" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-black">
+                                            <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-zinc-800 to-black">
                                                 <Users size={64} className="text-zinc-600" />
                                             </div>
                                         )}
@@ -233,14 +239,14 @@ const Profile = () => {
                                                 onClick={() => avatarInputRef.current.click()}
                                                 className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-all duration-300"
                                             >
-                                                <CameraIcon className="text-white drop-shadow-md" size={32} />
+                                                <Camera className="text-white drop-shadow-md" size={32} />
                                             </div>
                                         )}
                                     </div>
                                     
                                     {/* Level Badge */}
                                     <div className="absolute bottom-0 right-0 bg-[#050505] p-1 rounded-full">
-                                        <div className="bg-gradient-to-tr from-[#FFD700] to-orange-400 w-10 h-10 rounded-full flex items-center justify-center font-black text-black text-sm shadow-lg border border-white/10">
+                                        <div className="bg-linear-to-tr from-[#FFD700] to-orange-400 w-10 h-10 rounded-full flex items-center justify-center font-black text-black text-sm shadow-lg border border-white/10">
                                             {Math.floor((profileUser.profile?.xp || 0) / 1000) + 1}
                                         </div>
                                     </div>

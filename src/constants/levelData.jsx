@@ -1,74 +1,76 @@
+import React from 'react';
 import {
     Terminal, Box, Binary, Keyboard, GitGraph, Repeat, List, FunctionSquare,
-    Book, Package, FileText, LayoutTemplate, AlertTriangle, BoxSelect, Rocket
+    Book, Package, FileText, LayoutTemplate, AlertTriangle, BoxSelect, Rocket, Code,
+    Award, Crown, Shield, Zap, Target, Flag, Map, Compass, Scroll
 } from 'lucide-react';
 
-// Path positions for the level map
-export const pathPositions = [
-    { x: 75, y: 90 }, { x: 55, y: 82 }, { x: 30, y: 78 }, { x: 20, y: 68 },
-    { x: 35, y: 58 }, { x: 55, y: 52 }, { x: 70, y: 44 }, { x: 50, y: 36 },
-    { x: 25, y: 30 }, { x: 40, y: 22 }, { x: 65, y: 18 }, { x: 80, y: 12 },
-    { x: 55, y: 8 }, { x: 30, y: 5 }, { x: 50, y: 2 },
+const ICONS = [
+    <Terminal size={24} />, <Box size={24} />, <Binary size={24} />, <Keyboard size={24} />, 
+    <GitGraph size={24} />, <Repeat size={24} />, <List size={24} />, <FunctionSquare size={24} />,
+    <Book size={24} />, <Package size={24} />, <FileText size={24} />, <LayoutTemplate size={24} />, 
+    <AlertTriangle size={24} />, <BoxSelect size={24} />, <Rocket size={24} />, <Code size={24} />,
+    <Shield size={24} />, <Zap size={24} />, <Target size={24} />, <Flag size={24} />, 
+    <Map size={24} />, <Compass size={24} />, <Scroll size={24} />, <Crown size={24} />
 ];
 
-// Python Learning Path Levels
-export const levels = [
-    { id: 1, name: 'Hello Python', icon: <Terminal size={32} />, stars: 0, unlocked: true },
-    { id: 2, name: 'Variables', icon: <Box size={32} />, stars: 0, unlocked: false },
-    { id: 3, name: 'Data Types', icon: <Binary size={32} />, stars: 0, unlocked: false },
-    { id: 4, name: 'Input', icon: <Keyboard size={32} />, stars: 0, unlocked: false },
-    { id: 5, name: 'Conditionals', icon: <GitGraph size={32} />, stars: 0, unlocked: false },
-    { id: 6, name: 'Loops', icon: <Repeat size={32} />, stars: 0, unlocked: false },
-    { id: 7, name: 'Lists', icon: <List size={32} />, stars: 0, unlocked: false },
-    { id: 8, name: 'Functions', icon: <FunctionSquare size={32} />, stars: 0, unlocked: false },
-    { id: 9, name: 'Dictionaries', icon: <Book size={32} />, stars: 0, unlocked: false },
-    { id: 10, name: 'Modules', icon: <Package size={32} />, stars: 0, unlocked: false },
-    { id: 11, name: 'File I/O', icon: <FileText size={32} />, stars: 0, unlocked: false },
-    { id: 12, name: 'Classes', icon: <LayoutTemplate size={32} />, stars: 0, unlocked: false },
-    { id: 13, name: 'Error Handling', icon: <AlertTriangle size={32} />, stars: 0, unlocked: false },
-    { id: 14, name: 'Virtual Env', icon: <BoxSelect size={32} />, stars: 0, unlocked: false },
-    { id: 15, name: 'Final Project', icon: <Rocket size={32} />, stars: 0, unlocked: false, hasGift: true },
-];
+const CERTIFICATE_ICON = <Award size={32} className="text-yellow-400" />;
 
-// Static decorations for the map
-export const decorations = [
-    // Left side forest
-    { src: '/assets/oak-tree.png', x: 5, y: 5, size: '100px', zIndex: 'z-20' },
-    { src: '/assets/bush.png', x: 12, y: 15, size: '45px', zIndex: 'z-10' },
-    { src: '/assets/pine-tree.png', x: 8, y: 25, size: '110px', zIndex: 'z-20' },
-    { src: '/assets/mushrooms.png', x: 15, y: 35, size: '30px', zIndex: 'z-10', pulse: true },
-    { src: '/assets/rock-large.png', x: 5, y: 45, size: '40px', zIndex: 'z-0' },
-    { src: '/assets/oak-tree.png', x: 10, y: 55, size: '95px', zIndex: 'z-20' },
-    { src: '/assets/bush.png', x: 4, y: 65, size: '50px', zIndex: 'z-10' },
-    { src: '/assets/pine-tree.png', x: 8, y: 75, size: '115px', zIndex: 'z-20' },
-    { src: '/assets/rock-large.png', x: 14, y: 85, size: '35px', zIndex: 'z-0' },
-    { src: '/assets/mushrooms.png', x: 6, y: 92, size: '28px', zIndex: 'z-10' },
+// Square Spiral Generation for 5x5 Grid (25 Levels)
+export const generateLevels = (count = 25) => {
+    const levels = [];
+    
+    // Define the grid positions (0-4 x 0-4)
+    // We want to map linear index 0..24 to these grid coordinates in a spiral.
+    // Spiral Path for 5x5: Top-Left -> Right -> Down -> Left -> Up -> Right... -> Center
+    // Coordinates (col, row)
+    // Define the grid positions (0-4 x 0-4)
+    // We want to map linear index 0..24 to these grid coordinates in a spiral.
+    // Spiral Path for 5x5: Bottom-Right -> Left -> Up -> Right -> Down ... -> Center
+    // This places Level 1 near the Play Button (Bottom Right)
+    // Coordinates (col, row)
+    const spiralCoords = [
+        // Ring 0 (Outer) - 16 nodes
+        [4,4], [3,4], [2,4], [1,4], [0,4], // Bottom row <-
+        [0,3], [0,2], [0,1], [0,0],        // Left col ^
+        [1,0], [2,0], [3,0], [4,0],        // Top row ->
+        [4,1], [4,2], [4,3],               // Right col v
+        
+        // Ring 1 (Inner) - 8 nodes
+        [3,3], [2,3], [1,3],               // Bottom inner <-
+        [1,2], [1,1],                      // Left inner ^
+        [2,1], [3,1],                      // Top inner ->
+        [3,2],                             // Right inner v
+        
+        // Ring 2 (Center) - 1 node
+        [2,2]
+    ];
 
-    // Right side forest
-    { src: '/assets/pine-tree.png', x: 85, y: 8, size: '105px', zIndex: 'z-20' },
-    { src: '/assets/rock-large.png', x: 92, y: 18, size: '42px', zIndex: 'z-0' },
-    { src: '/assets/oak-tree.png', x: 88, y: 28, size: '90px', zIndex: 'z-20' },
-    { src: '/assets/bush.png', x: 82, y: 38, size: '48px', zIndex: 'z-10' },
-    { src: '/assets/pine-tree.png', x: 90, y: 48, size: '120px', zIndex: 'z-20' },
-    { src: '/assets/mushrooms.png', x: 84, y: 58, size: '32px', zIndex: 'z-10', pulse: true },
-    { src: '/assets/oak-tree.png', x: 92, y: 68, size: '98px', zIndex: 'z-20' },
-    { src: '/assets/rock-large.png', x: 86, y: 78, size: '38px', zIndex: 'z-0' },
-    { src: '/assets/bush.png', x: 94, y: 88, size: '44px', zIndex: 'z-10' },
+    // Map grid coordinates to percentages (10%, 30%, 50%, 70%, 90%)
+    const getPos = (index) => (index * 20) + 10;
 
-    // Scattered inner details
-    { src: '/assets/bush.png', x: 25, y: 10, size: '40px', zIndex: 'z-10' },
-    { src: '/assets/rock-large.png', x: 65, y: 22, size: '30px', zIndex: 'z-0' },
-    { src: '/assets/mushrooms.png', x: 30, y: 40, size: '25px', zIndex: 'z-10' },
-    { src: '/assets/bush.png', x: 70, y: 52, size: '42px', zIndex: 'z-10' },
-    { src: '/assets/rock-large.png', x: 22, y: 70, size: '36px', zIndex: 'z-0' },
-    { src: '/assets/mushrooms.png', x: 60, y: 82, size: '26px', zIndex: 'z-10', pulse: true },
-    { src: '/assets/bush.png', x: 40, y: 95, size: '45px', zIndex: 'z-10' },
-];
+    for (let i = 0; i < count; i++) {
+        // Safety check for count > 25, though we expect 25.
+        // If count > 25, validSpiralIndex will be undefined, so we fallback.
+        const coord = spiralCoords[i] || [2,2]; 
+        
+        const x = getPos(coord[0]);
+        const y = getPos(coord[1]);
 
-// Snowflake positions for frozen area
-export const snowflakePositions = [
-    { left: '15%', top: '10%' }, { left: '30%', top: '8%' }, { left: '50%', top: '12%' },
-    { left: '70%', top: '6%' }, { left: '85%', top: '15%' }, { left: '25%', top: '22%' },
-    { left: '60%', top: '20%' }, { left: '45%', top: '30%' }, { left: '80%', top: '28%' },
-    { left: '20%', top: '38%' }, { left: '65%', top: '35%' },
-];
+        const isLast = i === count - 1;
+        const id = i + 1;
+
+        levels.push({
+            id: id,
+            name: isLast ? 'Certificate' : `Task ${id}`,
+            icon: isLast ? CERTIFICATE_ICON : ICONS[i % ICONS.length],
+            stars: 0,
+            unlocked: i === 0, // Mock unlock
+            hasGift: isLast,
+            position: { x, y }
+        });
+    }
+    return levels;
+};
+
+

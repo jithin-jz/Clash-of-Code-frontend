@@ -39,7 +39,7 @@ const ReferralSection = () => {
 
   return (
     <div className="bg-[#1a1c23] border border-white/5 rounded-2xl p-6 relative overflow-hidden group">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-br from-[#FFD700]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       
       <div className="relative">
         <h2 className="text-xl font-bold flex items-center gap-2 mb-6 text-white">
@@ -74,7 +74,7 @@ const ReferralSection = () => {
             
             {user.profile.is_referred ? (
               <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 flex items-center gap-3 text-green-400 text-sm">
-                <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                <CheckCircle className="w-4 h-4 shrink-0" />
                 <p>Code redeemed!</p>
               </div>
             ) : (

@@ -90,49 +90,13 @@ const useAuthStore = create((set, get) => ({
       const popup = openOAuthPopup(response.data.url, popupName);
       set({ oauthPopup: popup, loading: false });
 
-      // Return popup reference for monitoring
       return popup;
     } catch (error) {
       set({
         loading: false,
-        error:
-          error.response?.data?.error || `Failed to get ${provider} auth URL`,
+        error: error.response?.data?.error || `Failed to get ${provider} auth URL`,
       });
       return null;
-    }
-  },
-
-  // Legacy methods for backward compatibility (redirect-based)
-  getGithubAuthUrl: async () => {
-    try {
-      const response = await authAPI.getGithubAuthUrl();
-      window.location.href = response.data.url;
-    } catch (error) {
-      set({
-        error: error.response?.data?.error || "Failed to get GitHub auth URL",
-      });
-    }
-  },
-
-  getGoogleAuthUrl: async () => {
-    try {
-      const response = await authAPI.getGoogleAuthUrl();
-      window.location.href = response.data.url;
-    } catch (error) {
-      set({
-        error: error.response?.data?.error || "Failed to get Google auth URL",
-      });
-    }
-  },
-
-  getDiscordAuthUrl: async () => {
-    try {
-      const response = await authAPI.getDiscordAuthUrl();
-      window.location.href = response.data.url;
-    } catch (error) {
-      set({
-        error: error.response?.data?.error || "Failed to get Discord auth URL",
-      });
     }
   },
 
@@ -176,20 +140,6 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
-  // Called from popup callback page to notify parent
-  handlePopupCallback: async (provider, code) => {
-    const success = await get().handleOAuthCallback(provider, code);
-
-    // Close the popup if it exists
-    const popup = get().oauthPopup;
-    if (popup && !popup.closed) {
-      popup.close();
-    }
-    set({ oauthPopup: null });
-
-    return success;
-  },
-
   logout: async () => {
     try {
       await authAPI.logout();
@@ -206,82 +156,43 @@ const useAuthStore = create((set, get) => ({
     });
   },
 
-  // Profile Management Actions
-  setUser: (user) => set({ user }),
-
+  // Profile Management
   updateProfile: async (data) => {
-    // No global loading set
     try {
-      const token = localStorage.getItem("access_token");
-      // Using fetch directly here since authAPI doesn't have these methods yet
-      const baseUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:8000/api";
-      const response = await fetch(`${baseUrl}/auth/user/update/`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        formData.append(key, data[key]);
       });
-
-      if (!response.ok) throw new Error("Failed to update profile");
-
-      const updatedUser = await response.json();
-      set({ user: updatedUser });
-      return updatedUser;
+      
+      const response = await authAPI.updateProfile(formData);
+      set({ user: response.data });
+      return response.data;
     } catch (error) {
-      set({ error: error.message });
+      const errorMsg = error.response?.data?.error || error.message;
+      set({ error: errorMsg });
       throw error;
     }
   },
 
   updateProfileImage: async (type, file) => {
-    // No global loading set
     try {
-      const token = localStorage.getItem("access_token");
       const formData = new FormData();
       formData.append(type, file);
-
-      const baseUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:8000/api";
-      const response = await fetch(`${baseUrl}/auth/user/update/`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) throw new Error(`Failed to upload ${type}`);
-
-      const updatedUser = await response.json();
-      set({ user: updatedUser });
-      return updatedUser;
+      
+      const response = await authAPI.updateProfile(formData);
+      set({ user: response.data });
+      return response.data;
     } catch (error) {
-      set({ error: error.message });
+      const errorMsg = error.response?.data?.error || error.message;
+      set({ error: errorMsg });
       throw error;
     }
   },
 
   followUser: async (username) => {
     try {
-      const token = localStorage.getItem("access_token");
-      const baseUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:8000/api";
-      const response = await fetch(
-        `${baseUrl}/auth/users/${username}/follow/`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to follow user");
-
-      return await response.json();
+      const response = await authAPI.followUser(username);
+      return response.data;
     } catch (error) {
       console.error("Follow action failed:", error);
       throw error;
@@ -290,24 +201,10 @@ const useAuthStore = create((set, get) => ({
 
   redeemReferral: async (code) => {
     try {
-      const token = localStorage.getItem("access_token");
-      const baseUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:8000/api";
-      const response = await fetch(`${baseUrl}/auth/user/redeem-referral/`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code }),
-      });
+      const response = await authAPI.redeemReferral(code);
+      const data = response.data;
 
-      const data = await response.json();
-
-      if (!response.ok)
-        throw new Error(data.error || "Failed to redeem referral code");
-
-      // Update user state locally with new XP
+      // Update user state locally
       const currentUser = get().user;
       if (currentUser) {
         set({
@@ -316,7 +213,7 @@ const useAuthStore = create((set, get) => ({
             profile: {
               ...currentUser.profile,
               xp: data.new_total_xp,
-              is_referred: true, // Assume successful redemption sets this to true
+              is_referred: true,
             },
           },
         });
@@ -324,25 +221,15 @@ const useAuthStore = create((set, get) => ({
 
       return data;
     } catch (error) {
-      throw error;
+      const errorMsg = error.response?.data?.error || error.message;
+      throw new Error(errorMsg);
     }
   },
 
   deleteAccount: async () => {
     try {
-      const token = localStorage.getItem("access_token");
-      const baseUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:8000/api";
-      const response = await fetch(`${baseUrl}/auth/user/delete/`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) throw new Error("Failed to delete account");
-
-      // Perform local cleanup similar to logout
+      await authAPI.deleteAccount();
+      
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
       set({

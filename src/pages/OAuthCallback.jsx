@@ -46,7 +46,6 @@ const OAuthCallback = ({ provider }) => {
             // Check if this code was already processed using sessionStorage
             const processedKey = `oauth_processed_${code}`;
             if (sessionStorage.getItem(processedKey)) {
-                console.log('OAuth code already processed, skipping...');
                 return;
             }
 
@@ -101,17 +100,7 @@ const OAuthCallback = ({ provider }) => {
     }, [isAuthenticated, navigate, isPopup, user]);
 
     if (loading || isProcessing) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-900 via-purple-900 to-slate-900">
-                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-12 text-center">
-                    <div className="w-12 h-12 border-4 border-white/10 border-t-indigo-500 rounded-full animate-spin mx-auto"></div>
-                    <p className="text-white/80 mt-6 text-lg">Completing sign in...</p>
-                    {isPopup && (
-                        <p className="text-white/50 mt-2 text-sm">This window will close automatically.</p>
-                    )}
-                </div>
-            </div>
-        );
+        return <Loader isLoading={true} />;
     }
 
     if (error || searchParams.get('error')) {

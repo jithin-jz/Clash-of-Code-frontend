@@ -69,9 +69,17 @@ export const authAPI = {
     getCurrentUser: () => api.get('/auth/user/'),
     logout: () => api.post('/auth/logout/'),
     refreshToken: (refresh_token) => api.post('/auth/refresh/', { refresh_token }),
-    
-    // Add missing profile methods to match store usage if needed, or keep using fetch in store
-    updateProfile: (data) => api.patch('/auth/user/update/', data),
+    updateProfile: (data) => {
+        const config = {};
+        if (data instanceof FormData) {
+            // Setting Content-Type to undefined allows the browser to set the boundary automatically
+            config.headers = { 'Content-Type': undefined };
+        }
+        return api.patch('/auth/user/update/', data, config);
+    },
+    followUser: (username) => api.post(`/auth/users/${username}/follow/`),
+    redeemReferral: (code) => api.post('/auth/user/redeem-referral/', { code }),
+    deleteAccount: () => api.delete('/auth/user/delete/'),
 };
 
 export default api;

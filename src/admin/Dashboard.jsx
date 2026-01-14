@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import useAuthStore from '../../stores/useAuthStore';
+import useAuthStore from '../stores/useAuthStore';
+
+import Loader from '../common/Loader';
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -32,14 +34,7 @@ const AdminDashboard = () => {
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-900">
-                <div className="text-center">
-                    <div className="w-12 h-12 border-4 border-gray-700 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-400">Loading Dashboard...</p>
-                </div>
-            </div>
-        );
+        return <Loader isLoading={true} />;
     }
 
     if (!user?.is_staff && !user?.is_superuser) {
@@ -76,7 +71,7 @@ const AdminDashboard = () => {
                         {user?.profile?.avatar_url ? (
                             <img src={user.profile.avatar_url} alt="" className="w-10 h-10 rounded-lg" />
                         ) : (
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                            <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
                                 {user?.username?.[0]?.toUpperCase()}
                             </div>
                         )}
@@ -187,7 +182,7 @@ const AdminDashboard = () => {
                                         <tr key={i} className="hover:bg-gray-700/30 transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                                                    <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
                                                         {user.username[0].toUpperCase()}
                                                     </div>
                                                     <div>

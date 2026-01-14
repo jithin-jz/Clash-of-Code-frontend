@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Play } from 'lucide-react';
-import { Button3D } from '../common';
+
 
 const LevelModal = ({ selectedLevel, onClose }) => {
     if (!selectedLevel) return null;
@@ -72,12 +72,12 @@ const LevelModal = ({ selectedLevel, onClose }) => {
                         </div>
                         
                         {/* Play button */}
-                        <Button3D variant="green" className="w-full py-4">
-                             <div className="flex items-center gap-2 justify-center">
-                                <Play size={24} fill="currentColor" className="text-white" />
-                                <span className="text-white font-black text-xl drop-shadow-lg">PLAY</span>
-                            </div>
-                        </Button3D>
+                        <motion.button 
+                            className="w-full py-4 rounded-xl font-bold text-xl text-white shadow-lg bg-green-600 hover:bg-green-500 border-b-4 border-green-800 active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center gap-2"
+                        >
+                             <Play size={24} fill="currentColor" className="text-white" />
+                             <span>PLAY</span>
+                        </motion.button>
                     </div>
                 </motion.div>
             </motion.div>
