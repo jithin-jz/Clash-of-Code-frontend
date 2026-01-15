@@ -51,8 +51,7 @@ const UserTable = ({ userList, tableLoading, currentUser, handleBlockToggle, fet
                                     </td>
                                     <td className="px-8 py-5">
                                         <div className="flex gap-2">
-                                            {usr.is_superuser && <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20 uppercase tracking-wide">Supreme Leader</span>}
-                                            {usr.is_staff && <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-[#ffd700]/10 text-[#ffd700] border border-[#ffd700]/20 uppercase tracking-wide">Elder</span>}
+                                            {usr.is_superuser && <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20 uppercase tracking-wide">Leader</span>}
                                             {!usr.is_staff && !usr.is_superuser && <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-gray-500/10 text-gray-500 border border-gray-500/20 uppercase tracking-wide">Member</span>}
                                         </div>
                                     </td>
