@@ -192,7 +192,22 @@ const useAuthStore = create((set, get) => ({
   followUser: async (username) => {
     try {
       const response = await authAPI.followUser(username);
-      return response.data;
+      const data = response.data;
+      
+      // Update local user's following count
+      const currentUser = get().user;
+      if (currentUser) {
+          const change = data.is_following ? 1 : -1;
+          const currentCount = currentUser.following_count || 0;
+          set({
+              user: {
+                  ...currentUser,
+                  following_count: Math.max(0, currentCount + change)
+              }
+          });
+      }
+      
+      return data;
     } catch (error) {
       console.error("Follow action failed:", error);
       throw error;

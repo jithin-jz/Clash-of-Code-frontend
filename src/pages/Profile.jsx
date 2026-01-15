@@ -2,10 +2,14 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useAuthStore from '../stores/useAuthStore';
 import { 
-    Users, Camera, Trophy, MapPin, Calendar, Edit3, Shield, Star, Sword, Crown, Home, LogOut, Sparkles
+    Users, Camera, Trophy, MapPin, Calendar, Edit3, Shield, Star, Sword, Crown, Home, LogOut, Sparkles, X, UserMinus, UserPlus
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { authAPI } from '../services/api';
 import Loader from '../common/Loader';
 import ReferralSection from '../profile/ReferralSection';
+import { generateLevels } from '../constants/levelData';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -30,23 +34,43 @@ const Profile = () => {
 
     const avatarInputRef = useRef(null);
     const bannerInputRef = useRef(null);
+    
+    const [showFollowers, setShowFollowers] = useState(false);
+    const [showFollowing, setShowFollowing] = useState(false);
+    const [userList, setUserList] = useState([]);
+    const [listLoading, setListLoading] = useState(false);
+
+    // Use authAPI to fetch profile
+    const { getUserProfile, getFollowers, getFollowing } = authAPI;
 
     const fetchProfile = useCallback(async (targetUsername) => {
         setLoading(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/users/${targetUsername}/`);
-            if (response.ok) {
-                const data = await response.json();
-                setProfileUser(data);
-            } else {
-                navigate('/404'); 
-            }
+            const response = await getUserProfile(targetUsername);
+            setProfileUser(response.data);
         } catch (error) {
             console.error("Failed to fetch profile", error);
+            navigate('/404');
         } finally {
             setLoading(false);
         }
     }, [navigate]);
+
+    const fetchUserList = async (type) => { 
+       setListLoading(true);
+       setUserList([]);
+       try {
+           const apiCall = type === 'followers' ? getFollowers : getFollowing;
+           const response = await apiCall(profileUser.username);
+           setUserList(response.data);
+           if (type === 'followers') setShowFollowers(true);
+           else setShowFollowing(true);
+       } catch (err) {
+           console.error(err);
+       } finally {
+           setListLoading(false);
+       }
+   };
 
     useEffect(() => {
         if (isOwnProfile) {
@@ -269,12 +293,12 @@ const Profile = () => {
                                 <p className="text-indigo-400 font-medium mb-4">@{profileUser.username}</p>
                                 
                                 <div className="flex justify-center gap-6 text-sm">
-                                    <div className="text-center">
+                                    <div className="text-center cursor-pointer hover:opacity-80 transition-opacity" onClick={() => fetchUserList('followers')}>
                                         <div className="font-bold text-white text-lg">{profileUser.followers_count || 0}</div>
                                         <div className="text-gray-500 text-xs uppercase tracking-wide">Followers</div>
                                     </div>
                                     <div className="w-px bg-white/10"></div>
-                                    <div className="text-center">
+                                    <div className="text-center cursor-pointer hover:opacity-80 transition-opacity" onClick={() => fetchUserList('following')}>
                                         <div className="font-bold text-white text-lg">{profileUser.following_count || 0}</div>
                                         <div className="text-gray-500 text-xs uppercase tracking-wide">Following</div>
                                     </div>
@@ -413,9 +437,118 @@ const Profile = () => {
                                 </p>
                             </div>
                         )}
+
+                        {/* Completed Tasks / Levels */}
+                        {!isEditing && (
+                            <div className="bg-[#121212] border border-white/5 rounded-3xl p-8">
+                                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                                    <Trophy size={20} className="text-[#FFD700]" /> Completed Tasks
+                                </h3>
+                                
+                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                    {(() => {
+                                        const levels = generateLevels();
+                                        const currentXp = profileUser.profile?.xp || 0;
+                                        // Simple level calculation: 1000 XP per level (matching 10% progress logic in Map)
+                                        // or just using the level derived from XP
+                                        const currentLevelId = Math.floor(currentXp / 1000) + 1;
+                                        
+                                        const completedLevels = levels.filter(l => l.id <= currentLevelId);
+                                        
+                                        if (completedLevels.length === 0) {
+                                            return (
+                                                <div className="col-span-full text-center text-gray-500 italic py-4">
+                                                    No tasks completed yet. Start playing to unlock!
+                                                </div>
+                                            );
+                                        }
+
+                                        return completedLevels.map((level) => (
+                                            <div key={level.id} className="bg-white/5 border border-white/5 rounded-xl p-4 flex flex-col items-center gap-3 text-center transition-all hover:bg-white/10 hover:border-[#FFD700]/30 group">
+                                                <div className="w-12 h-12 rounded-full bg-[#1a1a1a] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                                    <span className="text-white drop-shadow-md">
+                                                        {level.icon && React.cloneElement(level.icon, { size: 20 })}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs font-bold text-[#FFD700] uppercase tracking-wider mb-1">Level {level.id}</div>
+                                                    <div className="text-xs text-gray-400 font-medium">{level.name}</div>
+                                                </div>
+                                            </div>
+                                        ));
+                                    })()}
+                                </div>
+                            </div>
+                        )}
                         
                     </div>
                 </div>
+
+                {/* User List Modal */}
+                <AnimatePresence>
+                    {(showFollowers || showFollowing) && (
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                            onClick={() => { setShowFollowers(false); setShowFollowing(false); }}
+                        >
+                            <motion.div 
+                                initial={{ scale: 0.9, y: 20 }}
+                                animate={{ scale: 1, y: 0 }}
+                                exit={{ scale: 0.9, y: 20 }}
+                                className="bg-[#121212] border border-white/10 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <div className="p-4 border-b border-white/10 flex items-center justify-between bg-[#1a1a1a]">
+                                    <h3 className="text-white font-bold text-lg">
+                                        {showFollowers ? 'Followers' : 'Following'}
+                                    </h3>
+                                    <button onClick={() => { setShowFollowers(false); setShowFollowing(false); }} className="text-gray-400 hover:text-white">
+                                        <X size={20} />
+                                    </button>
+                                </div>
+                                
+                                <div className="max-h-[60vh] overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-white/10">
+                                    {listLoading ? (
+                                        <div className="p-8 flex justify-center"><Loader isLoading={true} /></div>
+                                    ) : userList.length === 0 ? (
+                                        <div className="p-8 text-center text-gray-500">
+                                            No users found.
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-1">
+                                            {userList.map(user => (
+                                                <div key={user.username} className="flex items-center justify-between p-3 hover:bg-white/5 rounded-xl transition-colors group">
+                                                    <Link to={`/profile/${user.username}`} onClick={() => { setShowFollowers(false); setShowFollowing(false); }} className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden border border-white/5">
+                                                            {user.avatar_url ? (
+                                                                <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                <span className="text-zinc-500 font-bold">{user.username.charAt(0).toUpperCase()}</span>
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-white font-bold text-sm">{user.first_name || user.username}</div>
+                                                            <div className="text-gray-500 text-xs">@{user.username}</div>
+                                                        </div>
+                                                    </Link>
+                                                    
+                                                    {currentUser && currentUser.username !== user.username && (
+                                                       <Link to={`/profile/${user.username}`} onClick={() => { setShowFollowers(false); setShowFollowing(false); }} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold text-[#FFD700] transition-colors">
+                                                           View
+                                                       </Link>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );

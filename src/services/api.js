@@ -67,6 +67,7 @@ export const authAPI = {
     
     // User endpoints
     getCurrentUser: () => api.get('/auth/user/'),
+    getUserProfile: (username) => api.get(`/auth/users/${username}/`),
     logout: () => api.post('/auth/logout/'),
     refreshToken: (refresh_token) => api.post('/auth/refresh/', { refresh_token }),
     updateProfile: (data) => {
@@ -78,6 +79,8 @@ export const authAPI = {
         return api.patch('/auth/user/update/', data, config);
     },
     followUser: (username) => api.post(`/auth/users/${username}/follow/`),
+    getFollowers: (username) => api.get(`/auth/users/${username}/followers/`),
+    getFollowing: (username) => api.get(`/auth/users/${username}/following/`),
     redeemReferral: (code) => api.post('/auth/user/redeem-referral/', { code }),
     deleteAccount: () => api.delete('/auth/user/delete/'),
 };

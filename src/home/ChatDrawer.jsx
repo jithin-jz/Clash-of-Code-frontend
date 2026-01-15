@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { Lock, MessageSquare, ChevronLeft, Send, Smile, X } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 
@@ -99,7 +99,7 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
     };
 
     return (
-        <motion.div 
+        <Motion.div 
             className="fixed top-0 left-0 h-full z-40 pointer-events-none"
             initial={{ x: '-100%' }}
             animate={{ x: isChatOpen ? 0 : '-100%' }}
@@ -142,19 +142,40 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
                             )}
                             {messages.map((msg, idx) => (
                                 <div key={idx} className={`flex flex-col gap-2 group ${msg.username === user?.username ? 'items-end' : 'items-start'}`}>
-                                    <div className="flex items-center gap-2">
-                                        <span className={`${msg.username === user?.username ? 'text-[#FFD700]' : 'text-blue-400'} font-bold text-xs tracking-wide`}>
-                                            {msg.username}
-                                        </span>
-                                    </div>
-                                    <div className={`
-                                        rounded-2xl text-sm leading-relaxed shadow-sm transition-colors
-                                        ${msg.username === user?.username 
-                                            ? 'bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] rounded-tr-sm p-3 max-w-[85%]' 
-                                            : 'bg-[#1a1a1a] border border-white/5 text-gray-300 rounded-tl-sm group-hover:bg-[#222] p-3 max-w-[85%]'
-                                        }
-                                    `}>
-                                        {msg.message}
+                                    <div className={`flex items-center gap-2 ${msg.username === user?.username ? 'flex-row-reverse' : 'flex-row'}`}>
+                                        <Link 
+                                            to={`/profile/${msg.username}`}
+                                            onClick={() => setChatOpen(false)}
+                                            className="relative shrink-0 w-8 h-8 rounded-full overflow-hidden border border-white/10 hover:border-[#FFD700] transition-colors"
+                                        >
+                                            {msg.avatar_url ? (
+                                                <img src={msg.avatar_url} alt={msg.username} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-xs text-zinc-500 font-bold">
+                                                    {msg.username.charAt(0).toUpperCase()}
+                                                </div>
+                                            )}
+                                        </Link>
+                                        <div className="flex flex-col gap-1 max-w-[85%]">
+                                            <div className="flex items-center gap-2">
+                                                <Link 
+                                                    to={`/profile/${msg.username}`}
+                                                    onClick={() => setChatOpen(false)}
+                                                    className={`${msg.username === user?.username ? 'text-[#FFD700]' : 'text-blue-400'} font-bold text-xs tracking-wide hover:underline cursor-pointer`}
+                                                >
+                                                    {msg.username}
+                                                </Link>
+                                            </div>
+                                            <div className={`
+                                                rounded-2xl text-sm leading-relaxed shadow-sm transition-colors
+                                                ${msg.username === user?.username 
+                                                    ? 'bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] rounded-tr-sm p-3' 
+                                                    : 'bg-[#1a1a1a] border border-white/5 text-gray-300 rounded-tl-sm group-hover:bg-[#222] p-3'
+                                                }
+                                            `}>
+                                                {msg.message}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -168,7 +189,7 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
                     {/* Emoji Picker */}
                     <AnimatePresence>
                         {showPicker && (
-                            <motion.div 
+                            <Motion.div 
                                 ref={pickerRef}
                                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -185,7 +206,7 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
                                         previewConfig={{ showPreview: false }}
                                     />
                                 </div>
-                            </motion.div>
+                            </Motion.div>
                         )}
                     </AnimatePresence>
 
@@ -219,7 +240,7 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
                 </div>
 
                 {/* Toggle Button */}
-                <motion.button
+                <Motion.button
                     onClick={() => setChatOpen(!isChatOpen)}
                     className="absolute top-1/2 -right-12 -mt-10 w-12 h-20 bg-[#0a0a0a] border-y border-r border-[#FFD700]/30 rounded-r-2xl flex items-center justify-center shadow-2xl pointer-events-auto hover:bg-[#151515] hover:border-[#FFD700] transition-all group z-50"
                     whileHover={{ x: 4, scale: 1.05 }}
@@ -232,9 +253,9 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
                     ) : (
                         <MessageSquare className="text-[#FFD700] drop-shadow-md" size={24} strokeWidth={3} />
                     )}
-                </motion.button>
+                </Motion.button>
             </div>
-        </motion.div>
+        </Motion.div>
     );
 };
 

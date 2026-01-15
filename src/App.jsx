@@ -72,6 +72,11 @@ const AppContent = () => {
                                 <Profile />
                             </ProtectedRoute>
                         } />
+                        <Route path="/profile/:username" element={
+                            <ProtectedRoute>
+                                <Profile />
+                            </ProtectedRoute>
+                        } />
                         
                         {/* Fallback */}
                         <Route path="*" element={<Navigate to="/" replace />} />
