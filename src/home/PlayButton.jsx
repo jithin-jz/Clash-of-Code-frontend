@@ -12,7 +12,7 @@ const PlayButton = ({ user }) => {
             transition={{ type: 'spring', damping: 20, stiffness: 100, delay: 0.1 }}
         >
             <button 
-                onClick={() => notify.loading("Searching for opponents...", { duration: 2000 })}
+                onClick={() => {}}
                 className="group relative"
             >
                 {/* Glow Effect */}
