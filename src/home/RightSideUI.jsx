@@ -9,7 +9,8 @@ const RightSideUI = ({
     handleLogout, 
     settingsOpen, 
     setSettingsOpen, 
-    setCheckInOpen 
+    setCheckInOpen,
+    hasUnclaimedReward
 }) => {
     // Glass button style matches the previous design
     const glassButtonClass = "h-14 w-14 p-0 bg-[#121212]/80 backdrop-blur-xl border border-white/10 rounded-2xl hover:border-[#FFD700]/50 hover:bg-[#1a1a1a] transition-all text-white shadow-lg active:scale-95";
@@ -93,7 +94,9 @@ const RightSideUI = ({
                     className={cn(glassButtonClass, "relative")}
                 >
                     <Calendar size={24} />
-                    <div className="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
+                    {hasUnclaimedReward && (
+                        <div className="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
+                    )}
                 </Button>
             </div>
         </div>

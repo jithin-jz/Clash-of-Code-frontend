@@ -14,7 +14,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { cn } from '../lib/utils';
 
-const CheckInReward = ({ isOpen, onClose }) => {
+const CheckInReward = ({ isOpen, onClose, onClaim }) => {
   const [checkInStatus, setCheckInStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [checkingIn, setCheckingIn] = useState(false);
@@ -58,6 +58,7 @@ const CheckInReward = ({ isOpen, onClose }) => {
         today_checkin: data.check_in
       });
       if (setUserXP) setUserXP(data.total_xp);
+      if (onClaim) onClaim();
       toast.success(`Day ${data.streak_day} claimed! +${data.xp_earned} XP`);
     } catch (error) {
       toast.error(error.response?.data?.error || 'Failed to check in');

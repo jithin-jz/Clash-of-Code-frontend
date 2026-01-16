@@ -3,13 +3,13 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import useAuthStore from '../stores/useAuthStore';
 import { notify } from '../services/notification';
 import { 
-    Users, Camera, Trophy, MapPin, Calendar, Edit3, Shield, Star, Sword, Crown, Home, LogOut, Sparkles, X, UserMinus, UserPlus, ChevronRight
+    Users, Camera, Trophy, MapPin, Calendar, Edit3, Shield, Star, Sword, Crown, Home, LogOut, Sparkles, X, UserMinus, UserPlus, ChevronRight, Layout, Gift
 } from 'lucide-react';
 import { authAPI } from '../services/api';
 import Loader from '../common/Loader';
 import ReferralSection from './ReferralSection';
 import { generateLevels } from '../constants/levelData';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../components/ui/dialog';
 import { Button } from '../components/ui/button';
 import { cn } from '../lib/utils';
 
@@ -33,6 +33,8 @@ const Profile = () => {
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
     const [uploadingBanner, setUploadingBanner] = useState(false);
     const [savingProfile, setSavingProfile] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState('overview');
 
     const avatarInputRef = useRef(null);
     const bannerInputRef = useRef(null);
@@ -140,14 +142,16 @@ const Profile = () => {
         navigate('/login');
     };
 
-    const handleDeleteAccount = async () => {
-        if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-            try {
-                await deleteAccount();
-                navigate('/login');
-            } catch (err) {
-                notify.error(err.message);
-            }
+    const handleDeleteAccount = () => {
+        setDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        try {
+            await deleteAccount();
+            navigate('/login');
+        } catch (err) {
+            notify.error(err.message);
         }
     };
 
@@ -158,374 +162,423 @@ const Profile = () => {
     if (!profileUser) return null;
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white font-sans overflow-x-hidden selection:bg-[#FFD700] selection:text-black">
+        <div className="h-screen w-full bg-[#050505] text-white font-sans overflow-hidden content-center p-4 md:p-6 flex gap-6 selection:bg-[#FFD700] selection:text-black">
             
-            {/* Banner Section with Parallax-like feel */}
-            <div className="relative h-80 md:h-96 w-full overflow-hidden">
-                {uploadingBanner && (
-                    <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-md">
-                        <div className="relative w-10 h-10">
-                            <div className="absolute inset-0 border-4 border-[#FFD700]/20 rounded-full"></div>
-                            <div className="absolute inset-0 border-4 border-t-[#FFD700] rounded-full animate-spin"></div>
-                        </div>
-                    </div>
-                )}
-                
-                {/* Background Image */}
-                <div className="absolute inset-0 w-full h-full">
-                    {profileUser.profile?.banner_url ? (
-                        <img 
-                            src={profileUser.profile.banner_url} 
-                            alt="Banner" 
-                            className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-1000" 
-                        />
-                    ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-indigo-900 via-purple-900 to-black relative">
-                             <div className="absolute inset-0 opacity-30" 
-                                  style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")' }}></div>
-                        </div>
-                    )}
-                    {/* Gradient Overlay for Text Readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent" />
-                </div>
-
-                {/* Navigation Buttons */}
-                <div className="absolute top-6 left-6 z-50">
-                    <button 
-                        onClick={() => navigate('/home')}
-                        className="p-3 bg-black/30 hover:bg-black/50 backdrop-blur-xl rounded-full border border-white/10 transition-all hover:scale-110 group"
-                    >
-                        <Home size={20} className="text-white group-hover:text-[#FFD700] transition-colors" />
-                    </button>
-                </div>
-
-                {currentUser && (
-                    <div className="absolute top-6 right-6 z-50 flex gap-3">
-                        {isOwnProfile && (
-                            <button 
-                                onClick={() => bannerInputRef.current.click()}
-                                className="px-4 py-2 bg-black/30 hover:bg-black/50 backdrop-blur-xl rounded-full border border-white/10 flex items-center gap-2 transition-all hover:scale-105 group"
-                            >
-                                <Camera size={16} className="text-gray-300 group-hover:text-white" />
-                                <span className="text-sm font-medium text-gray-300 group-hover:text-white hidden sm:inline">Change Banner</span>
-                            </button>
+            {/* Left Panel - Identity & Actions */}
+            <div className="w-full md:w-80 lg:w-96 shrink-0 flex flex-col gap-6 h-full overflow-y-auto no-scrollbar">
+                {/* Identity Card */}
+                <div className="w-full bg-[#121212] border border-white/5 rounded-3xl p-6 relative flex flex-col items-center text-center shadow-2xl overflow-hidden">
+                    
+                    {/* Banner Background */}
+                    <div className="absolute inset-0 z-0">
+                        {profileUser.profile?.banner_url ? (
+                            <img 
+                                src={profileUser.profile.banner_url} 
+                                alt="Banner" 
+                                className="w-full h-full object-cover opacity-50 transition-transform duration-700 hover:scale-110" 
+                            />
+                        ) : (
+                             <div className="w-full h-full bg-gradient-to-br from-indigo-900/40 via-purple-900/40 to-[#121212]"></div>
                         )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/80 to-transparent"></div>
+                    </div>
+
+                    {/* Content Container (z-index to sit above banner) */}
+                    <div className="relative z-10 w-full flex flex-col items-center">
+                    
+                    {/* Navigation (Mobile/Compact) */}
+                    <div className="absolute top-[-10px] left-[-10px]">
                         <button 
-                            onClick={handleLogout}
-                            className="p-3 bg-red-500/20 hover:bg-red-500/40 backdrop-blur-xl rounded-full border border-red-500/30 transition-all hover:scale-110 group"
+                            onClick={() => navigate('/home')}
+                            className="p-2 bg-white/5 hover:bg-white/10 rounded-xl transition-colors group"
                         >
-                            <LogOut size={20} className="text-red-200 group-hover:text-red-100" />
+                            <Home size={18} className="text-gray-400 group-hover:text-white" />
                         </button>
                     </div>
-                )}
-                
-                <input 
-                    type="file" 
-                    ref={bannerInputRef} 
-                    className="hidden" 
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, 'banner')} 
-                />
-            </div>
 
-            {/* Main Content Container */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 -mt-32 pb-20">
-                <div className="flex flex-col lg:flex-row gap-8">
-                    
-                    {/* Left Sidebar: Profile Card & Referral */}
-                    <div className="w-full lg:w-80 shrink-0 space-y-6">
-                        {/* Profile Info Card */}
-                        <div className="bg-[#121212]/90 backdrop-blur-xl border border-white/5 rounded-3xl p-6 shadow-2xl">
+                    {isOwnProfile && (
+                        <div className="absolute top-4 right-4">
+                             <button 
+                                onClick={handleLogout}
+                                className="p-2 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors group"
+                            >
+                                <LogOut size={18} className="text-red-400 group-hover:text-red-300" />
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Avatar */}
+                    <div className="relative mt-4 mb-4 group">
+                        <div className="w-32 h-32 rounded-3xl border-2 border-white/10 p-1 bg-[#1a1a1a] relative overflow-hidden">
+                            {uploadingAvatar && (
+                                <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-2xl">
+                                    <div className="relative w-6 h-6">
+                                        <div className="absolute inset-0 border-2 border-white/10 rounded-full"></div>
+                                        <div className="absolute inset-0 border-2 border-t-white rounded-full animate-spin"></div>
+                                    </div>
+                                </div>
+                            )}
+                            <img 
+                                src={profileUser.profile?.avatar_url || "https://github.com/shadcn.png"} 
+                                alt="Avatar" 
+                                className="w-full h-full object-cover rounded-[20px]" 
+                            />
                             
-                            {/* Avatar */}
-                            <div className="relative -mt-20 mb-6 flex justify-center">
-                                <div className="w-40 h-40 rounded-full border-4 border-[#050505] p-1 bg-gradient-to-br from-[#FFD700] via-orange-500 to-purple-600 shadow-xl relative group">
-                                    <div className="w-full h-full rounded-full overflow-hidden bg-[#242424] relative">
-                                        {uploadingAvatar && (
-                                            <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                                                <div className="relative w-8 h-8">
-                                                    <div className="absolute inset-0 border-3 border-white/10 rounded-full"></div>
-                                                    <div className="absolute inset-0 border-3 border-t-white rounded-full animate-spin"></div>
-                                                </div>
-                                            </div>
-                                        )}
-                                        {profileUser.profile?.avatar_url ? (
-                                            <img src={profileUser.profile.avatar_url} alt="Avatar" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-black">
-                                                <Users size={64} className="text-zinc-600" />
-                                            </div>
-                                        )}
-                                        
-                                        {/* Edit Overlay */}
-                                        {isOwnProfile && (
-                                            <div 
-                                                onClick={() => avatarInputRef.current.click()}
-                                                className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-all duration-300"
-                                            >
-                                                <Camera className="text-white drop-shadow-md" size={32} />
-                                            </div>
-                                        )}
-                                    </div>
-                                    
-                                    {/* Level Badge */}
-                                    <div className="absolute bottom-0 right-0 bg-[#050505] p-1 rounded-full">
-                                        <div className="bg-gradient-to-tr from-[#FFD700] to-orange-400 w-10 h-10 rounded-full flex items-center justify-center font-black text-black text-sm shadow-lg border border-white/10">
-                                            {Math.floor((profileUser.profile?.xp || 0) / 1000) + 1}
-                                        </div>
-                                    </div>
+                            {isOwnProfile && (
+                                <div 
+                                    onClick={() => avatarInputRef.current.click()}
+                                    className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-all duration-300 rounded-[20px]"
+                                >
+                                    <Camera className="text-white drop-shadow-md" size={24} />
                                 </div>
-                                <input 
-                                    type="file" 
-                                    ref={avatarInputRef} 
-                                    className="hidden" 
-                                    accept="image/*"
-                                    onChange={(e) => handleImageUpload(e, 'avatar')} 
-                                />
-                            </div>
-
-                            {/* User Info */}
-                            <div className="text-center mb-8">
-                                <h1 className="text-2xl font-bold text-white mb-1 flex items-center justify-center gap-2">
-                                    {profileUser.first_name || profileUser.username}
-                                    <Shield size={16} className="text-[#FFD700] fill-[#FFD700]/20" />
-                                </h1>
-                                <p className="text-indigo-400 font-medium mb-4">@{profileUser.username}</p>
-                                
-                                <div className="flex justify-center gap-6 text-sm">
-                                    <div className="text-center cursor-pointer hover:opacity-80 transition-opacity" onClick={() => fetchUserList('followers')}>
-                                        <div className="font-bold text-white text-lg">{profileUser.followers_count || 0}</div>
-                                        <div className="text-gray-500 text-xs uppercase tracking-wide">Followers</div>
-                                    </div>
-                                    <div className="w-px bg-white/10"></div>
-                                    <div className="text-center cursor-pointer hover:opacity-80 transition-opacity" onClick={() => fetchUserList('following')}>
-                                        <div className="font-bold text-white text-lg">{profileUser.following_count || 0}</div>
-                                        <div className="text-gray-500 text-xs uppercase tracking-wide">Following</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="space-y-3">
-                                {isOwnProfile ? (
-                                    <button 
-                                        onClick={() => setIsEditing(!isEditing)}
-                                        className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2 ${
-                                            isEditing 
-                                                ? 'bg-zinc-800 text-white hover:bg-zinc-700'
-                                                : 'bg-[#FFD700] text-black hover:bg-[#FDB931]'
-                                        }`}
-                                    >
-                                        {isEditing ? <><LogOut size={16}/> Cancel Editing</> : <><Edit3 size={16}/> Edit Profile</>}
-                                    </button>
-                                ) : (
-                                    <button 
-                                        onClick={handleFollowToggle}
-                                        className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2 ${
-                                            profileUser.is_following 
-                                                ? 'bg-zinc-800 text-gray-300 hover:bg-zinc-700'
-                                                : 'bg-indigo-600 text-white hover:bg-indigo-500'
-                                        }`}
-                                    >
-                                        {profileUser.is_following ? 'Unfollow' : 'Follow'}
-                                    </button>
-                                )}
-                            </div>
-
-                            {/* Join Date */}
-                            <div className="mt-6 pt-6 border-t border-white/5 text-center">
-                                <div className="text-xs text-gray-500 flex items-center justify-center gap-2">
-                                    <Calendar size={12} />
-                                    Joined {new Date(profileUser.date_joined || Date.now()).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
-                                </div>
+                            )}
+                            <input type="file" ref={avatarInputRef} className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, 'avatar')} />
+                        </div>
+                        
+                        {/* Level Badge */}
+                        <div className="absolute -bottom-2 -right-2 bg-[#121212] p-1 rounded-xl">
+                            <div className="bg-[#FFD700] w-8 h-8 rounded-lg flex items-center justify-center font-black text-black text-xs shadow-lg shadow-[#FFD700]/20">
+                                {Math.floor((profileUser.profile?.xp || 0) / 1000) + 1}
                             </div>
                         </div>
-
-                        {/* Referral Section (Now in Sidebar) */}
-                        {isOwnProfile && (
-                            <div className="transform transition-transform duration-300">
-                                <ReferralSection />
-                            </div>
-                        )}
                     </div>
 
-                    {/* Right Content Area */}
-                    <div className="flex-1 space-y-6">
-                        
-                        {/* Edit Mode Content */}
-                        {isEditing && isOwnProfile && (
-                            <div className="bg-[#121212]/80 backdrop-blur-xl border border-white/5 rounded-3xl p-8 animate-fade-in-up">
-                                <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-white">
-                                    <Sparkles className="text-[#FFD700]" /> Customize Profile
-                                </h3>
+                    {/* Name & Handle */}
+                    <div className="mb-6">
+                        <h1 className="text-xl font-bold text-white mb-1 flex items-center justify-center gap-2">
+                            {profileUser.first_name || profileUser.username}
+                            <Shield size={16} className="text-[#FFD700] fill-[#FFD700]/20" />
+                        </h1>
+                        <p className="text-indigo-400 font-medium text-sm">@{profileUser.username}</p>
+                    </div>
+
+                    {/* Follow Stats */}
+                    <div className="grid grid-cols-2 gap-px bg-white/5 rounded-2xl overflow-hidden w-full mb-6 border border-white/5">
+                        <button onClick={() => fetchUserList('followers')} className="p-3 hover:bg-white/5 transition-colors text-center group">
+                            <div className="text-lg font-bold text-white group-hover:text-[#FFD700] transition-colors">{profileUser.followers_count || 0}</div>
+                            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Followers</div>
+                        </button>
+                        <button onClick={() => fetchUserList('following')} className="p-3 hover:bg-white/5 transition-colors text-center group">
+                            <div className="text-lg font-bold text-white group-hover:text-[#FFD700] transition-colors">{profileUser.following_count || 0}</div>
+                            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Following</div>
+                        </button>
+                    </div>
+
+                    {/* Action Button */}
+                    {isOwnProfile ? (
+                        <button 
+                            onClick={() => setIsEditing(!isEditing)}
+                            className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2 ${
+                                isEditing 
+                                    ? 'bg-white/5 text-white hover:bg-white/10 border border-white/10' 
+                                    : 'bg-[#FFD700] text-black hover:bg-[#FDB931]'
+                            }`}
+                        >
+                            {isEditing ? <><X size={16}/> Cancel Editing</> : <><Edit3 size={16}/> Edit Profile</>}
+                        </button>
+                    ) : (
+                         <button 
+                            onClick={handleFollowToggle}
+                            className={`w-full py-3 rounded-xl font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2 ${
+                                profileUser.is_following 
+                                    ? 'bg-zinc-800 text-gray-300 hover:bg-zinc-700'
+                                    : 'bg-indigo-600 text-white hover:bg-indigo-500'
+                            }`}
+                        >
+                            {profileUser.is_following ? 'Unfollow' : 'Follow'}
+                        </button>
+                    )}
+
+                    <div className="mt-6 pt-6 border-t border-white/5 w-full flex justify-center">
+                        <div className="text-xs text-gray-600 flex items-center gap-2 font-medium">
+                            <Calendar size={12} />
+                            Joined {new Date(profileUser.date_joined || Date.now()).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                {/* Mini Stats Card */}
+                 <div className="bg-[#121212] border border-white/5 rounded-3xl p-5 flex items-center gap-4 shadow-xl">
+                    <div className="p-3 rounded-xl bg-[#FFD700]/10 text-[#FFD700]">
+                        <Star size={20} fill="currentColor" className="fill-[#FFD700]/20" />
+                    </div>
+                    <div>
+                        <div className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Total XP</div>
+                        <div className="text-xl font-black text-white">{profileUser.profile?.xp?.toLocaleString() || 0}</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Right Panel - Content */}
+            <div className="flex-1 bg-[#121212]/50 border border-white/5 rounded-3xl overflow-hidden flex flex-col shadow-2xl relative">
+                
+                {/* Background Pattern */}
+                 <div className="absolute inset-0 opacity-20 pointer-events-none" 
+                      style={{ backgroundImage: 'radial-gradient(circle at top right, rgba(255, 215, 0, 0.05), transparent 40%)' }}></div>
+
+                {isEditing && isOwnProfile ? (
+                     <div className="flex-1 p-8 overflow-y-auto">
+                        <div className="max-w-2xl mx-auto">
+                            <h2 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
+                                <Sparkles className="text-[#FFD700]" /> Customize Profile
+                            </h2>
+                            
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Display Name</label>
+                                    <input 
+                                        type="text" 
+                                        value={editForm.username}
+                                        onChange={(e) => setEditForm({...editForm, username: e.target.value})}
+                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#FFD700] transition-colors"
+                                    />
+                                </div>
                                 
-                                <div className="space-y-6">
-                                    <div>
-                                        <label className="block text-xs font-bold text-indigo-400 uppercase mb-2">Display Name</label>
-                                        <input 
-                                            type="text" 
-                                            value={editForm.username}
-                                            onChange={(e) => setEditForm({...editForm, username: e.target.value})}
-                                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#FFD700] transition-colors"
-                                        />
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="block text-xs font-bold text-indigo-400 uppercase mb-2">Bio</label>
-                                        <textarea 
-                                            value={editForm.bio}
-                                            onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
-                                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-gray-300 focus:outline-none focus:border-[#FFD700] transition-colors min-h-[120px]"
-                                            placeholder="Tell your story..."
-                                        />
-                                    </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Bio</label>
+                                    <textarea 
+                                        value={editForm.bio}
+                                        onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
+                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-gray-300 focus:outline-none focus:border-[#FFD700] transition-colors min-h-[160px] resize-none"
+                                        placeholder="Tell your story..."
+                                    />
+                                </div>
 
-                                    <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                                        <button
-                                            type="button"
-                                            onClick={handleDeleteAccount}
-                                            className="text-red-500 hover:text-red-400 text-sm font-medium hover:underline flex items-center gap-2"
+                                {/* Banner Upload (Simulated as cover image settings since actual banner is removed/hidden in this layout) */}
+                                <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-lg bg-black/40 flex items-center justify-center text-gray-400">
+                                            <Camera size={18} />
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-white">Profile Banner</div>
+                                            <div className="text-xs text-gray-500">Used in search cards and previews</div>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => bannerInputRef.current.click()}
+                                        className="text-xs font-bold text-[#FFD700] hover:text-[#ffea7d] transition-colors px-3 py-1.5 bg-[#FFD700]/10 rounded-lg"
+                                    >
+                                        Change
+                                    </button>
+                                     <input type="file" ref={bannerInputRef} className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, 'banner')} />
+                                </div>
+
+                                <div className="flex items-center justify-between pt-8 mt-8 border-t border-white/5">
+                                    <button
+                                        type="button"
+                                        onClick={handleDeleteAccount}
+                                        className="text-red-500 hover:text-red-400 text-sm font-bold hover:bg-red-500/10 px-4 py-2 rounded-xl transition-colors flex items-center gap-2"
+                                    >
+                                        <Shield size={14} /> Delete Account
+                                    </button>
+
+                                    <div className="flex gap-3">
+                                         <button 
+                                            onClick={() => setIsEditing(false)}
+                                            className="px-6 py-3 rounded-xl font-bold text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
                                         >
-                                            <Shield size={14} /> Delete Account
+                                            Cancel
                                         </button>
-
                                         <button 
                                             onClick={handleSaveProfile}
                                             disabled={savingProfile}
-                                            className="bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-green-900/20 disabled:opacity-50 flex items-center gap-2"
+                                            className="bg-[#FFD700] hover:bg-[#ffea7d] text-black px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-yellow-900/20 disabled:opacity-50 flex items-center gap-2"
                                         >
                                             {savingProfile ? 'Saving...' : 'Save Changes'}
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                        )}
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        {/* Tabs Header */}
+                        <div className="flex items-center gap-1 p-2 border-b border-white/5 bg-black/20">
+                            {[
+                                { id: 'overview', label: 'Overview', icon: Layout },
+                                { id: 'tasks', label: 'Tasks', icon: Trophy },
+                                ...(isOwnProfile ? [{ id: 'referral', label: 'Referral', icon: Gift }] : [])
+                            ].map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all ${
+                                        activeTab === tab.id 
+                                            ? 'bg-white/10 text-white shadow-lg' 
+                                            : 'text-gray-500 hover:text-white hover:bg-white/5'
+                                    }`}
+                                >
+                                    <tab.icon size={16} /> {tab.label}
+                                </button>
+                            ))}
+                        </div>
 
-                        {/* Stats Grid */}
-                        {!isEditing && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {[
-                                    { label: 'Total XP', value: profileUser.profile?.xp || 0, icon: Star, color: 'text-[#FFD700]' },
-                                ].map((stat, i) => (
-                                    <div key={i} className="bg-[#121212] border border-white/5 p-6 rounded-2xl flex items-center gap-4">
-                                        <div className={`p-3 rounded-xl bg-white/5 ${stat.color}`}>
-                                            <stat.icon size={24} />
+                        {/* Tab Content */}
+                        <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                            
+                            {activeTab === 'overview' && (
+                                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                                    {/* About Section */}
+                                    <div className="space-y-4">
+                                        <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                                            About
+                                        </h3>
+                                        <div className="bg-[#121212] border border-white/5 rounded-3xl p-6">
+                                             <p className="text-gray-300 leading-relaxed whitespace-pre-line text-sm md:text-base">
+                                                {profileUser.profile?.bio || (
+                                                    <span className="italic opacity-30">No bio provided just yet.</span>
+                                                )}
+                                            </p>
                                         </div>
-                                        <div>
-                                            <div className="text-gray-500 text-xs uppercase font-bold tracking-wider">{stat.label}</div>
-                                            <div className="text-2xl font-black text-white">{stat.value}</div>
-                                        </div>
+                                    </div>
+
+                                    {/* Stats Grid (More detailed) */}
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        {[
+                                            { label: 'Level', value: Math.floor((profileUser.profile?.xp || 0) / 1000) + 1, icon: Crown, color: 'text-purple-400' },
+                                            { label: 'Tasks Done', value: generateLevels().filter(l => l.id <= (Math.floor((profileUser.profile?.xp || 0) / 1000) + 1)).length, icon: Trophy, color: 'text-[#FFD700]' },
+                                            { label: 'Followers', value: profileUser.followers_count || 0, icon: Users, color: 'text-blue-400' },
+                                             { label: 'Following', value: profileUser.following_count || 0, icon: MapPin, color: 'text-green-400' },
+                                        ].map((stat, i) => (
+                                            <div key={i} className="bg-[#121212] border border-white/5 p-4 rounded-2xl flex flex-col gap-3 hover:bg-white/5 transition-colors">
+                                                <div className={`p-2 w-fit rounded-lg bg-white/5 ${stat.color}`}>
+                                                    <stat.icon size={18} />
+                                                </div>
+                                                <div>
+                                                    <div className="text-2xl font-black text-white">{stat.value}</div>
+                                                    <div className="text-gray-500 text-[10px] uppercase font-bold tracking-wider">{stat.label}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'tasks' && (
+                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                                    <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Completed Milestones</h3>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                                        {(() => {
+                                            const levels = generateLevels();
+                                            const currentXp = profileUser.profile?.xp || 0;
+                                            const currentLevelId = Math.floor(currentXp / 1000) + 1;
+                                            const completedLevels = levels.filter(l => l.id <= currentLevelId);
+                                            
+                                            if (completedLevels.length === 0) {
+                                                return (
+                                                    <div className="col-span-full py-12 text-center text-gray-500 border border-white/5 rounded-2xl border-dashed">
+                                                        <Trophy size={48} className="mx-auto mb-4 opacity-20" />
+                                                        <p className="font-medium">No tasks completed yet.</p>
+                                                    </div>
+                                                );
+                                            }
+
+                                            return completedLevels.map((level) => (
+                                                <div key={level.id} className="bg-[#121212] border border-white/5 rounded-2xl p-4 flex flex-col items-center gap-3 text-center transition-all hover:border-[#FFD700]/30 hover:-translate-y-1 group">
+                                                    <div className="w-10 h-10 rounded-xl bg-black/50 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform text-white/80 group-hover:text-[#FFD700]">
+                                                        {level.icon && React.cloneElement(level.icon, { size: 18 })}
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-[10px] font-bold text-[#FFD700] uppercase tracking-wider mb-0.5">Level {level.id}</div>
+                                                        <div className="text-xs text-gray-400 font-bold truncate max-w-[12ch]">{level.name}</div>
+                                                    </div>
+                                                </div>
+                                            ));
+                                        })()}
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'referral' && isOwnProfile && (
+                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                                    <ReferralSection />
+                                </div>
+                            )}
+                        </div>
+                    </>
+                )}
+            </div>
+
+            {/* User List Modal using Shadcn Dialog */}
+            <Dialog open={!!listType} onOpenChange={(open) => !open && setListType(null)}>
+                <DialogContent className="bg-[#121212] border border-white/10 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-0">
+                    <DialogHeader className="p-5 border-b border-white/5 bg-[#1a1a1a]">
+                        <DialogTitle className="text-white font-bold text-lg flex items-center gap-2">
+                             {listType === 'followers' ? <Users size={18} className="text-[#FFD700]"/> : <MapPin size={18} className="text-[#FFD700]"/>}
+                            {listType === 'followers' ? 'Followers' : 'Following'}
+                        </DialogTitle>
+                    </DialogHeader>
+                    
+                    <div className="max-h-[60vh] overflow-y-auto p-2">
+                        {listLoading ? (
+                            <div className="p-8 flex justify-center"><Loader isLoading={true} /></div>
+                        ) : userList.length === 0 ? (
+                            <div className="p-8 text-center text-gray-500">
+                                No users found.
+                            </div>
+                        ) : (
+                            <div className="space-y-1">
+                                {userList.map(user => (
+                                    <div key={user.username} className="flex items-center justify-between p-3 hover:bg-white/5 rounded-2xl transition-colors group">
+                                        <Link to={`/profile/${user.username}`} onClick={() => setListType(null)} className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center overflow-hidden border border-white/5">
+                                                {user.avatar_url ? (
+                                                    <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <span className="text-zinc-500 font-bold">{user.username.charAt(0).toUpperCase()}</span>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <div className="text-white font-bold text-sm">{user.first_name || user.username}</div>
+                                                <div className="text-gray-500 text-xs text-left">@{user.username}</div>
+                                            </div>
+                                        </Link>
+                                        
+                                        {currentUser && currentUser.username !== user.username && (
+                                           <Link to={`/profile/${user.username}`} onClick={() => setListType(null)} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold text-[#FFD700] transition-colors">
+                                               View
+                                           </Link>
+                                        )}
                                     </div>
                                 ))}
                             </div>
                         )}
-
-                        {/* Bio / About */}
-                        {!isEditing && (
-                            <div className="bg-[#121212] border border-white/5 rounded-3xl p-8 min-h-[200px]">
-                                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                                    <Users size={20} className="text-indigo-400" /> About
-                                </h3>
-                                <p className="text-gray-400 leading-relaxed whitespace-pre-line text-lg">
-                                    {profileUser.profile?.bio || (
-                                        <span className="italic opacity-50">No bio provided just yet.</span>
-                                    )}
-                                </p>
-                            </div>
-                        )}
-
-                        {/* Completed Tasks / Levels */}
-                        {!isEditing && (
-                            <div className="bg-[#121212] border border-white/5 rounded-3xl p-8">
-                                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                                    <Trophy size={20} className="text-[#FFD700]" /> Completed Tasks
-                                </h3>
-                                
-                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                                    {(() => {
-                                        const levels = generateLevels();
-                                        const currentXp = profileUser.profile?.xp || 0;
-                                        // Simple level calculation: 1000 XP per level (matching 10% progress logic in Map)
-                                        // or just using the level derived from XP
-                                        const currentLevelId = Math.floor(currentXp / 1000) + 1;
-                                        
-                                        const completedLevels = levels.filter(l => l.id <= currentLevelId);
-                                        
-                                        if (completedLevels.length === 0) {
-                                            return (
-                                                <div className="col-span-full text-center text-gray-500 italic py-4">
-                                                    No tasks completed yet. Start playing to unlock!
-                                                </div>
-                                            );
-                                        }
-
-                                        return completedLevels.map((level) => (
-                                            <div key={level.id} className="bg-white/5 border border-white/5 rounded-xl p-4 flex flex-col items-center gap-3 text-center transition-all hover:bg-white/10 hover:border-[#FFD700]/30 group">
-                                                <div className="w-12 h-12 rounded-full bg-[#1a1a1a] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                                    <span className="text-white drop-shadow-md">
-                                                        {level.icon && React.cloneElement(level.icon, { size: 20 })}
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <div className="text-xs font-bold text-[#FFD700] uppercase tracking-wider mb-1">Level {level.id}</div>
-                                                    <div className="text-xs text-gray-400 font-medium">{level.name}</div>
-                                                </div>
-                                            </div>
-                                        ));
-                                    })()}
-                                </div>
-                            </div>
-                        )}
                     </div>
-                </div>
+                </DialogContent>
+            </Dialog>
 
-                {/* User List Modal using Shadcn Dialog */}
-                <Dialog open={!!listType} onOpenChange={(open) => !open && setListType(null)}>
-                    <DialogContent className="bg-[#121212] border border-white/10 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl p-0">
-                        <DialogHeader className="p-4 border-b border-white/10 bg-[#1a1a1a]">
-                            <DialogTitle className="text-white font-bold text-lg">
-                                {listType === 'followers' ? 'Followers' : 'Following'}
-                            </DialogTitle>
-                        </DialogHeader>
-                        
-                        <div className="max-h-[60vh] overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-white/10">
-                            {listLoading ? (
-                                <div className="p-8 flex justify-center"><Loader isLoading={true} /></div>
-                            ) : userList.length === 0 ? (
-                                <div className="p-8 text-center text-gray-500">
-                                    No users found.
-                                </div>
-                            ) : (
-                                <div className="space-y-1">
-                                    {userList.map(user => (
-                                        <div key={user.username} className="flex items-center justify-between p-3 hover:bg-white/5 rounded-xl transition-colors group">
-                                            <Link to={`/profile/${user.username}`} onClick={() => setListType(null)} className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden border border-white/5">
-                                                    {user.avatar_url ? (
-                                                        <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <span className="text-zinc-500 font-bold">{user.username.charAt(0).toUpperCase()}</span>
-                                                    )}
-                                                </div>
-                                                <div>
-                                                    <div className="text-white font-bold text-sm">{user.first_name || user.username}</div>
-                                                    <div className="text-gray-500 text-xs">@{user.username}</div>
-                                                </div>
-                                            </Link>
-                                            
-                                            {currentUser && currentUser.username !== user.username && (
-                                               <Link to={`/profile/${user.username}`} onClick={() => setListType(null)} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold text-[#FFD700] transition-colors">
-                                                   View
-                                               </Link>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </DialogContent>
-                </Dialog>
-            </div>
+            {/* Delete Account Confirmation Dialog */}
+            <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <DialogContent className="bg-[#121212] border border-white/10 text-white sm:max-w-md rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-red-500 flex items-center gap-2">
+                            <Shield size={20} /> Delete Account
+                        </DialogTitle>
+                        <DialogDescription className="text-gray-400 pt-2">
+                            Are you sure you want to delete your account? This action cannot be undone and you will lose all your progress and data.
+                        </DialogDescription>
+                    </DialogHeader>
+                     <DialogFooter className="flex gap-2 sm:gap-0 pt-4">
+                        <Button 
+                            variant="outline" 
+                            onClick={() => setDeleteDialogOpen(false)}
+                            className="bg-transparent border-white/10 text-white hover:bg-white/5 hover:text-white rounded-xl"
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            variant="destructive" 
+                            onClick={confirmDelete}
+                            className="bg-red-600 hover:bg-red-700 text-white rounded-xl"
+                        >
+                            Delete Account
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

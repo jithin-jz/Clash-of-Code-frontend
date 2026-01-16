@@ -1,46 +1,51 @@
 import React from 'react';
 import Loader from '../common/Loader';
-import { Users, RefreshCw, Gavel, Unlock } from 'lucide-react';
+import { Users, RefreshCw, Gavel, Unlock, ExternalLink } from 'lucide-react';
 
 const UserTable = ({ userList, tableLoading, currentUser, handleBlockToggle, fetchUsers }) => {
     return (
-        <div className="bg-[#1a1a1a]/90 backdrop-blur-md rounded-2xl border border-[#333] shadow-2xl overflow-hidden">
-            <div className="px-8 py-6 border-b border-[#333] flex items-center justify-between bg-linear-to-r from-[#202020] to-transparent">
+        <div className="bg-[#121212] border border-white/5 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-full">
+            <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-[#1a1a1a]">
                 <h2 className="text-xl font-bold text-white flex items-center gap-3">
                     <Users className="text-[#ffd700]" size={24} /> 
                     <span>Realm Inhabitants</span>
                 </h2>
                 <button 
                     onClick={fetchUsers} 
-                    className="px-4 py-2 bg-[#2a2a2a] hover:bg-[#333] text-[#ffd700] text-sm font-bold rounded-lg border border-[#444] hover:border-[#ffd700] transition-all flex items-center gap-2 group"
+                    className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white hover:text-[#ffd700] text-sm font-bold rounded-xl border border-white/5 transition-all flex items-center gap-2 group"
                 >
                     <RefreshCw size={16} className="group-hover:rotate-180 transition-transform duration-500" />
-                    <span>Refresh Intel</span>
+                    <span>Refresh</span>
                 </button>
             </div>
-            <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead className="bg-[#151515]">
+            
+            <div className="flex-1 overflow-y-auto no-scrollbar">
+                <table className="w-full relative border-separate border-spacing-0">
+                    <thead className="bg-[#151515] sticky top-0 z-10 shadow-sm">
                         <tr>
-                            <th className="text-left text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] px-8 py-5">Warrior</th>
-                            <th className="text-left text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] px-8 py-5">Rank</th>
-                            <th className="text-left text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] px-8 py-5">Status</th>
-                            <th className="text-right text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] px-8 py-5">Command</th>
+                            <th className="text-left text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] px-8 py-5 border-b border-white/5 bg-[#151515]">Warrior</th>
+                            <th className="text-left text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] px-8 py-5 border-b border-white/5 bg-[#151515]">Rank</th>
+                            <th className="text-left text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] px-8 py-5 border-b border-white/5 bg-[#151515]">Status</th>
+                            <th className="text-right text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] px-8 py-5 border-b border-white/5 bg-[#151515]">Command</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#333]">
+                    <tbody className="divide-y divide-white/5">
                         {tableLoading ? (
-                            <tr><td colSpan="4" className="text-center py-12"><Loader isLoading={true}/></td></tr>
+                            <tr><td colSpan="4" className="text-center py-20"><Loader isLoading={true}/></td></tr>
                         ) : userList.length === 0 ? (
-                            <tr><td colSpan="4" className="text-center py-12 text-gray-500 font-medium">No inhabitants found in this realm.</td></tr>
+                            <tr><td colSpan="4" className="text-center py-20 text-gray-500 font-medium">No inhabitants found.</td></tr>
                         ) : (
                             userList.map((usr, i) => (
-                                <tr key={i} className="hover:bg-[#222] transition-colors group">
-                                    <td className="px-8 py-5">
+                                <tr key={i} className="hover:bg-white/2 transition-colors group">
+                                    <td className="px-8 py-4">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-lg bg-linear-to-br from-[#333] to-[#1a1a1a] p-0.5 border border-[#444] group-hover:border-[#ffd700]/50 transition-colors">
-                                                <div className="w-full h-full rounded-[0.4rem] overflow-hidden flex items-center justify-center bg-[#111] text-[#ffd700] font-bold">
-                                                    {usr.profile?.avatar_url ? <img src={usr.profile.avatar_url} className="w-full h-full object-cover"/> : usr.username[0].toUpperCase()}
+                                            <div className="w-12 h-12 rounded-[14px] bg-[#1a1a1a] p-1 border border-white/5 group-hover:border-[#FFD700]/30 transition-colors">
+                                                <div className="w-full h-full rounded-[10px] overflow-hidden flex items-center justify-center bg-[#111] text-[#ffd700] font-bold">
+                                                    {usr.profile?.avatar_url ? (
+                                                        <img src={usr.profile.avatar_url} className="w-full h-full object-cover" alt={usr.username}/>
+                                                    ) : (
+                                                        usr.username[0].toUpperCase()
+                                                    )}
                                                 </div>
                                             </div>
                                             <div>
@@ -49,14 +54,22 @@ const UserTable = ({ userList, tableLoading, currentUser, handleBlockToggle, fet
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5">
+                                    <td className="px-8 py-4">
                                         <div className="flex gap-2">
-                                            {usr.is_superuser && <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20 uppercase tracking-wide">Leader</span>}
-                                            {!usr.is_staff && !usr.is_superuser && <span className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-gray-500/10 text-gray-500 border border-gray-500/20 uppercase tracking-wide">Member</span>}
+                                            {usr.is_superuser && (
+                                                <span className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20 uppercase tracking-wide flex items-center gap-1.5">
+                                                    Leader
+                                                </span>
+                                            )}
+                                            {!usr.is_staff && !usr.is_superuser && (
+                                                <span className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-gray-500/10 text-gray-500 border border-gray-500/20 uppercase tracking-wide flex items-center gap-1.5">
+                                                    Member
+                                                </span>
+                                            )}
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5">
-                                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide border ${
+                                    <td className="px-8 py-4">
+                                        <span className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wide border ${
                                             usr.is_active 
                                                 ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' 
                                                 : 'bg-red-500/10 text-red-500 border-red-500/20'
@@ -64,21 +77,32 @@ const UserTable = ({ userList, tableLoading, currentUser, handleBlockToggle, fet
                                             {usr.is_active ? 'Active' : 'Banned'}
                                         </span>
                                     </td>
-                                    <td className="px-8 py-5 text-right">
-                                        <button 
-                                            onClick={() => handleBlockToggle(usr.username)}
-                                            disabled={currentUser.username === usr.username} 
-                                            className={`text-xs font-bold px-4 py-2 rounded-lg transition-all border flex items-center gap-2 ml-auto ${
-                                                currentUser.username === usr.username 
-                                                    ? 'opacity-30 cursor-not-allowed bg-transparent border-gray-700 text-gray-500'
-                                                    : usr.is_active 
-                                                        ? 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20 hover:border-red-500/50' 
-                                                        : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20 hover:border-emerald-500/50'
-                                            }`}
-                                        >
-                                            {usr.is_active ? <Gavel size={14}/> : <Unlock size={14}/>}
-                                            <span>{usr.is_active ? 'Ban' : 'Unban'}</span>
-                                        </button>
+                                    <td className="px-8 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <a 
+                                                href={`/profile/${usr.username}`} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-[#FFD700] border border-white/5 transition-all group/view"
+                                                title="View Profile"
+                                            >
+                                                <ExternalLink size={14} className="group-hover/view:scale-110 transition-transform"/>
+                                            </a>
+                                            <button 
+                                                onClick={() => handleBlockToggle(usr.username)}
+                                                disabled={currentUser.username === usr.username} 
+                                                className={`text-xs font-bold px-4 py-2.5 rounded-xl transition-all border flex items-center gap-2 ${
+                                                    currentUser.username === usr.username 
+                                                        ? 'opacity-30 cursor-not-allowed bg-transparent border-white/5 text-gray-600'
+                                                        : usr.is_active 
+                                                            ? 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20 hover:border-red-500/50' 
+                                                            : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20 hover:border-emerald-500/50'
+                                                }`}
+                                            >
+                                                {usr.is_active ? <Gavel size={14}/> : <Unlock size={14}/>}
+                                                <span>{usr.is_active ? 'Ban' : 'Unban'}</span>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))

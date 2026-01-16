@@ -132,13 +132,7 @@ const AdminDashboard = () => {
 
     return (
         <div className="min-h-screen bg-[#050505] font-sans selection:bg-[#FFD700] selection:text-black overflow-hidden flex">
-            {/* Background Texture */}
-            <div className="fixed inset-0 opacity-20 pointer-events-none z-0" 
-                style={{ 
-                    backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)', 
-                    backgroundSize: '40px 40px' 
-                }} 
-            />
+
             
             <AdminSidebar 
                 user={user} 
@@ -147,27 +141,35 @@ const AdminDashboard = () => {
                 handleLogout={handleLogout} 
             />
 
-            <main className="flex-1 ml-72 p-8 relative z-10 overflow-y-auto h-screen">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-10 bg-linear-to-r from-[#1a1a1a] to-transparent p-6 rounded-2xl border border-[#333] shadow-xl">
+            <main className="flex-1 p-8 relative z-10 overflow-y-auto h-screen bg-[#050505]">
+
+                <div className="flex items-center justify-between mb-8 bg-[#121212]/50 p-6 rounded-3xl border border-white/5 backdrop-blur-md">
                     <div>
-                        <h1 className="text-3xl font-black text-transparent bg-clip-text bg-linear-to-r from-[#ffd700] to-[#b8860b] uppercase tracking-wider filter drop-shadow-sm">
+                        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
                             Command Center
+                            <div className="w-2 h-2 rounded-full bg-[#FFD700] animate-pulse"></div>
                         </h1>
-                        <p className="text-gray-400 mt-2 font-medium">Overview of your realm's population and resources.</p>
+                        <p className="text-gray-400 text-sm mt-1 font-medium">Overview of your realm's population and resources.</p>
+                    </div>
+                    <div className="flex gap-2">
+                         <div className="bg-[#1a1a1a] border border-white/5 px-4 py-2 rounded-xl text-xs font-mono text-gray-400">
+                             v2.0.1
+                         </div>
                     </div>
                 </div>
 
                 {activeTab === 'overview' && <StatsGrid stats={stats} />}
 
                 {activeTab === 'users' && (
-                    <UserTable 
-                        userList={userList} 
-                        tableLoading={tableLoading} 
-                        currentUser={user}
-                        handleBlockToggle={handleBlockToggle}
-                        fetchUsers={fetchUsers}
-                    />
+                    <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+                         <UserTable 
+                            userList={userList} 
+                            tableLoading={tableLoading} 
+                            currentUser={user}
+                            handleBlockToggle={handleBlockToggle}
+                            fetchUsers={fetchUsers}
+                        />
+                    </div>
                 )}
             </main>
         </div>

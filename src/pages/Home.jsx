@@ -13,6 +13,7 @@ import RightSideUI from '../home/RightSideUI';
 import PlayButton from '../home/PlayButton';
 import LevelMap from '../home/LevelMap';
 import CheckInReward from '../home/CheckInReward';
+import { checkInApi } from '../services/checkInApi';
 
 // Data
 import { generateLevels } from '../constants/levelData.jsx';
@@ -31,6 +32,22 @@ const Home = () => {
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [checkInOpen, setCheckInOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [hasUnclaimedReward, setHasUnclaimedReward] = useState(false);
+
+    // Check for daily reward status on mount
+    useEffect(() => {
+        const checkRewardStatus = async () => {
+             if (!user) return;
+             try {
+                const data = await checkInApi.getCheckInStatus();
+                // If not checked in today, show red dot
+                 setHasUnclaimedReward(!data.checked_in_today);
+             } catch (error) {
+                 console.error("Failed to check reward status:", error);
+             }
+        };
+        checkRewardStatus();
+    }, [user]);
 
     // Initialize Levels
     const levels = useMemo(() => {
@@ -111,12 +128,14 @@ const Home = () => {
                 setSettingsOpen={setSettingsOpen}
                 checkInOpen={checkInOpen}
                 setCheckInOpen={setCheckInOpen}
+                hasUnclaimedReward={hasUnclaimedReward}
             />
             <PlayButton user={user} />
             
             <CheckInReward 
                 isOpen={checkInOpen} 
                 onClose={() => setCheckInOpen(false)}
+                onClaim={() => setHasUnclaimedReward(false)}
             />
             
             {!isLoading && (

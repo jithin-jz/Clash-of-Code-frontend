@@ -8,5 +8,6 @@ export const notify = {
     warning: (message, options = {}) => toast.warning(message, options),
     dismiss: (toastId) => toast.dismiss(toastId),
     promise: (promise, messages, options = {}) => toast.promise(promise, messages, options),
+    custom: (jsx, options = {}) => toast.custom(jsx, options),
 };
 export { default as NotificationContainer } from './NotificationContainer';
