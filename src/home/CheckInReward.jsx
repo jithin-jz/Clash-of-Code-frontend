@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { checkInApi } from '../services/checkInApi';
 import { useAuthStore } from '../stores/useAuthStore';
-import { Calendar, Flame, Award, CheckCircle2 } from 'lucide-react';
+import { Calendar, Flame, Award, CheckCircle2, Snowflake } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -55,11 +55,17 @@ const CheckInReward = ({ isOpen, onClose, onClaim }) => {
         ...checkInStatus,
         checked_in_today: true,
         current_streak: data.streak_day,
-        today_checkin: data.check_in
+        today_checkin: data.check_in,
+        freezes_left: data.freezes_left
       });
       if (setUserXP) setUserXP(data.total_xp);
       if (onClaim) onClaim();
-      toast.success(`Day ${data.streak_day} claimed! +${data.xp_earned} XP`);
+      
+      if (data.streak_saved) {
+        toast.info(`🔥 Streak Saved! Used 1 Freeze. ${data.freezes_left} left.`);
+      } else {
+        toast.success(`Day ${data.streak_day} claimed! +${data.xp_earned} XP`);
+      }
     } catch (error) {
       toast.error(error.response?.data?.error || 'Failed to check in');
     } finally {
@@ -83,22 +89,41 @@ const CheckInReward = ({ isOpen, onClose, onClaim }) => {
         </DialogHeader>
 
         {/* Streak Display */}
-        <Card className="bg-linear-to-r from-orange-500/10 to-red-500/10 border-orange-500/20">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-orange-500/20 rounded-lg">
-                <Flame className="text-orange-400 h-5 w-5" />
+        {/* Streak & Freeze Stats */}
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="bg-linear-to-r from-orange-500/10 to-red-500/10 border-orange-500/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-500/20 rounded-lg">
+                  <Flame className="text-orange-400 h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">Streak</p>
+                  <p className="text-lg font-bold text-white">
+                    Day {checkInStatus?.current_streak || 0}{' '}
+                    <span className="text-gray-500">/ 7</span>
+                  </p>
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="text-xs text-gray-400 uppercase tracking-wider">Current Streak</p>
-                <p className="text-lg font-bold text-white">
-                  Day {checkInStatus?.current_streak || 0}{' '}
-                  <span className="text-gray-500">/ 7</span>
-                </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-linear-to-r from-blue-500/10 to-cyan-500/10 border-blue-500/20">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-500/20 rounded-lg">
+                  <Snowflake className="text-blue-400 h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">Freezes</p>
+                  <p className="text-lg font-bold text-white">
+                    {checkInStatus?.freezes_left || 0}
+                  </p>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Content */}
         <div className="space-y-4">
