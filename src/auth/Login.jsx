@@ -68,86 +68,64 @@ const Login = () => {
     };
 
     return (
-        <div className="h-screen bg-[#050505] font-sans selection:bg-[#FFD700] selection:text-black flex items-center justify-center relative overflow-hidden">
+        <div className="min-h-screen bg-[#050505] font-sans selection:bg-[#FFD700] selection:text-black flex items-center justify-center relative overflow-hidden">
              
-            {/* Ambient Background */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FFD700]/5 rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#FFD700]/5 rounded-full blur-[120px] pointer-events-none" />
+            {/* Subtle Professional Background */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] from-white/5 via-transparent to-transparent opacity-20 pointer-events-none" />
             
             {/* Main Container */}
-            <div className="relative z-10 w-full max-w-md p-6">
+            <div className="relative z-10 w-full max-w-[400px] p-6 animate-in fade-in zoom-in-95 duration-500">
                 
-                {/* Logo / Header */}
-                <div className="text-center mb-8 relative">
-                    <div className="inline-flex items-center justify-center p-4 bg-[#1a1a1a] rounded-3xl border border-white/5 shadow-2xl mb-6 relative group overflow-hidden">
-                        <div className="absolute inset-0 bg-linear-to-br from-[#FFD700]/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <Crown size={40} className="text-[#FFD700] drop-shadow-[0_0_15px_rgba(255,215,0,0.3)] animate-pulse" />
+                {/* Header */}
+                <div className="text-center mb-10">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-[#0A0A0A] rounded-2xl border border-white/10 shadow-2xl mb-6 group relative overflow-hidden">
+                        <div className="absolute inset-0 bg-linear-to-tr from-[#FFD700]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"/>
+                        <Crown size={28} className="text-[#FFD700]" />
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight mb-2">
+                    <h2 className="text-3xl font-black text-white tracking-tight mb-4">
                         CODE OF <span className="text-transparent bg-clip-text bg-linear-to-r from-[#FFD700] to-[#FFA500]">CLANS</span>
-                    </h1>
-                    <p className="text-gray-400 font-medium">Enter the battlefield, Warden.</p>
+                    </h2>
+                    <p className="text-gray-500 text-sm">Sign in to start your journey</p>
                 </div>
 
                 {/* Login Card */}
-                <div className="bg-[#121212] border border-white/5 rounded-3xl p-8 shadow-2xl backdrop-blur-md relative overflow-hidden">
-                    {/* Top Accent */}
-                    <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-[#FFD700]/50 to-transparent opacity-50"></div>
-                    
-                    <div className="space-y-4">
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest text-center mb-4">Select Identity Provider</p>
-                        
-                        {/* GitHub */}
-                        <button
-                            onClick={() => handleOAuthClick('github')}
-                            disabled={loading}
-                            className="w-full flex items-center justify-center gap-3 p-4 bg-[#1a1a1a] hover:bg-[#222] text-white border border-white/5 rounded-2xl transition-all hover:scale-[1.02] hover:border-white/10 group"
-                        >
-                            <GithubIcon />
-                            <span className="font-bold">Continue with GitHub</span>
-                        </button>
+                <div className="space-y-4">
+                    {/* GitHub */}
+                    <button
+                        onClick={() => handleOAuthClick('github')}
+                        disabled={loading}
+                        className="w-full h-12 flex items-center justify-center gap-3 bg-white text-black rounded-xl font-semibold hover:bg-gray-200 active:scale-[0.98] transition-all"
+                    >
+                        <GithubIcon />
+                        <span>Continue with GitHub</span>
+                    </button>
 
+                    <div className="grid grid-cols-2 gap-4">
                         {/* Google */}
                         <button
                             onClick={() => handleOAuthClick('google')}
                             disabled={loading}
-                            className="w-full flex items-center justify-center gap-3 p-4 bg-[#1a1a1a] hover:bg-[#222] text-white border border-white/5 rounded-2xl transition-all hover:scale-[1.02] hover:border-white/10 group"
+                            className="w-full h-12 flex items-center justify-center gap-3 bg-[#1A1A1A] border border-white/10 hover:border-white/20 text-white rounded-xl font-medium hover:bg-[#222] active:scale-[0.98] transition-all"
                         >
                             <GoogleIcon />
-                            <span className="font-bold">Continue with Google</span>
+                            <span>Google</span>
                         </button>
 
-                         {/* Discord */}
-                         <button
+                        {/* Discord */}
+                        <button
                             onClick={() => handleOAuthClick('discord')}
                             disabled={loading}
-                            className="w-full flex items-center justify-center gap-3 p-4 bg-[#1a1a1a] hover:bg-[#222] text-white border border-white/5 rounded-2xl transition-all hover:scale-[1.02] hover:border-white/10 group"
+                            className="w-full h-12 flex items-center justify-center gap-3 bg-[#1A1A1A] border border-white/10 hover:border-white/20 text-white rounded-xl font-medium hover:bg-[#222] active:scale-[0.98] transition-all"
                         >
                             <DiscordIcon />
-                            <span className="font-bold">Continue with Discord</span>
+                            <span>Discord</span>
                         </button>
-                    </div>
-
-                    {/* Divider */}
-                    <div className="relative my-8">
-                        <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-white/5"></span>
-                        </div>
-                        <div className="relative flex justify-center text-xs">
-                            <span className="px-2 bg-[#121212] text-gray-500 font-medium">SECURE LOGIN</span>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-center gap-6 text-gray-600">
-                        <Shield size={20} className="hover:text-[#FFD700] transition-colors cursor-help" />
-                        <Sword size={20} className="hover:text-[#FFD700] transition-colors cursor-help" />
-                        <Sparkles size={20} className="hover:text-[#FFD700] transition-colors cursor-help" />
                     </div>
                 </div>
 
                 {/* Footer terms */}
-                <p className="text-center text-gray-600 text-xs mt-8 font-medium">
-                    By entering, you accept our <Link to="#" className="text-gray-400 hover:text-white transition-colors">War Protocols</Link> and <Link to="#" className="text-gray-400 hover:text-white transition-colors">Privacy Codex</Link>.
+                <p className="text-center text-gray-600 text-xs mt-12 font-medium">
+                    By continuing, you agree to our <Link to="#" className="text-gray-500 hover:text-white underline decoration-gray-700 underline-offset-4 transition-colors">Terms of Service</Link> and <Link to="#" className="text-gray-500 hover:text-white underline decoration-gray-700 underline-offset-4 transition-colors">Privacy Policy</Link>.
                 </p>
             </div>
         </div>
