@@ -140,6 +140,47 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
+  requestOtp: async (email) => {
+    set({ loading: true, error: null });
+    try {
+      await authAPI.requestOtp(email);
+      set({ loading: false });
+      return true;
+    } catch (error) {
+      set({ 
+        loading: false, 
+        error: error.response?.data?.error || "Failed to send OTP" 
+      });
+      return false;
+    }
+  },
+
+  verifyOtp: async (email, otp) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await authAPI.verifyOtp(email, otp);
+      const { access_token, refresh_token, user } = response.data;
+      
+      localStorage.setItem("access_token", access_token);
+      localStorage.setItem("refresh_token", refresh_token);
+
+      set({
+        user,
+        isAuthenticated: true,
+        loading: false,
+        error: null,
+      });
+
+      return true;
+    } catch (error) {
+      set({ 
+        loading: false, 
+        error: error.response?.data?.error || "Invalid OTP" 
+      });
+      return false;
+    }
+  },
+
   logout: async () => {
     try {
       await authAPI.logout();

@@ -2,6 +2,18 @@ import axios from "axios";
 import { notify } from "./notification";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL + "/api";
+const AI_API_URL = import.meta.env.VITE_AI_URL;
+
+const aiApi = axios.create({
+  baseURL: AI_API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+export const aiAPI = {
+  generate: (prompt) => aiApi.post("/generate", { prompt }),
+};
 
 // Create axios instance
 const api = axios.create({
@@ -70,7 +82,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 // Auth API functions
@@ -84,6 +96,10 @@ export const authAPI = {
   githubCallback: (code) => api.post("/auth/github/callback/", { code }),
   googleCallback: (code) => api.post("/auth/google/callback/", { code }),
   discordCallback: (code) => api.post("/auth/discord/callback/", { code }),
+
+  // Email OTP endpoints
+  requestOtp: (email) => api.post("/auth/otp/request/", { email }),
+  verifyOtp: (email, otp) => api.post("/auth/otp/verify/", { email, otp }),
 
   // User endpoints
   getCurrentUser: () => api.get("/profiles/user/"),

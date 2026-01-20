@@ -275,6 +275,10 @@ const Profile = () => {
                   }
                   alt="Avatar"
                   className="w-full h-full object-cover rounded-[20px]"
+                  onError={(e) => {
+                      console.error("Avatar failed to load:", profileUser.profile?.avatar_url);
+                      e.target.style.border = '2px solid red'; // Visual debug
+                  }}
                 />
 
                 {isOwnProfile && (

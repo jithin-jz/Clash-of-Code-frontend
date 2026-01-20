@@ -59,13 +59,11 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
         const token = localStorage.getItem("access_token");
         if (!token) return;
 
-        // Construct WS URL from API URL
-        const apiUrl = import.meta.env.VITE_API_URL;
-        const wsProtocol = apiUrl.startsWith('https') ? 'wss' : 'ws';
-        const wsHost = apiUrl.replace(/^https?:\/\//, '');
+        // Construct WS URL from Chat Service URL
+        const chatUrl = import.meta.env.VITE_CHAT_URL;
         
         const ws = new WebSocket(
-            `${wsProtocol}://${wsHost}/ws/chat/?token=${token}`
+            `${chatUrl}/ws/chat/global/?token=${token}`
         );
 
         socketRef.current = ws;
@@ -81,6 +79,11 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
                 
                 if (data.type === 'user_count') {
                     setOnlineCount(data.count);
+                    return;
+                }
+                
+                if (data.type === 'history') {
+                    setMessages(data.messages);
                     return;
                 }
 

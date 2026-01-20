@@ -28,7 +28,10 @@ const DiscordIcon = () => (
 
 const Login = () => {
     const navigate = useNavigate();
-    const { loading, openOAuthPopup, checkAuth } = useAuthStore();
+    const [email, setEmail] = React.useState('');
+    const [otp, setOtp] = React.useState('');
+    const [showOtpInput, setShowOtpInput] = React.useState(false);
+    const { loading, openOAuthPopup, checkAuth, requestOtp, verifyOtp } = useAuthStore();
 
 
     useEffect(() => {
@@ -67,6 +70,32 @@ const Login = () => {
         await openOAuthPopup(provider);
     };
 
+    const handleSendOtp = async (e) => {
+        e.preventDefault();
+        if (!email) return notify.error("Please enter your email");
+        
+        const success = await requestOtp(email);
+        if (success) {
+            setShowOtpInput(true);
+            notify.success("OTP sent to your email!");
+        } else {
+            notify.error("Failed to send OTP. Please try again.");
+        }
+    };
+
+    const handleVerifyOtp = async (e) => {
+        e.preventDefault();
+        if (!otp) return notify.error("Please enter the OTP");
+
+        const success = await verifyOtp(email, otp);
+        if (success) {
+            notify.success("Logged in successfully!");
+            // Navigation handled by router based on auth state
+        } else {
+            notify.error("Invalid OTP. Please check and try again.");
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#050505] font-sans selection:bg-[#FFD700] selection:text-black flex items-center justify-center relative overflow-hidden">
              
@@ -90,6 +119,64 @@ const Login = () => {
 
                 {/* Login Card */}
                 <div className="space-y-4">
+                    {/* Email OTP Section */}
+                    <div className="bg-[#1A1A1A] p-4 rounded-xl border border-white/10 mb-6">
+                        {!showOtpInput ? (
+                            <form onSubmit={handleSendOtp} className="space-y-3">
+                                <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">Email Login / Sign Up</label>
+                                <input 
+                                    type="email" 
+                                    placeholder="Enter your email" 
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full h-10 px-3 bg-[#0A0A0A] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-[#FFD700] transition-colors"
+                                    required
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full h-10 bg-[#FFD700] text-black font-bold text-sm rounded-lg hover:bg-[#FFA500] transition-colors disabled:opacity-50"
+                                >
+                                    {loading ? 'Sending...' : 'Send Code'}
+                                </button>
+                            </form>
+                        ) : (
+                            <form onSubmit={handleVerifyOtp} className="space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">Enter Code</label>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setShowOtpInput(false)}
+                                        className="text-xs text-[#FFD700] hover:underline"
+                                    >
+                                        Change Email
+                                    </button>
+                                </div>
+                                <input 
+                                    type="text" 
+                                    placeholder="Enter 4-digit code" 
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value)}
+                                    maxLength={6}
+                                    className="w-full h-10 px-3 bg-[#0A0A0A] border border-white/10 rounded-lg text-white text-center text-lg tracking-widest focus:outline-none focus:border-[#FFD700] transition-colors"
+                                    required
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full h-10 bg-[#FFD700] text-black font-bold text-sm rounded-lg hover:bg-[#FFA500] transition-colors disabled:opacity-50"
+                                >
+                                    {loading ? 'Verifying...' : 'Verify & Continue'}
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                    
+                    <div className="relative flex items-center justify-center my-6">
+                         <div className="absolute inset-x-0 h-px bg-white/10"></div>
+                         <span className="relative z-10 bg-[#050505] px-2 text-xs text-gray-500 uppercase">Or continue with</span>
+                    </div>
+
                     {/* GitHub */}
                     <button
                         onClick={() => handleOAuthClick('github')}
@@ -97,7 +184,7 @@ const Login = () => {
                         className="w-full h-12 flex items-center justify-center gap-3 bg-white text-black rounded-xl font-semibold hover:bg-gray-200 active:scale-[0.98] transition-all"
                     >
                         <GithubIcon />
-                        <span>Continue with GitHub</span>
+                        <span>GitHub</span>
                     </button>
 
                     <div className="grid grid-cols-2 gap-4">
