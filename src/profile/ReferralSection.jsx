@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import useAuthStore from '../stores/useAuthStore';
-import { Copy, Gift, CheckCircle, AlertCircle } from 'lucide-react';
+import useUserStore from '../stores/useUserStore';
 
 const ReferralSection = () => {
-  const { user, redeemReferral } = useAuthStore();
+  const { user } = useAuthStore();
+  const { redeemReferral } = useUserStore();
   const [referralCode, setReferralCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState(null); // { type: 'success' | 'error', text: '' }

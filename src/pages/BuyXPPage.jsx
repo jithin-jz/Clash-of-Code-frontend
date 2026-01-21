@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { paymentAPI } from "../services/api";
 import { loadRazorpay } from "../utils/loadRazorpay";
-import { useAuthStore } from "../stores/useAuthStore";
+import useAuthStore from "../stores/useAuthStore";
+import useUserStore from "../stores/useUserStore";
 import { toast } from 'sonner';
 import { Loader2, Zap, ArrowLeft, Shield, Star, Check } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -39,7 +40,8 @@ const XP_PACKAGES = [
 
 const BuyXPPage = () => {
   const [loading, setLoading] = useState(false);
-  const { user, fetchUser } = useAuthStore();
+  const { user } = useAuthStore();
+  const { fetchCurrentUser } = useUserStore();
 
   const handleBuy = async (pkg) => {
     setLoading(true);
@@ -70,7 +72,7 @@ const BuyXPPage = () => {
             });
 
             toast.success(`Successfully purchased ${pkg.xp} XP!`);
-            if (fetchUser) await fetchUser(); // Refresh User XP
+            if (fetchCurrentUser) await fetchCurrentUser(); // Refresh User XP
             // Optional: navigate back after success or stay
           } catch (verifyError) {
             console.error(verifyError);

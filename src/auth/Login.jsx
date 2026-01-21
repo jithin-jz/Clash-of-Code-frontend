@@ -40,7 +40,8 @@ const Login = () => {
             if (event.origin !== window.location.origin) {
                 console.warn('Login: Received message from different origin:', event.origin, 'Expected:', window.location.origin);
                 // In production, you might want to force strict equality or a whitelist
-                if (!event.origin.startsWith('http://localhost') && !event.origin.startsWith('https://souled.jithin.site')) {
+                const authorizedOrigin = new URL(import.meta.env.VITE_API_URL).origin;
+                if (!event.origin.startsWith(authorizedOrigin) && !event.origin.startsWith('https://souled.jithin.site')) {
                      return;
                 }
             }

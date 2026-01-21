@@ -15,7 +15,7 @@ const openOAuthPopup = (url, name = "OAuth Login") => {
   );
 };
 
-const useAuthStore = create((set, get) => ({
+const useAuthStore = create((set) => ({
   // State
   user: null,
   isAuthenticated: false,
@@ -28,6 +28,9 @@ const useAuthStore = create((set, get) => ({
   setLoading: (loading) => set({ loading }),
 
   clearError: () => set({ error: null }),
+
+  // Set User (Used by useUserStore to update profile data)
+  setUser: (user) => set({ user }),
 
   checkAuth: async () => {
     const token = localStorage.getItem("access_token");
@@ -197,91 +200,6 @@ const useAuthStore = create((set, get) => ({
     });
   },
 
-  // Profile Management
-  updateProfile: async (data) => {
-    try {
-      const formData = new FormData();
-      Object.keys(data).forEach(key => {
-        formData.append(key, data[key]);
-      });
-      
-      const response = await authAPI.updateProfile(formData);
-      set({ user: response.data });
-      return response.data;
-    } catch (error) {
-      const errorMsg = error.response?.data?.error || error.message;
-      set({ error: errorMsg });
-      throw error;
-    }
-  },
-
-  updateProfileImage: async (type, file) => {
-    try {
-      const formData = new FormData();
-      formData.append(type, file);
-      
-      const response = await authAPI.updateProfile(formData);
-      set({ user: response.data });
-      return response.data;
-    } catch (error) {
-      const errorMsg = error.response?.data?.error || error.message;
-      set({ error: errorMsg });
-      throw error;
-    }
-  },
-
-  followUser: async (username) => {
-    try {
-      const response = await authAPI.followUser(username);
-      const data = response.data;
-      
-      // Update local user's following count
-      const currentUser = get().user;
-      if (currentUser) {
-          const change = data.is_following ? 1 : -1;
-          const currentCount = currentUser.following_count || 0;
-          set({
-              user: {
-                  ...currentUser,
-                  following_count: Math.max(0, currentCount + change)
-              }
-          });
-      }
-      
-      return data;
-    } catch (error) {
-      console.error("Follow action failed:", error);
-      throw error;
-    }
-  },
-
-  redeemReferral: async (code) => {
-    try {
-      const response = await authAPI.redeemReferral(code);
-      const data = response.data;
-
-      // Update user state locally
-      const currentUser = get().user;
-      if (currentUser) {
-        set({
-          user: {
-            ...currentUser,
-            profile: {
-              ...currentUser.profile,
-              xp: data.new_total_xp,
-              is_referred: true,
-            },
-          },
-        });
-      }
-
-      return data;
-    } catch (error) {
-      const errorMsg = error.response?.data?.error || error.message;
-      throw new Error(errorMsg);
-    }
-  },
-
   deleteAccount: async () => {
     try {
       await authAPI.deleteAccount();
@@ -302,17 +220,6 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
-  setUserXP: (xp) => set((state) => ({
-    user: state.user ? {
-      ...state.user,
-      profile: {
-        ...state.user.profile,
-        xp
-      }
-    } : null
-  })),
 }));
 
-export { useAuthStore };
 export default useAuthStore;
-

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { checkInApi } from '../services/checkInApi';
-import { useAuthStore } from '../stores/useAuthStore';
+import useUserStore from '../stores/useUserStore';
 import { Calendar, Flame, Award, CheckCircle2, Snowflake } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -18,7 +18,7 @@ const CheckInReward = ({ isOpen, onClose, onClaim }) => {
   const [checkInStatus, setCheckInStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [checkingIn, setCheckingIn] = useState(false);
-  const { setUserXP } = useAuthStore();
+  const { fetchCurrentUser } = useUserStore();
 
   const DAILY_REWARDS = {
     1: 5, 2: 10, 3: 15, 4: 20, 5: 25, 6: 30, 7: 35
@@ -58,7 +58,7 @@ const CheckInReward = ({ isOpen, onClose, onClaim }) => {
         today_checkin: data.check_in,
         freezes_left: data.freezes_left
       });
-      if (setUserXP) setUserXP(data.total_xp);
+      if (fetchCurrentUser) await fetchCurrentUser();
       if (onClaim) onClaim();
       
       if (data.streak_saved) {

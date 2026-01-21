@@ -1,7 +1,7 @@
 import axios from "axios";
 import { notify } from "./notification";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL + "/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 const AI_API_URL = import.meta.env.VITE_AI_URL;
 
 const aiApi = axios.create({
@@ -12,7 +12,7 @@ const aiApi = axios.create({
 });
 
 export const aiAPI = {
-  generate: (prompt) => aiApi.post("/generate", { prompt }),
+  generate: (code, language = "python") => aiApi.post("/explain", { code, language }),
 };
 
 // Create axios instance

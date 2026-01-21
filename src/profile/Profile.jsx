@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import useAuthStore from "../stores/useAuthStore";
+import useUserStore from "../stores/useUserStore";
 import { notify } from "../services/notification";
 import {
   Users,
@@ -47,12 +48,14 @@ const Profile = () => {
   const { username } = useParams();
   const {
     user: currentUser,
-    updateProfileImage,
-    updateProfile,
-    followUser,
     logout,
     deleteAccount,
   } = useAuthStore();
+  
+  const {
+    updateProfile,
+    followUser,
+  } = useUserStore();
 
   const isOwnProfile =
     !username || (currentUser && username === currentUser.username);
@@ -143,7 +146,7 @@ const Profile = () => {
     if (type === "banner") setUploadingBanner(true);
 
     try {
-      const updatedUser = await updateProfileImage(type, file);
+      const updatedUser = await updateProfile({ type, file }, true);
       if (isOwnProfile) {
         // Store update handles user state, but we locally update profileUser for immediate feedback if needed
         setProfileUser(updatedUser);
