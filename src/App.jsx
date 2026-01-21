@@ -11,6 +11,8 @@ import OAuthCallback from './pages/OAuthCallback';
 import AdminDashboard from './admin/Dashboard';
 import NotFound from './pages/NotFound';
 import BuyXPPage from './pages/BuyXPPage';
+import Game from './pages/Game';
+import CodeArena from './game/CodeArena';
 
 // Route Guards
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -56,7 +58,6 @@ const AppContent = () => {
                         } />
 
                         {/* Redirect legacy routes to / */}
-                        <Route path="/game" element={<Navigate to="/" replace />} />
                         <Route path="/home" element={<Navigate to="/" replace />} />
                         
                         {/* OAuth Callbacks */}
@@ -82,9 +83,20 @@ const AppContent = () => {
                                 <Profile />
                             </ProtectedRoute>
                         } />
+                        <Route path="/level/:id" element={
+                            <ProtectedRoute>
+                                <CodeArena />
+                            </ProtectedRoute>
+                        } />
                         <Route path="/shop" element={
                             <ProtectedRoute>
                                 <BuyXPPage />
+                            </ProtectedRoute>
+                        } />
+
+                        <Route path="/game" element={
+                            <ProtectedRoute>
+                                <Game />
                             </ProtectedRoute>
                         } />
                         

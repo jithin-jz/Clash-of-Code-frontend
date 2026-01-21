@@ -22,22 +22,7 @@ const useAIStore = create((set, get) => ({
       const prompt = `Explain this ${language} code:\n\n${code}`;
       
       const response = await aiAPI.generate(prompt);
-      const result = response.data; // Expecting { explanation: "...", model: "..." }
-
-      // We handle the mock response structure from our AI service
-      // The AI service returns { explanation: "...", model: "...", ... }
-      // Or { result: "..." } depending on which endpoint we hit. 
-      // Our mock /explain endpoint returns { explanation: ... }
-      // But services/api.js calls /generate.
-      // Let's assume we fixed services/api.js or backend to match.
-      // For now, let's adapt to what we built in AI service: /explain [POST]
-      // Wait, services/api.js calls /generate. The AI service has /generate AND /explain?
-      // Step 441 created /explain. Step 203 showed /generate.
-      // I should update the store to call the right endpoint or update API service.
-      // Let's assume we call /explain directly here or fix api.js later.
-      // Actually, I'll update api.js in the next step to point to /explain for better semantics.
-      // For now, I'll rely on the existing api.js which calls /generate.
-      // If /generate exists (it was the "Hello World" one), it returns { result: ... }
+      const result = response.data;
       
       const explanation = result.explanation || result.result || "No response";
 
@@ -61,6 +46,29 @@ const useAIStore = create((set, get) => ({
         error: error.response?.data?.detail || "Failed to generate explanation" 
       });
       throw error;
+    }
+  },
+
+  generateHint: async (taskDescription, code, language = "python") => {
+    set({ loading: true, error: null });
+    try {
+        const prompt = `Task: ${taskDescription}\n\nUser Code:\n${code}\n\nProvide a helpful hint to solve the task without giving the full solution. Focus on logic and algorithm.`;
+        
+        const response = await aiAPI.generate(prompt);
+        const result = response.data;
+        const hint = result.explanation || result.result || "No hint generated.";
+
+        set({ loading: false });
+        // We don't add hints to the main history to keep it clean, or we could? 
+        // For now, let's just return it and let the component handle display.
+        return hint;
+    } catch (error) {
+        console.error("AI Hint Error:", error);
+        set({ 
+            loading: false, 
+            error: error.response?.data?.detail || "Failed to generate hint" 
+        });
+        throw error;
     }
   },
 

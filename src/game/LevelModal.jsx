@@ -1,6 +1,5 @@
 import React from 'react';
 import { Star, Play } from 'lucide-react';
-import { notify } from '../services/notification';
 import {
   Dialog,
   DialogContent,
@@ -10,7 +9,11 @@ import {
 import { Button } from '../components/ui/button';
 import { cn } from '../lib/utils';
 
+import { useNavigate } from 'react-router-dom';
+
 const LevelModal = ({ selectedLevel, onClose }) => {
+    const navigate = useNavigate();
+
     if (!selectedLevel) return null;
 
     return (
@@ -50,7 +53,7 @@ const LevelModal = ({ selectedLevel, onClose }) => {
                     
                     {/* Play button */}
                     <Button 
-                        onClick={() => notify.loading(`Loading Level ${selectedLevel.id}...`, { duration: 3000 })}
+                        onClick={() => navigate(`/level/${selectedLevel.id}`)}
                         className="w-full py-6 rounded-xl font-bold text-lg bg-white text-black hover:bg-gray-200 transition-all flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] active:scale-[0.98]"
                     >
                          <Play size={20} fill="currentColor" />

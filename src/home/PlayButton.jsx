@@ -1,9 +1,12 @@
 import React from 'react';
 import { Play } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { notify } from '../services/notification';
+import { useNavigate } from 'react-router-dom';
+
 
 const PlayButton = ({ user }) => {
+    const navigate = useNavigate();
+
     return (
         <motion.div 
             className="fixed right-6 bottom-6 z-30"
@@ -12,7 +15,10 @@ const PlayButton = ({ user }) => {
             transition={{ type: 'spring', damping: 20, stiffness: 100, delay: 0.1 }}
         >
             <button 
-                onClick={() => {}}
+                onClick={() => {
+                    const currentLevel = Math.floor((user?.profile?.xp || 0) / 1000) + 1;
+                    navigate(`/level/${currentLevel}`);
+                }}
                 className="group relative"
             >
                 {/* Glow Effect */}
