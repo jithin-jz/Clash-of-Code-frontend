@@ -8,6 +8,7 @@ import Loader from '../common/Loader';
 import LevelModal from '../game/LevelModal';
 import ProfilePanel from '../home/ProfilePanel';
 import ChatDrawer from '../home/ChatDrawer';
+import AIDrawer from '../home/AIDrawer';
 import ShopButton from '../home/ShopButton';
 import RightSideUI from '../home/RightSideUI';
 import PlayButton from '../home/PlayButton';
@@ -29,6 +30,7 @@ const Home = () => {
     // State
     const [selectedLevel, setSelectedLevel] = useState(null);
     const [isChatOpen, setChatOpen] = useState(false);
+    const [isAIOpen, setAIOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [checkInOpen, setCheckInOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -120,6 +122,10 @@ const Home = () => {
                 setChatOpen={setChatOpen} 
                 user={user} 
             />
+            <AIDrawer 
+                isOpen={isAIOpen}
+                onClose={() => setAIOpen(false)}
+            />
             <ShopButton />
             <RightSideUI 
                 user={user} 
@@ -129,6 +135,7 @@ const Home = () => {
                 checkInOpen={checkInOpen}
                 setCheckInOpen={setCheckInOpen}
                 hasUnclaimedReward={hasUnclaimedReward}
+                onOpenAI={() => setAIOpen(true)}
             />
             <PlayButton user={user} />
             

@@ -1,5 +1,5 @@
 import { useNavigate, Link } from 'react-router-dom';
-import { Star, Settings, User, LogOut, Calendar, Trophy, ChevronRight } from 'lucide-react';
+import { Star, Settings, User, LogOut, Calendar, Trophy, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { cn } from '../lib/utils';
 
@@ -9,7 +9,8 @@ const RightSideUI = ({
     settingsOpen, 
     setSettingsOpen, 
     setCheckInOpen,
-    hasUnclaimedReward
+    hasUnclaimedReward,
+    onOpenAI
 }) => {
     const navigate = useNavigate();
 
@@ -88,6 +89,14 @@ const RightSideUI = ({
 
             {/* Minor Actions */}
             <div className="flex flex-col gap-4">
+                <Button 
+                    variant="ghost" 
+                    onClick={onOpenAI}
+                    className={glassButtonClass}
+                >
+                    <Sparkles size={24} className="text-purple-400" />
+                </Button>
+
                 <Button variant="ghost" className={glassButtonClass}>
                     <Trophy size={24} className="text-[#FFD700]" />
                 </Button>
