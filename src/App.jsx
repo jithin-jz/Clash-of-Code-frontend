@@ -13,6 +13,8 @@ import NotFound from './pages/NotFound';
 import BuyXPPage from './pages/BuyXPPage';
 import Game from './pages/Game';
 import CodeArena from './game/CodeArena';
+import Leaderboard from './challenges/Leaderboard';
+import Store from './store/Store';
 
 // Route Guards
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -97,6 +99,18 @@ const AppContent = () => {
                         <Route path="/game" element={
                             <ProtectedRoute>
                                 <Game />
+                            </ProtectedRoute>
+                        } />
+
+                        <Route path="/leaderboard" element={
+                            <ProtectedRoute>
+                                <Leaderboard />
+                            </ProtectedRoute>
+                        } />
+
+                        <Route path="/store" element={
+                            <ProtectedRoute>
+                                <Store />
                             </ProtectedRoute>
                         } />
                         

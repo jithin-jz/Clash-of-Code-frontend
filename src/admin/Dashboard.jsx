@@ -13,6 +13,8 @@ import StatsGrid from './StatsGrid';
 import UserTable from './UserTable';
 import AdminTasks from './AdminTasks';
 
+import AdminStore from './AdminStore';
+
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const { user, isAuthenticated, logout, checkAuth } = useAuthStore();
@@ -144,6 +146,12 @@ const AdminDashboard = () => {
                     {activeTab === 'tasks' && (
                         <div className="flex-1">
                             <AdminTasks />
+                        </div>
+                    )}
+
+                    {activeTab === 'store' && (
+                        <div className="flex-1">
+                            <AdminStore />
                         </div>
                     )}
 

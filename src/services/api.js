@@ -134,4 +134,11 @@ export const paymentAPI = {
   verifyPayment: (data) => api.post("/payments/verify-payment/", data),
 };
 
+export const storeAPI = {
+    getItems: () => api.get("/store/items/"),
+    buyItem: (id) => api.post(`/store/buy/${id}/`),
+    equipItem: (id) => api.post("/store/equip/", { item_id: id }),
+    unequipItem: (category) => api.post("/store/unequip/", { category }),
+};
+
 export default api;

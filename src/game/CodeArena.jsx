@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
-import { Play, ArrowLeft, Loader2, Save, Bot, Sparkles } from 'lucide-react';
+import { Play, ArrowLeft, Loader2, Save, Bot, Sparkles, ArrowRight, Home } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { motion } from 'framer-motion';
 import useAIStore from '../stores/useAIStore';
+import useAuthStore from '../stores/useAuthStore';
 import ReactMarkdown from 'react-markdown';
+import CursorEffects from './CursorEffects';
+import VictoryAnimation from './VictoryAnimation';
 
 const CodeArena = () => {
     const { id } = useParams();
@@ -16,6 +19,7 @@ const CodeArena = () => {
     const [activeTab, setActiveTab] = useState('task'); // 'task' or 'ai'
     const [hint, setHint] = useState(null);
     const { generateHint, loading: aiLoading } = useAIStore();
+    const { user } = useAuthStore();
     const [isPyodideReady, setPyodideReady] = useState(false);
     const pyodideRef = useRef(null);
     const editorRef = useRef(null);
@@ -72,8 +76,72 @@ const CodeArena = () => {
         loadPyodide();
     }, []);
 
-    const handleEditorDidMount = (editor) => {
+    const handleEditorDidMount = (editor, monaco) => {
         editorRef.current = editor;
+        
+        // Define Custom Themes
+        monaco.editor.defineTheme('dracula', {
+            base: 'vs-dark',
+            inherit: true,
+            rules: [
+                { token: 'comment', foreground: '6272a4' },
+                { token: 'keyword', foreground: 'ff79c6' },
+                { token: 'string', foreground: 'f1fa8c' },
+                { token: 'number', foreground: 'bd93f9' },
+                { token: 'type', foreground: '8be9fd' },
+            ],
+            colors: {
+                'editor.background': '#282a36',
+                'editor.foreground': '#f8f8f2',
+                'editorCursor.foreground': '#f8f8f0',
+                'editor.lineHighlightBackground': '#44475a',
+                'editor.selectionBackground': '#44475a',
+            }
+        });
+
+        monaco.editor.defineTheme('monokai', {
+            base: 'vs-dark',
+            inherit: true,
+            rules: [
+                { token: 'comment', foreground: '75715e' },
+                { token: 'keyword', foreground: 'f92672' },
+                { token: 'string', foreground: 'e6db74' },
+                { token: 'number', foreground: 'ae81ff' },
+            ],
+            colors: {
+                'editor.background': '#272822',
+                'editor.foreground': '#f8f8f2',
+            }
+        });
+
+        monaco.editor.defineTheme('github-light', {
+            base: 'vs',
+            inherit: true,
+            rules: [],
+            colors: {
+                'editor.background': '#ffffff',
+                'editor.foreground': '#24292e',
+            }
+        });
+        
+        // Cursor Effect Hook
+        editor.onDidChangeCursorPosition((e) => {
+            if (user?.profile?.active_effect && window.spawnCursorEffect) {
+                const scrolledVisiblePosition = editor.getScrolledVisiblePosition(e.position);
+                if (scrolledVisiblePosition) {
+                    const domNode = editor.getDomNode();
+                    const rect = domNode.getBoundingClientRect();
+                    const x = rect.left + scrolledVisiblePosition.left;
+                    const y = rect.top + scrolledVisiblePosition.top;
+                    window.spawnCursorEffect(x, y + 10); // Offset slightly
+                }
+            }
+        });
+
+        // Force re-layout or update if needed
+        if (user?.profile?.active_theme) {
+             monaco.editor.setTheme(user.profile.active_theme);
+        }
     };
 
     const runCode = async () => {
@@ -127,13 +195,15 @@ const CodeArena = () => {
 
     return (
         <div className="h-screen flex flex-col bg-[#0a0a0a] text-white overflow-hidden relative">
+            <CursorEffects effectType={user?.profile?.active_effect} />
             {/* Completion Modal */}
             {completionData && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+                     <VictoryAnimation type={user?.profile?.active_victory} />
                      <motion.div 
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="bg-[#121212] border border-white/10 rounded-2xl p-8 max-w-md w-full flex flex-col items-center text-center shadow-2xl relative overflow-hidden"
+                        className="bg-[#121212] border border-white/10 rounded-2xl p-8 max-w-md w-full flex flex-col items-center text-center shadow-2xl relative overflow-hidden z-[70]"
                      >
                         {/* Background Glow */}
                         <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-purple-500/5 to-blue-500/10 pointer-events-none" />
@@ -183,31 +253,24 @@ const CodeArena = () => {
                             </p>
                             
                             <div className="flex flex-col w-full gap-3 mt-4">
-                                <Button 
-                                    onClick={() => {
-                                        if (completionData.next_level_slug) {
+                                {completionData.next_level_slug && (
+                                    <Button 
+                                        onClick={() => {
                                             navigate(`/level/${completionData.next_level_slug}`);
-                                            // Reset state for next level (optional, but navigation handles remount)
                                             setCompletionData(null); 
-                                        } else {
-                                             navigate('/');
-                                        }
-                                    }}
-                                    className="w-full py-6 font-bold text-lg bg-green-600 hover:bg-green-700 text-white shadow-lg flex items-center justify-center gap-2"
-                                >
-                                    {completionData.next_level_slug ? (
-                                        <>Next Level <ArrowLeft className="rotate-180" /></>
-                                    ) : (
-                                        <>Return to Map <ArrowLeft /></>
-                                    )}
-                                </Button>
+                                        }}
+                                        className="w-full py-6 font-bold text-lg bg-green-600 hover:bg-green-700 text-white shadow-lg flex items-center justify-center gap-2 transform active:scale-95 transition-all"
+                                    >
+                                        Next Level <ArrowRight />
+                                    </Button>
+                                )}
                                 
                                 <Button 
-                                    variant="ghost" 
+                                    variant={completionData.next_level_slug ? "outline" : "default"}
                                     onClick={() => navigate('/')}
-                                    className="w-full text-gray-400 hover:text-white"
+                                    className={`w-full py-6 font-bold text-lg flex items-center justify-center gap-2 ${!completionData.next_level_slug ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg' : 'border-white/20 hover:bg-white/5 text-gray-300 hover:text-white'}`}
                                 >
-                                    Return to Map
+                                    <Home size={20} /> Go Home
                                 </Button>
                             </div>
                         </div>
@@ -247,7 +310,7 @@ const CodeArena = () => {
                      <Editor
                         height="100%"
                         defaultLanguage="python"
-                        theme="vs-dark"
+                        theme={user?.profile?.active_theme || "vs-dark"}
                         value={code}
                         onChange={(value) => setCode(value)}
                         onMount={handleEditorDidMount}
@@ -256,6 +319,8 @@ const CodeArena = () => {
                             fontSize: 14,
                             padding: { top: 20 },
                             scrollBeyondLastLine: false,
+                            fontFamily: user?.profile?.active_font || 'Consolas, "Courier New", monospace',
+                            fontLigatures: true,
                         }}
                      />
                 </div>

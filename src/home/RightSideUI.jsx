@@ -88,7 +88,11 @@ const RightSideUI = ({
 
             {/* Minor Actions */}
             <div className="flex flex-col gap-4">
-                <Button variant="ghost" className={glassButtonClass}>
+                <Button 
+                    variant="ghost" 
+                    className={glassButtonClass}
+                    onClick={() => navigate('/leaderboard')}
+                >
                     <Trophy size={24} className="text-[#FFD700]" />
                 </Button>
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import useAuthStore from '../stores/useAuthStore';
 import useUserStore from '../stores/useUserStore';
+import { Gift, CheckCircle, Copy, AlertCircle } from 'lucide-react';
 
 const ReferralSection = () => {
   const { user } = useAuthStore();
