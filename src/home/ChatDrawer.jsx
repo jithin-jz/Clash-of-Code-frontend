@@ -24,7 +24,6 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
         sendMessage: sendStoreMessage 
     } = useChatStore();
 
-    const [inputMessage, setInputMessage] = useState("");
     const [showPicker, setShowPicker] = useState(false);
 
     // Auto-focus input when chat opens
@@ -86,15 +85,12 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
     }, [error, isChatOpen, user, reconnect]);
 
     /* ----------------------------- send message ------------------------------ */
-    const sendMessage = useCallback((content = null) => {
-        const messageToSend = content || inputMessage.trim();
-        if (!messageToSend || !isConnected) return;
+    const sendMessage = useCallback((message) => {
+        if (!message?.trim() || !isConnected) return;
 
-        sendStoreMessage(messageToSend);
-        
-        if (!content) setInputMessage(""); // Clear input only if sending text
+        sendStoreMessage(message.trim());
         setShowPicker(false);
-    }, [inputMessage, isConnected, sendStoreMessage]);
+    }, [isConnected, sendStoreMessage]);
 
 
     return (
@@ -129,8 +125,6 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
                 {/* Input Area */}
                 <ChatInput 
                     user={user}
-                    inputMessage={inputMessage}
-                    setInputMessage={setInputMessage}
                     sendMessage={sendMessage}
                     showPicker={showPicker}
                     setShowPicker={setShowPicker}

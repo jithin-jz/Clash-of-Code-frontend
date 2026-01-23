@@ -6,15 +6,21 @@ import { Input } from '../../components/ui/input';
 
 const ChatInput = ({ 
     user, 
-    inputMessage, 
-    setInputMessage, 
     sendMessage, 
     showPicker, 
     setShowPicker, 
     inputRef, 
     pickerRef 
 }) => {
-    
+    const [inputMessage, setInputMessage] = React.useState("");
+
+    const handleSend = () => {
+        if (inputMessage.trim()) {
+            sendMessage(inputMessage);
+            setInputMessage("");
+        }
+    };
+
     const handleEmojiClick = (emojiData) => {
         setInputMessage((prev) => prev + emojiData.emoji);
     };
@@ -57,12 +63,12 @@ const ChatInput = ({
                     disabled={!user}
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                     className="flex-1 bg-black/40 border-white/10 rounded-xl px-4 py-6 text-white text-sm focus-visible:ring-[#FFD700]/50 focus-visible:bg-black/60 transition-all disabled:opacity-50 placeholder-gray-600" 
                 />
                 <Button 
                     disabled={!user} 
-                    onClick={() => sendMessage()}
+                    onClick={handleSend}
                     className="bg-[#FFD700] hover:bg-[#FDB931] text-black p-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95 shadow-lg shadow-yellow-900/20 h-auto w-auto"
                 >
                     <Send size={18} />

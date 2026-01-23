@@ -56,7 +56,10 @@ const Home = () => {
     // Fetch Levels
     useEffect(() => {
         const fetchLevels = async () => {
-            if (!user) return;
+            if (!user) {
+                setIsLoading(false);
+                return;
+            }
             try {
                 // Dynamic Import to avoid circular dependency if any
                 const { challengesApi } = await import('../services/challengesApi');

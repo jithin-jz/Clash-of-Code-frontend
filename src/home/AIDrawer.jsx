@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import useAIStore from '../stores/useAIStore';
 import { Button } from '../components/ui/button';
 import { motion } from 'framer-motion';
@@ -15,8 +15,9 @@ const AIDrawer = ({ isOpen, onClose }) => {
     // Store
     const { history, loading, error, generateExplanation, clearHistory } = useAIStore();
     
+    
     // Local state
-    const [inputCode, setInputCode] = useState("");
+    // Input state moved to AIInput component
 
     // Auto-scroll to bottom of history
     useEffect(() => {
@@ -30,12 +31,11 @@ const AIDrawer = ({ isOpen, onClose }) => {
         }
     }, [isOpen]);
 
-    const handleSend = async () => {
-        if (!inputCode.trim() || loading) return;
+    const handleSend = async (code) => {
+        if (!code?.trim() || loading) return;
         
         try {
-            await generateExplanation(inputCode);
-            setInputCode("");
+            await generateExplanation(code);
         } catch {
             // Error handled in store
         }
@@ -91,8 +91,6 @@ const AIDrawer = ({ isOpen, onClose }) => {
 
                 {/* Input Area */}
                 <AIInput 
-                    inputCode={inputCode}
-                    setInputCode={setInputCode}
                     handleSend={handleSend}
                     loading={loading}
                     inputRef={inputRef}
