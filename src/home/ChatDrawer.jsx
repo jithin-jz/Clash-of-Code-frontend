@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import useChatStore from '../stores/useChatStore';
-import { Link } from 'react-router-dom';
-import { Lock, MessageSquare, ChevronLeft, Send, Smile, X } from 'lucide-react';
-import EmojiPicker from 'emoji-picker-react';
-import { notify } from '../services/notification';
+import useAuthStore from '../stores/useAuthStore';
+import { MessageSquare, ChevronLeft } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+
+// Subcomponents
+import ChatInput from './components/ChatInput';
+import MessageList from './components/MessageList';
 
 const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
     // ... refs and state ...
@@ -20,14 +21,11 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
         onlineCount, 
         isConnected, 
         connect, 
-        disconnect, 
         sendMessage: sendStoreMessage 
     } = useChatStore();
 
     const [inputMessage, setInputMessage] = useState("");
     const [showPicker, setShowPicker] = useState(false);
-
-    // ... (rest of the hooks remain the same) ...
 
     // Auto-focus input when chat opens
     useEffect(() => {
@@ -58,7 +56,6 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
     }, [messages]);
 
     /* --------------------------- websocket connect --------------------------- */
-    /* --------------------------- websocket connect --------------------------- */
     useEffect(() => {
         if (isChatOpen && user) {
             const token = localStorage.getItem("access_token");
@@ -67,23 +64,27 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
                 connect(token);
             }
         } 
-        // We generally don't disconnect on drawer close if we want to keep receiving messages,
-        // but for now, let's keep it simple or follow previous behavior.
-        // Previous behavior: close on unmount or deps change.
-        // Let's rely on store's idempotency and maybe disconnect on unmount?
-        // Actually, if we want background chat, we shouldn't disconnect when drawer closes.
-        // But the previous code closed it. Let's stick to previous behavior for now
-        // to save resources, or maybe keep it open.
-        // Let's disconnect ONLY on component unmount, but the dependency array 
-        // [user, isChatOpen] implies it reconnects every time drawer opens.
         
         return () => {
-             // Optional: disconnect on unmount or when drawer closes if undesired
-             // disconnect(); 
+             // Optional: disconnect on unmount 
         };
     }, [isChatOpen, user, connect]);
 
-    /* ----------------------------- send message ------------------------------ */
+    // Handle Auth Error (Token Expiry)
+    const { error, connect: reconnect } = useChatStore();
+    useEffect(() => {
+        if (error === "Authentication failed" && isChatOpen && user) {
+            // Attempt to refresh token by triggering an auth check
+            // which uses the interceptor to refresh if needed
+            useAuthStore.getState().checkAuth().then(() => {
+                const newToken = localStorage.getItem("access_token");
+                if (newToken) {
+                    reconnect(newToken);
+                }
+            });
+        }
+    }, [error, isChatOpen, user, reconnect]);
+
     /* ----------------------------- send message ------------------------------ */
     const sendMessage = useCallback((content = null) => {
         const messageToSend = content || inputMessage.trim();
@@ -95,9 +96,6 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
         setShowPicker(false);
     }, [inputMessage, isConnected, sendStoreMessage]);
 
-    const handleEmojiClick = (emojiData) => {
-        setInputMessage((prev) => prev + emojiData.emoji);
-    };
 
     return (
         <motion.div 
@@ -121,134 +119,24 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
                 </div>
 
                 {/* Messages Area */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-linear-to-b from-transparent to-black/30 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                    {!user ? (
-                        <div className="h-full flex flex-col items-center justify-center text-center p-6 opacity-60">
-                            <div className="w-16 h-16 bg-[#FFD700]/10 rounded-full flex items-center justify-center mb-6">
-                                <Lock size={24} className="text-[#FFD700]" />
-                            </div>
-                            <p className="text-white font-bold text-lg mb-2">Chat Locked</p>
-                            <p className="text-gray-400 text-sm mb-6 max-w-[200px]">Join the community to chat with other players!</p>
-                            <Link to="/login" className="px-6 py-3 bg-[#FFD700] hover:bg-[#FDB931] text-black rounded-xl font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-yellow-900/20">
-                                Login Access
-                            </Link>
-                        </div>
-                    ) : (
-                        <>
-                            {messages.length === 0 && (
-                                <div className="text-center text-gray-500 mt-10 text-sm">
-                                    No messages yet. Be the first!
-                                </div>
-                            )}
-                            {messages.map((msg, idx) => (
-                                <div key={idx} className={`flex flex-col gap-2 group ${msg.username === user?.username ? 'items-end' : 'items-start'}`}>
-                                    <div className={`flex items-center gap-2 ${msg.username === user?.username ? 'flex-row-reverse' : 'flex-row'}`}>
-                                        <Link 
-                                            to={`/profile/${msg.username}`}
-                                            onClick={() => setChatOpen(false)}
-                                            className="relative shrink-0 w-8 h-8 rounded-full overflow-hidden border border-white/10 hover:border-[#FFD700] transition-colors"
-                                        >
-                                            {msg.username === user?.username ? (
-                                                user?.profile?.avatar_url ? (
-                                                    <img src={user.profile.avatar_url} alt={msg.username} className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-xs text-zinc-500 font-bold">
-                                                        {msg.username?.charAt(0).toUpperCase() || '?'}
-                                                    </div>
-                                                )
-                                            ) : (
-                                                msg.avatar_url ? (
-                                                    <img src={msg.avatar_url} alt={msg.username} className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-xs text-zinc-500 font-bold">
-                                                        {msg.username?.charAt(0).toUpperCase() || '?'}
-                                                    </div>
-                                                )
-                                            )}
-                                        </Link>
-                                        <div className={`flex flex-col gap-1 max-w-[85%] ${msg.username === user?.username ? 'items-end' : 'items-start'}`}>
-                                            <div className="flex items-center gap-2">
-                                                <Link 
-                                                    to={`/profile/${msg.username}`}
-                                                    onClick={() => setChatOpen(false)}
-                                                    className={`${msg.username === user?.username ? 'text-[#FFD700]' : 'text-blue-400'} font-bold text-xs tracking-wide hover:underline cursor-pointer`}
-                                                >
-                                                    {msg.username}
-                                                </Link>
-                                                {msg.timestamp && (
-                                                    <span className="text-[10px] text-zinc-500 font-mono">
-                                                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <div className={`
-                                                rounded-2xl text-sm leading-relaxed shadow-sm transition-colors
-                                                ${msg.username === user?.username 
-                                                    ? 'bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] rounded-tr-sm p-3' 
-                                                    : 'bg-[#1a1a1a] border border-white/5 text-gray-300 rounded-tl-sm group-hover:bg-[#222] p-3'
-                                                }
-                                            `}>
-                                                {msg.message}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                            <div ref={messagesEndRef} />
-                        </>
-                    )}
-                </div>
+                <MessageList 
+                    user={user}
+                    messages={messages}
+                    setChatOpen={setChatOpen}
+                    messagesEndRef={messagesEndRef}
+                />
 
                 {/* Input Area */}
-                <div className="p-4 bg-[#121212]/50 border-t border-white/5 backdrop-blur-md relative">
-                    {/* Emoji Picker */}
-                    {showPicker && (
-                        <div 
-                            ref={pickerRef}
-                            className="absolute bottom-full left-0 w-full p-4 mb-2 z-50 animate-in fade-in zoom-in-95 duration-200"
-                        >
-                            <div className="bg-[#1a1a1a] rounded-xl border border-white/10 shadow-2xl overflow-hidden h-[400px] flex">
-                                <EmojiPicker 
-                                    onEmojiClick={handleEmojiClick}
-                                    theme="dark"
-                                    width="100%"
-                                    height="100%"
-                                    lazyLoadEmojis={true}
-                                    previewConfig={{ showPreview: false }}
-                                />
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="flex gap-3">
-                        <Button 
-                            variant="ghost"
-                            onClick={() => setShowPicker(!showPicker)}
-                            disabled={!user}
-                            className={`p-3 rounded-xl transition-all ${showPicker ? 'bg-[#FFD700] text-black' : 'bg-black/40 text-gray-400 hover:text-[#FFD700] hover:bg-black/60'} disabled:opacity-50 border border-white/10 h-auto w-auto`}
-                        >
-                            {showPicker ? <X size={20} /> : <Smile size={20} />}
-                        </Button>
-                        
-                        <Input 
-                            ref={inputRef}
-                            type="text" 
-                            placeholder={user ? "Type a message..." : "Login to chat..."} 
-                            disabled={!user}
-                            value={inputMessage}
-                            onChange={(e) => setInputMessage(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                            className="flex-1 bg-black/40 border-white/10 rounded-xl px-4 py-6 text-white text-sm focus-visible:ring-[#FFD700]/50 focus-visible:bg-black/60 transition-all disabled:opacity-50 placeholder-gray-600" 
-                        />
-                        <Button 
-                            disabled={!user} 
-                            onClick={() => sendMessage()}
-                            className="bg-[#FFD700] hover:bg-[#FDB931] text-black p-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95 shadow-lg shadow-yellow-900/20 h-auto w-auto"
-                        >
-                            <Send size={18} />
-                        </Button>
-                    </div>
-                </div>
+                <ChatInput 
+                    user={user}
+                    inputMessage={inputMessage}
+                    setInputMessage={setInputMessage}
+                    sendMessage={sendMessage}
+                    showPicker={showPicker}
+                    setShowPicker={setShowPicker}
+                    inputRef={inputRef}
+                    pickerRef={pickerRef}
+                />
 
                 {/* Toggle Button */}
                 <Button

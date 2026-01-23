@@ -4,7 +4,8 @@ import useAuthStore from '../stores/useAuthStore';
 
 // Components
 
-import Loader from '../common/Loader';
+// import Loader from '../common/Loader';
+import HomeSkeleton from './HomeSkeleton';
 import LevelModal from '../game/LevelModal';
 import ProfilePanel from '../home/ProfilePanel';
 import ChatDrawer from '../home/ChatDrawer';
@@ -63,6 +64,8 @@ const Home = () => {
                 setApiLevels(data);
             } catch (error) {
                 console.error("Failed to fetch challenges:", error);
+            } finally {
+                setIsLoading(false);
             }
         };
         fetchLevels();
@@ -72,7 +75,7 @@ const Home = () => {
     const levels = useMemo(() => {
         const visualLevels = generateLevels(25); // Get positions and icons
         
-        return visualLevels.map((visual, index) => {
+        return visualLevels.map((visual) => {
             // Find matching API data by order (assuming index+1 == order)
             const apiData = apiLevels.find(l => l.order === visual.id);
             
@@ -95,14 +98,14 @@ const Home = () => {
                 stars: 0
             };
         });
-    }, [user, apiLevels]);
+    }, [apiLevels]);
 
-    // Loading logic
-    useEffect(() => {
-        if (!isLoading) return;
-        const timeout = setTimeout(() => setIsLoading(false), 3000);
-        return () => clearTimeout(timeout);
-    }, [isLoading]);
+    // Loading logic removed for instant render
+    // useEffect(() => {
+    //    if (!isLoading) return;
+    //    const timeout = setTimeout(() => setIsLoading(false), 3000);
+    //    return () => clearTimeout(timeout);
+    // }, [isLoading]);
 
 
 
@@ -124,6 +127,10 @@ const Home = () => {
         navigate('/');
     };
 
+    if (isLoading) {
+        return <HomeSkeleton />;
+    }
+
     const handleLevelClick = (level) => {
         if (!user) {
             navigate('/login');
@@ -137,7 +144,8 @@ const Home = () => {
 
     return (
         <div className="h-screen relative select-none overflow-hidden bg-[#0a0a0a] text-white">
-            <Loader isLoading={isLoading} />
+            
+            {/* Background Texture */}
             
             {/* Background Texture */}
             <div className="absolute inset-0 opacity-20 pointer-events-none" 
@@ -172,12 +180,10 @@ const Home = () => {
                 onClaim={() => setHasUnclaimedReward(false)}
             />
             
-            {!isLoading && (
-                <LevelMap 
-                    levels={levels}
-                    handleLevelClick={handleLevelClick}
-                />
-            )}
+            <LevelMap 
+                levels={levels}
+                handleLevelClick={handleLevelClick}
+            />
 
             {/* Level Modal */}
             {selectedLevel && <LevelModal selectedLevel={selectedLevel} onClose={() => setSelectedLevel(null)} />}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { checkInApi } from '../services/checkInApi';
 import useUserStore from '../stores/useUserStore';
-import { Calendar, Flame, Award, CheckCircle2 } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -12,17 +12,16 @@ import {
 } from '../components/ui/dialog';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { cn } from '../lib/utils';
+
+// Subcomponents
+import StreakStats from './components/StreakStats';
+import DayGrid from './components/DayGrid';
 
 const CheckInReward = ({ isOpen, onClose, onClaim }) => {
   const [checkInStatus, setCheckInStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [checkingIn, setCheckingIn] = useState(false);
   const { fetchCurrentUser } = useUserStore();
-
-  const DAILY_REWARDS = {
-    1: 5, 2: 10, 3: 15, 4: 20, 5: 25, 6: 30, 7: 35
-  };
 
   useEffect(() => {
     if (isOpen) {
@@ -88,33 +87,21 @@ const CheckInReward = ({ isOpen, onClose, onClaim }) => {
           </div>
         </DialogHeader>
 
-        {/* Streak Display */}
-        {/* Streak & Freeze Stats */}
-        {/* Streak Display */}
         {/* Streak Stats */}
-        <div className="grid grid-cols-1 gap-4">
-          <Card className="bg-linear-to-r from-orange-500/10 to-red-500/10 border-orange-500/20">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-orange-500/20 rounded-lg">
-                  <Flame className="text-orange-400 h-5 w-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider">Current Cycle</p>
-                  <p className="text-lg font-bold text-white">
-                    Day {checkInStatus?.cycle_day || 1}{' '}
-                    <span className="text-gray-500">/ 7</span>
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <StreakStats checkInStatus={checkInStatus} />
 
         {/* Content */}
         <div className="space-y-4">
           {loading ? (
-            <div className="text-center py-8 text-gray-400">Loading...</div>
+            <>
+                {/* Skeleton state */}
+                <p className="text-sm text-gray-400 text-center animate-pulse bg-white/5 mx-auto rounded-md h-4 w-64 mb-4"></p>
+                <div className="grid grid-cols-7 gap-2 animate-pulse">
+                     {[1, 2, 3, 4, 5, 6, 7].map(i => (
+                         <div key={i} className="bg-[#1a1a1a] border border-white/5 h-20 rounded-xl"></div>
+                     ))}
+                </div>
+            </>
           ) : (
             <>
               <p className="text-sm text-gray-400 text-center">
@@ -122,75 +109,11 @@ const CheckInReward = ({ isOpen, onClose, onClaim }) => {
               </p>
 
               {/* Calendar Grid */}
-              {/* Calendar Grid */}
-              <div className="grid grid-cols-7 gap-2">
-                {[1, 2, 3, 4, 5, 6, 7].map((day) => {
-                  const currentCycleDay = checkInStatus?.cycle_day || 1;
-                  const isCheckedInToday = checkInStatus?.checked_in_today;
-                  
-                  // Check if this specific day was claimed in the current cycle
-                  // We look through recent_checkins to find if 'streak_day' (which maps to cycle day) matches 'day'
-                  const isClaimedInHistory = checkInStatus?.recent_checkins?.some(
-                    (checkin) => checkin.streak_day === day
-                  );
-
-                  const isCompleted = isClaimedInHistory || (day === currentCycleDay && isCheckedInToday);
-                  
-                  // Claimable only if it's TODAY's cycle day and we haven't checked in yet
-                  const isClaimable = !isCheckedInToday && day === currentCycleDay;
-                  
-                  // Missed if it's a past day relative to current cycle day, and not claimed
-                  const isMissed = day < currentCycleDay && !isCompleted;
-
-                  return (
-                    <Card
-                      key={day}
-                      onClick={() => isClaimable ? handleCheckIn(day) : null}
-                      className={cn(
-                        "relative transition-all border-2",
-                        isCompleted && "bg-linear-to-br from-green-500/20 to-emerald-500/20 border-green-500/30 cursor-default",
-                        isClaimable && "bg-linear-to-br from-primary/20 to-orange-500/20 border-primary/50 cursor-pointer hover:scale-105 animate-pulse",
-                        isMissed && "bg-red-500/10 border-red-500/20 opacity-70 cursor-not-allowed",
-                        !isCompleted && !isClaimable && !isMissed && "bg-[#1a1a1a] border-white/5 opacity-50 cursor-not-allowed",
-                        checkingIn && "opacity-50 cursor-not-allowed"
-                      )}
-                    >
-                      <CardContent className="p-3 text-center">
-                        <p className={cn("text-xs mb-1", isCompleted || isClaimable ? "text-white" : "text-gray-500")}>Day {day}</p>
-                        <Badge 
-                          variant={isCompleted ? "default" : isClaimable ? "default" : "outline"}
-                          className={cn(
-                            "text-xs font-bold",
-                            isCompleted && "bg-green-500 hover:bg-green-500 text-white border-none",
-                            isClaimable && "bg-primary hover:bg-primary text-black border-none",
-                            isMissed && "bg-transparent text-red-500 border-red-500/30",
-                            !isCompleted && !isClaimable && !isMissed && "text-gray-500 border-white/10"
-                          )}
-
-                        >
-                          {DAILY_REWARDS[day]} XP
-                        </Badge>
-                        
-                        {isCompleted && (
-                          <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                            <CheckCircle2 className="text-white h-3 w-3" />
-                          </div>
-                        )}
-                        {isClaimable && (
-                          <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center animate-bounce">
-                            <Award className="text-primary-foreground h-3 w-3" />
-                          </div>
-                        )}
-                         {isMissed && (
-                          <div className="absolute top-1 right-1">
-                             <span className="text-[10px] text-red-400 font-bold uppercase">Missed</span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
+              <DayGrid 
+                  checkInStatus={checkInStatus} 
+                  handleCheckIn={handleCheckIn} 
+                  checkingIn={checkingIn} 
+              />
 
               {/* Recent Check-ins */}
               {checkInStatus?.recent_checkins?.length > 0 && (

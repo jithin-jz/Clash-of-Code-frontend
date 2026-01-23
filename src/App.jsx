@@ -26,18 +26,13 @@ import Loader from './common/Loader';
 
 // Auth initializer component
 const AuthInitializer = ({ children }) => {
-    const { isInitialized, checkAuth } = useAuthStore();
+    const { checkAuth } = useAuthStore();
 
     useEffect(() => {
         checkAuth();
     }, [checkAuth]);
 
-    return (
-        <>
-            <Loader isLoading={!isInitialized} />
-            {isInitialized && children}
-        </>
-    );
+    return children;
 };
 
 import { NotificationContainer } from './services/notification';

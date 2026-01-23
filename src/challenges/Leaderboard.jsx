@@ -82,14 +82,21 @@ const Leaderboard = () => {
                     </TableHeader>
                     <TableBody>
                         {loading ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="h-48 text-center text-gray-500">
-                                    <div className="flex flex-col items-center gap-2 justify-center">
-                                        <Loader2 className="w-8 h-8 animate-spin text-white/20" />
-                                        <span>Loading rankings...</span>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
+                            // Skeleton Rows
+                            [...Array(5)].map((_, i) => (
+                                <TableRow key={i} className="border-white/5">
+                                    <TableCell><div className="h-4 w-8 bg-white/5 rounded animate-pulse" /></TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-8 w-8 rounded-full bg-white/5 animate-pulse" />
+                                            <div className="h-4 w-24 bg-white/5 rounded animate-pulse" />
+                                        </div>
+                                    </TableCell>
+                                    <TableCell><div className="h-2 w-2 rounded-full bg-white/5 animate-pulse" /></TableCell>
+                                    <TableCell className="text-right"><div className="h-4 w-8 bg-white/5 rounded ml-auto animate-pulse" /></TableCell>
+                                    <TableCell className="text-right"><div className="h-4 w-12 bg-white/5 rounded ml-auto animate-pulse" /></TableCell>
+                                </TableRow>
+                            ))
                         ) : users.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="h-48 text-center text-gray-500">

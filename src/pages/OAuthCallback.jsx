@@ -112,7 +112,22 @@ const OAuthCallback = ({ provider }) => {
     }, [isAuthenticated, navigate, isPopup, user]);
 
     if (loading || isProcessing) {
-        return <Loader isLoading={true} />;
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#0a0a0a] to-[#0a0a0a]">
+                <div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-500">
+                    <div className="relative">
+                        <div className="absolute inset-0 bg-indigo-500 blur-xl opacity-20 animate-pulse" />
+                        <div className="w-16 h-16 rounded-2xl bg-[#1a1a1a] border border-white/10 flex items-center justify-center relative z-10">
+                            <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                        </div>
+                    </div>
+                    <div className="text-center space-y-2">
+                        <h2 className="text-xl font-bold text-white">Verifying Access</h2>
+                        <p className="text-sm text-gray-400">Securely connecting to Code of Clans...</p>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     if (error || searchParams.get('error')) {

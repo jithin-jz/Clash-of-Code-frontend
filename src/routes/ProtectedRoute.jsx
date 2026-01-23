@@ -11,7 +11,7 @@ const ProtectedRoute = ({ children }) => {
     const { isAuthenticated, isInitialized } = useAuthStore();
 
     if (!isInitialized) {
-        return <Loader isLoading={true} />;
+        return null;
     }
 
     if (!isAuthenticated) {
