@@ -274,7 +274,7 @@ const CodeArena = () => {
                 />
                 
                 {/* Right: Output/Task/AI */}
-                <div className="w-1/3 flex flex-col">
+                <div className="w-1/3 flex flex-col border-l border-white/10">
                     <ProblemPane 
                         challenge={challenge}
                         loading={!challenge}
