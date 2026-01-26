@@ -109,8 +109,9 @@ const Leaderboard = () => {
                                 return (
                                     <TableRow 
                                         key={rankUser.username} 
+                                        onClick={() => navigate(`/profile/${rankUser.username}`)}
                                         className={cn(
-                                            "border-white/5 transition-colors",
+                                            "border-white/5 transition-colors cursor-pointer",
                                             isMe ? "bg-primary/5 hover:bg-primary/10" : "hover:bg-white/5"
                                         )}
                                     >

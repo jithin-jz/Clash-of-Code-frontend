@@ -3,7 +3,6 @@ import { Loader2, Sparkles, ArrowRight, Home } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { motion } from 'framer-motion';
-import useAIStore from '../stores/useAIStore';
 import useAuthStore from '../stores/useAuthStore';
 import CursorEffects from './CursorEffects';
 import VictoryAnimation from './VictoryAnimation';
@@ -20,9 +19,6 @@ const CodeArena = () => {
     const [challenge, setChallenge] = useState(null);
     const [output, setOutput] = useState([]);
     const [isRunning, setIsRunning] = useState(false);
-    const [activeTab, setActiveTab] = useState('task'); // 'task' or 'ai'
-    const [hint, setHint] = useState(null);
-    const { generateHint, loading: aiLoading } = useAIStore();
     const { user } = useAuthStore();
     const [isPyodideReady, setPyodideReady] = useState(false);
     const pyodideRef = useRef(null);
@@ -41,7 +37,6 @@ const CodeArena = () => {
                 const data = await challengesApi.getBySlug(id);
                 setChallenge(data);
                 setCode(data.initial_code || "");
-                setHint(null);
             } catch (error) {
                 console.error("Failed to load challenge:", error);
                 setOutput([{ type: 'error', content: "Failed to load challenge data." }]);
@@ -173,26 +168,6 @@ const CodeArena = () => {
         }
     }, [code, challenge, id, isRunning]);
 
-    const handleGetHint = useCallback(async () => {
-        try {
-            const { challengesApi } = await import('../services/challengesApi');
-            // Deduct XP
-            await challengesApi.purchaseAIHint(id);
-            
-            // Generate Hint
-            const taskDesc = challenge.description;
-            const result = await generateHint(taskDesc, code);
-            setHint(result);
-            setOutput(prev => [...prev, { type: 'success', content: "💡 Hint Unlocked (-10 XP)" }]);
-        } catch (error) {
-            if (error.response?.status === 400) {
-                setOutput(prev => [...prev, { type: 'error', content: "❌ Insufficient XP for Hint (Cost: 10 XP)" }]);
-            } else {
-                console.error(error);
-            }
-        }
-    }, [id, challenge, code, generateHint]);
-
     // if (!challenge) return <div className="h-screen flex items-center justify-center bg-[#0a0a0a] text-white"><Loader2 className="animate-spin" /></div>;
 
     return (
@@ -204,9 +179,8 @@ const CodeArena = () => {
                 <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
                      <VictoryAnimation type={user?.profile?.active_victory} />
                      <motion.div 
-                        initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="bg-[#121212] border border-white/10 rounded-2xl p-8 max-w-md w-full flex flex-col items-center text-center shadow-2xl relative overflow-hidden z-[70]"
+                        className="bg-[#121212] border border-white/10 rounded-2xl p-8 max-w-md w-full flex flex-col items-center text-center shadow-2xl relative overflow-hidden z-70"
                      >
                         {/* Background Glow */}
                         <div className="absolute inset-0 bg-linear-to-br from-green-500/10 via-purple-500/5 to-blue-500/10 pointer-events-none" />
@@ -302,13 +276,7 @@ const CodeArena = () => {
                 {/* Right: Output/Task/AI */}
                 <div className="w-1/3 flex flex-col">
                     <ProblemPane 
-                        activeTab={activeTab}
-                        setActiveTab={setActiveTab}
                         challenge={challenge}
-                        hint={hint}
-                        aiLoading={aiLoading}
-                        onGetHint={handleGetHint}
-                        id={id}
                         loading={!challenge}
                     />
                     <ConsolePane output={output} loading={!challenge} />

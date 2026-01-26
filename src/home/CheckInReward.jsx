@@ -115,31 +115,7 @@ const CheckInReward = ({ isOpen, onClose, onClaim }) => {
                   checkingIn={checkingIn} 
               />
 
-              {/* Recent Check-ins */}
-              {checkInStatus?.recent_checkins?.length > 0 && (
-                <Card className="bg-muted/50">
-                  <CardContent className="p-4">
-                    <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      Recent Check-ins
-                    </h3>
-                    <div className="space-y-2 max-h-32 overflow-y-auto">
-                      {checkInStatus.recent_checkins.slice(0, 5).map((checkin) => (
-                        <div
-                          key={checkin.id}
-                          className="flex items-center justify-between text-xs py-1.5 px-2 bg-background rounded-lg"
-                        >
-                          <span className="text-muted-foreground">{checkin.check_in_date}</span>
-                          <span className="text-muted-foreground">Day {checkin.streak_day}</span>
-                          <Badge variant="outline" className="text-primary border-primary/50">
-                            +{checkin.xp_earned} XP
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+
             </>
           )}
         </div>

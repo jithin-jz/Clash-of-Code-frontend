@@ -67,11 +67,7 @@ const DayGrid = ({
                             <Award className="text-primary-foreground h-3 w-3" />
                           </div>
                         )}
-                         {isMissed && (
-                          <div className="absolute top-1 right-1">
-                             <span className="text-[10px] text-red-400 font-bold uppercase">Missed</span>
-                          </div>
-                        )}
+
                       </CardContent>
                     </Card>
                 );
