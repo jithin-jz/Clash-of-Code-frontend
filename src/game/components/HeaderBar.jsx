@@ -7,7 +7,8 @@ const HeaderBar = ({
     navigate, 
     isPyodideReady, 
     isRunning, 
-    runCode 
+    runCode,
+    stopCode
 }) => {
     return (
         <div className="h-16 border-b border-white/10 flex items-center justify-between px-6 bg-[#121212]">
@@ -23,14 +24,24 @@ const HeaderBar = ({
                     <div className={`w-2 h-2 rounded-full ${isPyodideReady ? 'bg-green-500' : 'bg-yellow-500 animate-pulse'}`} />
                     {isPyodideReady ? 'Env Ready' : 'Loading...'}
                 </div>
-                <Button 
-                    size="sm" 
-                    onClick={runCode} 
-                    disabled={!isPyodideReady || isRunning}
-                    className="bg-green-600 hover:bg-green-700 text-white min-w-[100px]"
-                >
-                    {isRunning ? <Loader2 className="animate-spin w-4 h-4" /> : <><Play className="w-4 h-4 mr-2" /> Run / Submit</>}
-                </Button>
+                {isRunning ? (
+                    <Button 
+                        size="sm" 
+                        onClick={stopCode} 
+                        className="bg-red-500 hover:bg-red-600 text-white min-w-[100px]"
+                    >
+                        <Loader2 className="animate-spin w-4 h-4 mr-2" /> Stop
+                    </Button>
+                ) : (
+                    <Button 
+                        size="sm" 
+                        onClick={runCode} 
+                        disabled={!isPyodideReady}
+                        className="bg-green-600 hover:bg-green-700 text-white min-w-[100px]"
+                    >
+                        <Play className="w-4 h-4 mr-2" /> Run / Submit
+                    </Button>
+                )}
             </div>
         </div>
     );

@@ -164,9 +164,10 @@ export const authAPI = {
   deleteAccount: () => api.delete("/auth/user/delete/"),
 
   // Admin endpoints
-  getUsers: () => api.get("/profiles/admin/users/"),
+  getUsers: () => api.get("/admin/users/"),
   toggleBlockUser: (username) =>
-    api.post(`/profiles/admin/users/${username}/toggle-block/`),
+    api.post(`/admin/users/${username}/toggle-block/`),
+  getAdminStats: () => api.get("/admin/stats/"),
 };
 
 // Payment endpoints

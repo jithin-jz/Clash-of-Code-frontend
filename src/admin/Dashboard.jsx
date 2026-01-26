@@ -47,6 +47,7 @@ const AdminDashboard = () => {
                 navigate('/home');
             } else {
                 fetchUsers();
+                fetchStats();
             }
         }
     }, [loading, isAuthenticated, user, navigate]);
@@ -56,17 +57,26 @@ const AdminDashboard = () => {
         try {
             const response = await authAPI.getUsers();
             setUserList(response.data);
-            
-            // Update simple stats
-            setStats(prev => prev.map(stat => {
-                if (stat.label === 'Total Users') return { ...stat, value: response.data.length };
-                return stat;
-            }));
-            
         } catch (error) {
             console.error("Failed to fetch users", error);
         } finally {
             setTableLoading(false);
+        }
+    };
+
+    const fetchStats = async () => {
+        try {
+            const response = await authAPI.getAdminStats();
+            const { total_users, active_sessions, oauth_logins, total_gems } = response.data;
+            
+            setStats([
+                { label: 'Total Users', value: total_users, icon: <Users size={24} /> },
+                { label: 'Active Sessions', value: active_sessions, icon: <Zap size={24} /> },
+                { label: 'OAuth Logins', value: oauth_logins, icon: <Lock size={24} /> },
+                { label: 'Total Gems', value: total_gems, icon: <Gem size={24} /> },
+            ]);
+        } catch (error) {
+            console.error("Failed to fetch admin stats", error);
         }
     };
 
