@@ -66,11 +66,6 @@ const MessageList = ({
                                 >
                                     {msg.username}
                                 </Link>
-                                {msg.timestamp && (
-                                    <span className="text-[10px] text-zinc-500 font-mono">
-                                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </span>
-                                )}
                             </div>
                             <div className={`
                                 rounded-2xl text-sm leading-relaxed shadow-sm transition-colors
@@ -80,6 +75,13 @@ const MessageList = ({
                                 }
                             `}>
                                 {msg.message}
+                                {msg.timestamp && (
+                                    <div className={`text-[10px] font-mono mt-1 text-right ${
+                                        msg.username === user?.username ? 'text-[#FFD700]/70' : 'text-zinc-500'
+                                    }`}>
+                                        {new Date(msg.timestamp).toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
