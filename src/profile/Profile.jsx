@@ -26,6 +26,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "../components/ui/dialog";
 
 const Profile = () => {
@@ -65,6 +67,9 @@ const Profile = () => {
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+
+  // Delete Dialog State
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const bannerInputRef = useRef(null);
 
@@ -179,14 +184,18 @@ const Profile = () => {
     navigate("/login");
   };
 
-  const handleDeleteAccount = async () => {
-    if (window.confirm("Are you sure you want to delete your account? This cannot be undone.")) {
-        try {
-            await deleteAccount();
-            navigate("/login");
-        } catch (err) {
-            notify.error(err.message);
-        }
+  const handleDeleteAccount = () => {
+      setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteAccount = async () => {
+    try {
+        await deleteAccount();
+        navigate("/login");
+    } catch (err) {
+        notify.error(err.message);
+    } finally {
+        setDeleteDialogOpen(false);
     }
   };
 
@@ -476,6 +485,34 @@ const Profile = () => {
                     </div>
                 )}
             </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Account Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="bg-[#121212] border border-white/10 text-white rounded-2xl max-w-md">
+            <DialogHeader>
+                <DialogTitle className="text-red-500 flex items-center gap-2">
+                    <Shield className="w-5 h-5" /> Delete Account
+                </DialogTitle>
+                <DialogDescription className="text-gray-400 mt-2">
+                    Are you sure you want to delete your account? This action cannot be undone and you will lose all progress.
+                </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex gap-2 mt-4">
+                <button 
+                  onClick={() => setDeleteDialogOpen(false)}
+                  className="px-4 py-2 rounded-lg text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+                >
+                    Cancel
+                </button>
+                <button 
+                  onClick={confirmDeleteAccount}
+                  className="px-4 py-2 rounded-lg text-sm font-bold bg-red-600 hover:bg-red-700 text-white transition-colors"
+                >
+                    Yes, Delete My Account
+                </button>
+            </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
