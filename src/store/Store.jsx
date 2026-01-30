@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBag, ArrowLeft, Loader2, Lock, Check, Sparkles, Type, Palette, Package, PartyPopper } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Loader2, Lock, Check, Sparkles, Type, Palette, Package, PartyPopper, Crown } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
 import { storeAPI } from '../services/api';
 import useAuthStore from '../stores/useAuthStore';
 import { toast } from 'sonner';
@@ -60,9 +58,58 @@ const Store = () => {
         }
     };
 
-    const renderIcon = (iconName, category) => {
+    const handleEquip = async (item) => {
+        try {
+            const res = await storeAPI.equipItem(item.id);
+            toast.success(res.data.message);
+            await checkAuth();
+        } catch {
+            toast.error("Failed to equip");
+        }
+    };
+
+    const handleUnequip = async (item) => {
+        try {
+            const res = await storeAPI.unequipItem(item.category);
+            toast.success(res.data.message);
+            await checkAuth();
+        } catch {
+            toast.error("Failed to unequip");
+        }
+    };
+
+    const isItemActive = (item) => {
+        if (!user?.profile) return false;
+        if (item.category === 'THEME') return user.profile.active_theme === item.item_data?.theme_key;
+        if (item.category === 'FONT') return user.profile.active_font === item.item_data?.font_family;
+        if (item.category === 'EFFECT') return user.profile.active_effect === item.item_data?.effect_key;
+        if (item.category === 'VICTORY') return user.profile.active_victory === item.item_data?.victory_key;
+        return false;
+    };
+
+    const renderIcon = (iconName) => {
         const Icon = LucideIcons[iconName] || LucideIcons.Package;
-        return <Icon className="w-10 h-10 text-gray-200 transition-transform group-hover:scale-105 duration-300" />;
+        return <Icon className="w-12 h-12" />;
+    };
+
+    const getCategoryColor = (category) => {
+        switch (category) {
+            case 'THEME': return 'from-purple-500/20 to-purple-600/10 border-purple-500/30';
+            case 'FONT': return 'from-blue-500/20 to-blue-600/10 border-blue-500/30';
+            case 'EFFECT': return 'from-amber-500/20 to-amber-600/10 border-amber-500/30';
+            case 'VICTORY': return 'from-emerald-500/20 to-emerald-600/10 border-emerald-500/30';
+            default: return 'from-gray-500/20 to-gray-600/10 border-gray-500/30';
+        }
+    };
+
+    const getCategoryBadgeColor = (category) => {
+        switch (category) {
+            case 'THEME': return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+            case 'FONT': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+            case 'EFFECT': return 'bg-amber-500/20 text-amber-300 border-amber-500/30';
+            case 'VICTORY': return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
+            default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+        }
     };
 
     const filteredItems = activeCategory === 'ALL' 
@@ -70,206 +117,222 @@ const Store = () => {
         : items.filter(item => item.category === activeCategory);
 
     return (
-        <div className="min-h-screen bg-[#09090b] text-gray-100 font-sans">
-            {/* Header Area */}
-            <div className="border-b border-border bg-[#09090b]/95 backdrop-blur supports-[backdrop-filter]:bg-[#09090b]/60 sticky top-0 z-40">
-                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => navigate('/')}
-                            className="text-muted-foreground hover:text-foreground"
-                        >
-                            <ArrowLeft size={18} />
-                        </Button>
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-lg font-semibold tracking-tight text-foreground">
-                                Store
-                            </h1>
-                            <div className="h-4 w-px bg-border" />
-                            <p className="text-sm text-muted-foreground">Premium Items</p>
-                        </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-4">
-                         <div className="flex items-center gap-2 px-3 py-1 bg-secondary rounded-full">
-                            <span className="w-2 h-2 rounded-full bg-primary" />
-                            <span className="text-sm font-medium text-foreground">
-                                {user?.profile?.xp?.toLocaleString() || 0} XP
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Categories Tab */}
-                <div className="max-w-7xl mx-auto px-6 flex items-center gap-6 overflow-x-auto pb-0 -mb-px no-scrollbar border-t border-border/50">
-                    {CATEGORIES.map((cat) => {
-                        const isActive = activeCategory === cat.id;
-                        return (
-                            <button
-                                key={cat.id}
-                                onClick={() => setActiveCategory(cat.id)}
-                                className={`
-                                    relative py-3 text-sm font-medium transition-colors whitespace-nowrap
-                                    ${isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'}
-                                `}
+        <div className="min-h-screen bg-[#09090b] text-gray-100">
+            {/* Premium Header */}
+            <div className="sticky top-0 z-50 bg-[#0a0a0c]/80 backdrop-blur-xl border-b border-white/5">
+                <div className="max-w-7xl mx-auto px-6">
+                    {/* Top Bar */}
+                    <div className="h-16 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => navigate('/')}
+                                className="text-gray-400 hover:text-white hover:bg-white/5"
                             >
-                                {cat.label}
-                                {isActive && (
-                                    <motion.div 
-                                        layoutId="activeTab"
-                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" 
-                                    />
-                                )}
-                            </button>
-                        );
-                    })}
+                                <ArrowLeft size={20} />
+                            </Button>
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                                    <ShoppingBag size={20} className="text-black" />
+                                </div>
+                                <div>
+                                    <h1 className="text-lg font-bold text-white">Premium Store</h1>
+                                    <p className="text-xs text-gray-500">Customize your experience</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* XP Balance */}
+                        <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500/10 to-amber-600/5 rounded-full border border-amber-500/20">
+                            <Crown size={16} className="text-amber-400" />
+                            <span className="text-sm font-bold text-amber-400">
+                                {user?.profile?.xp?.toLocaleString() || 0}
+                            </span>
+                            <span className="text-xs text-amber-400/60">XP</span>
+                        </div>
+                    </div>
+
+                    {/* Category Pills */}
+                    <div className="flex items-center gap-2 pb-4 overflow-x-auto no-scrollbar">
+                        {CATEGORIES.map((cat) => {
+                            const isActive = activeCategory === cat.id;
+                            const Icon = cat.icon;
+                            return (
+                                <motion.button
+                                    key={cat.id}
+                                    onClick={() => setActiveCategory(cat.id)}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    className={`
+                                        flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap
+                                        ${isActive 
+                                            ? 'bg-white text-black shadow-lg shadow-white/10' 
+                                            : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/5'
+                                        }
+                                    `}
+                                >
+                                    <Icon size={14} />
+                                    {cat.label}
+                                </motion.button>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
 
-            {/* Main Grid */}
+            {/* Main Content */}
             <div className="max-w-7xl mx-auto p-6">
                 {loading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                         {[...Array(8)].map((_, i) => (
-                             <Card key={i} className="bg-card border-border h-full overflow-hidden">
-                                 <div className="h-40 bg-muted/30 animate-pulse border-b border-border" />
-                                 <CardHeader className="p-4 space-y-2">
-                                     <div className="h-5 w-3/4 bg-muted/50 rounded animate-pulse" />
-                                     <div className="h-3 w-1/2 bg-muted/50 rounded animate-pulse" />
-                                 </CardHeader>
-                                 <CardFooter className="mt-auto p-4 pt-0">
-                                     <div className="h-9 w-full bg-muted/50 rounded animate-pulse" />
-                                 </CardFooter>
-                             </Card>
-                         ))}
+                    /* Skeleton Loader */
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                        {[...Array(8)].map((_, i) => (
+                            <div 
+                                key={i} 
+                                className="rounded-2xl bg-white/[0.02] border border-white/5 overflow-hidden"
+                            >
+                                <div className="h-44 bg-white/[0.02] animate-pulse" />
+                                <div className="p-5 space-y-3">
+                                    <div className="h-5 w-3/4 bg-white/5 rounded-lg animate-pulse" />
+                                    <div className="h-3 w-1/2 bg-white/5 rounded animate-pulse" />
+                                    <div className="h-10 w-full bg-white/5 rounded-xl animate-pulse mt-4" />
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 ) : filteredItems.length === 0 ? (
-                    <div className="h-64 flex flex-col items-center justify-center text-muted-foreground gap-4 border border-dashed border-border rounded-lg bg-card/50">
-                        <Package size={32} className="opacity-50" />
-                        <p className="text-sm">No items found.</p>
+                    /* Empty State */
+                    <div className="h-80 flex flex-col items-center justify-center text-gray-500 gap-4">
+                        <div className="w-20 h-20 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-center">
+                            <Package size={32} className="opacity-30" />
+                        </div>
+                        <p className="text-sm">No items found in this category.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    /* Items Grid */
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                         <AnimatePresence mode="popLayout">
-                            {filteredItems.map((item) => (
-                                <motion.div
-                                    key={item.id}
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.98 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.98 }}
-                                    transition={{ duration: 0.2 }}
-                                >
-                                    <Card className="bg-card border-border hover:border-primary/50 transition-colors flex flex-col h-full overflow-hidden group">
-                                        {/* Image / Preview Area */}
-                                        <div className="h-40 relative bg-muted/30 flex items-center justify-center border-b border-border">
-                                            {item.image ? (
-                                                <img 
-                                                    src={item.image} 
-                                                    alt={item.name} 
-                                                    className="w-full h-full object-cover transition-opacity hover:opacity-90" 
-                                                />
-                                            ) : (
-                                                <div className="text-muted-foreground group-hover:text-foreground transition-colors">
-                                                    {renderIcon(item.icon_name, item.category)}
+                            {filteredItems.map((item) => {
+                                const isActive = isItemActive(item);
+                                const canAfford = user?.profile?.xp >= item.cost;
+                                
+                                return (
+                                    <motion.div
+                                        key={item.id}
+                                        layout
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="group"
+                                    >
+                                        <div className={`
+                                            relative rounded-2xl overflow-hidden
+                                            bg-gradient-to-b ${getCategoryColor(item.category)}
+                                            border transition-all duration-300
+                                            hover:border-white/20 hover:shadow-xl hover:shadow-black/20
+                                            ${isActive ? 'ring-2 ring-amber-500/50' : ''}
+                                        `}>
+                                            {/* Preview Area */}
+                                            <div className="relative h-44 bg-black/20 flex items-center justify-center overflow-hidden">
+                                                {item.image ? (
+                                                    <img 
+                                                        src={item.image} 
+                                                        alt={item.name} 
+                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                                                    />
+                                                ) : (
+                                                    <div className="text-white/20 group-hover:text-white/40 transition-colors duration-300">
+                                                        {renderIcon(item.icon_name)}
+                                                    </div>
+                                                )}
+                                                
+                                                {/* Gradient Overlay */}
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                                                
+                                                {/* Category Badge */}
+                                                <div className="absolute top-3 left-3">
+                                                    <span className={`
+                                                        text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full
+                                                        border backdrop-blur-sm ${getCategoryBadgeColor(item.category)}
+                                                    `}>
+                                                        {item.category}
+                                                    </span>
                                                 </div>
-                                            )}
-                                            
-                                            {/* Category Badge */}
-                                            <div className="absolute top-3 left-3">
-                                                <Badge variant="secondary" className="text-[10px] font-medium bg-background/80 backdrop-blur border-border text-foreground">
-                                                    {item.category}
-                                                </Badge>
+                                                
+                                                {/* Owned/Active Badge */}
+                                                {item.is_owned && (
+                                                    <div className="absolute top-3 right-3">
+                                                        <div className={`
+                                                            flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold
+                                                            backdrop-blur-sm border
+                                                            ${isActive 
+                                                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' 
+                                                                : 'bg-white/10 text-white/80 border-white/20'
+                                                            }
+                                                        `}>
+                                                            <Check size={10} />
+                                                            {isActive ? 'Active' : 'Owned'}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
-                                            
-                                            {/* Owned Status */}
-                                            {item.is_owned && (
-                                                <div className="absolute top-3 right-3 bg-background/80 backdrop-blur text-foreground text-[10px] px-2 py-0.5 rounded-full font-medium border border-border flex items-center gap-1">
-                                                    <Check size={10} /> Owned
-                                                </div>
-                                            )}
+
+                                            {/* Content */}
+                                            <div className="p-5">
+                                                <h3 className="text-base font-semibold text-white mb-1 truncate">
+                                                    {item.name}
+                                                </h3>
+                                                <p className="text-xs text-gray-400 line-clamp-2 mb-4 min-h-[32px]">
+                                                    {item.description}
+                                                </p>
+
+                                                {/* Action Button */}
+                                                {item.is_owned ? (
+                                                    <Button 
+                                                        className={`
+                                                            w-full h-11 text-sm font-semibold rounded-xl transition-all
+                                                            ${isActive 
+                                                                ? 'bg-white/10 text-white hover:bg-white/15 border border-white/10' 
+                                                                : 'bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20'
+                                                            }
+                                                        `}
+                                                        onClick={() => isActive ? handleUnequip(item) : handleEquip(item)}
+                                                    >
+                                                        {isActive ? 'Unequip' : 'Equip Now'}
+                                                    </Button>
+                                                ) : (
+                                                    <Button 
+                                                        className={`
+                                                            w-full h-11 text-sm font-semibold rounded-xl transition-all
+                                                            ${canAfford 
+                                                                ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20' 
+                                                                : 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/5'
+                                                            }
+                                                        `}
+                                                        disabled={!canAfford || purchasing === item.id}
+                                                        onClick={() => handleBuy(item)}
+                                                    >
+                                                        {purchasing === item.id ? (
+                                                            <Loader2 className="animate-spin w-4 h-4" />
+                                                        ) : canAfford ? (
+                                                            <span className="flex items-center gap-2">
+                                                                <Crown size={14} />
+                                                                Buy for {item.cost.toLocaleString()} XP
+                                                            </span>
+                                                        ) : (
+                                                            <span className="flex items-center gap-2">
+                                                                <Lock size={14} />
+                                                                {item.cost.toLocaleString()} XP Required
+                                                            </span>
+                                                        )}
+                                                    </Button>
+                                                )}
+                                            </div>
                                         </div>
-
-                                        <CardHeader className="p-4">
-                                            <CardTitle className="text-base font-semibold text-card-foreground">
-                                                {item.name}
-                                            </CardTitle>
-                                            <CardDescription className="text-xs text-muted-foreground line-clamp-2 mt-1">
-                                                {item.description}
-                                            </CardDescription>
-                                        </CardHeader>
-
-                                        <CardFooter className="mt-auto p-4 pt-0">
-                                            {(['THEME', 'FONT', 'EFFECT', 'VICTORY'].includes(item.category)) && item.is_owned ? (
-                                                (() => {
-                                                    let isActive = false;
-                                                    if (item.category === 'THEME') isActive = user?.profile?.active_theme === item.item_data?.theme_key;
-                                                    if (item.category === 'FONT') isActive = user?.profile?.active_font === item.item_data?.font_family;
-                                                    if (item.category === 'EFFECT') isActive = user?.profile?.active_effect === item.item_data?.effect_key;
-                                                    if (item.category === 'VICTORY') isActive = user?.profile?.active_victory === item.item_data?.victory_key;
-
-                                                    return isActive ? (
-                                                        <Button 
-                                                            className="w-full h-9 text-xs font-medium"
-                                                            variant="outline"
-                                                            onClick={async () => {
-                                                                try {
-                                                                    const res = await storeAPI.unequipItem(item.category);
-                                                                    toast.success(res.data.message);
-                                                                    await checkAuth();
-                                                                } catch (err) {
-                                                                    toast.error("Failed to unequip");
-                                                                }
-                                                            }}
-                                                        >
-                                                            Unequip
-                                                        </Button>
-                                                    ) : (
-                                                        <Button 
-                                                            className="w-full h-9 text-xs font-medium"
-                                                            variant="secondary"
-                                                            onClick={async () => {
-                                                                try {
-                                                                    const res = await storeAPI.equipItem(item.id);
-                                                                    toast.success(res.data.message);
-                                                                    await checkAuth(); 
-                                                                } catch (err) {
-                                                                    toast.error("Failed to equip");
-                                                                }
-                                                            }}
-                                                        >
-                                                            Equip
-                                                        </Button>
-                                                    );
-                                                })()
-                                            ) : (
-                                                <Button 
-                                                    className="w-full h-9 text-xs font-medium"
-                                                    disabled={item.is_owned || user?.profile?.xp < item.cost || purchasing === item.id}
-                                                    variant={item.is_owned ? "secondary" : "default"}
-                                                    onClick={() => handleBuy(item)}
-                                                >
-                                                    {purchasing === item.id ? (
-                                                        <Loader2 className="animate-spin w-3 h-3" />
-                                                    ) : item.is_owned ? (
-                                                        "Owned"
-                                                    ) : user?.profile?.xp < item.cost ? (
-                                                        <span className="flex items-center gap-1.5 opacity-70">
-                                                            <Lock size={12} /> {item.cost.toLocaleString()} XP
-                                                        </span>
-                                                    ) : (
-                                                        <span className="flex items-center gap-1.5">
-                                                            Buy {item.cost.toLocaleString()} XP
-                                                        </span>
-                                                    )}
-                                                </Button>
-                                            )}
-                                        </CardFooter>
-                                    </Card>
-                                </motion.div>
-                            ))}
+                                    </motion.div>
+                                );
+                            })}
                         </AnimatePresence>
                     </div>
                 )}
