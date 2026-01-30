@@ -48,11 +48,21 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// Handle token refresh on 401
+// Handle token refresh on 401 and rate limiting on 429
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // Handle rate limiting (429 Too Many Requests)
+    if (error.response?.status === 429) {
+      const retryAfter = error.response.headers['retry-after'];
+      const message = retryAfter 
+        ? `Too many requests. Please wait ${retryAfter} seconds.`
+        : "Too many requests. Please slow down.";
+      notify.error(message, { duration: 4000 });
+      return Promise.reject(error);
+    }
 
     // Check for blocked user
     if (

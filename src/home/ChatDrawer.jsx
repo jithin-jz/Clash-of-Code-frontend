@@ -19,7 +19,8 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
     const { 
         messages, 
         onlineCount, 
-        isConnected, 
+        isConnected,
+        error,
         connect, 
         sendMessage: sendStoreMessage 
     } = useChatStore();
@@ -70,7 +71,7 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
     }, [isChatOpen, user, connect]);
 
     // Handle Auth Error (Token Expiry)
-    const { error, connect: reconnect } = useChatStore();
+    const { connect: reconnect } = useChatStore();
     useEffect(() => {
         if (error === "Authentication failed" && isChatOpen && user) {
             // Attempt to refresh token by triggering an auth check
@@ -113,6 +114,13 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
                         <span className="text-green-400 text-xs font-bold">{onlineCount} Online</span>
                     </div>
                 </div>
+
+                {/* Rate Limit / Error Banner */}
+                {error && (
+                    <div className="px-4 py-2 bg-red-500/10 border-b border-red-500/20">
+                        <span className="text-red-400 text-sm font-medium">{error}</span>
+                    </div>
+                )}
 
                 {/* Messages Area */}
                 <MessageList 

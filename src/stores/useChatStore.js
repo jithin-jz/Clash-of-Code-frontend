@@ -42,6 +42,11 @@ const useChatStore = create((set, get) => ({
              set({ messages: data.messages });
         } else if (data.type === 'presence') {
              set({ onlineCount: data.count });
+        } else if (data.type === 'error') {
+             // Handle rate limit and other errors from backend
+             set({ error: data.message });
+             // Auto-clear error after 3 seconds
+             setTimeout(() => set({ error: null }), 3000);
         }
       } catch (err) {
         console.error("Failed to parse websocket message", err);
