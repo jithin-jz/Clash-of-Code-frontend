@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Loader2, Sparkles, ArrowRight, Home } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
 
@@ -32,20 +33,30 @@ const CodeArena = () => {
   const [completionData, setCompletionData] = useState(null);
 
   // AI Hint State
-  const [hint, setHint] = useState(null);
+  const [hint, setHint] = useState("");
   const [isHintLoading, setIsHintLoading] = useState(false);
+  const [hintLevel, setHintLevel] = useState(1);
 
   const handleGetHint = async () => {
     if (!challenge || !code) return;
     setIsHintLoading(true);
-    setHint(null);
     try {
-      const { aiAPI } = await import("../services/api");
-      const response = await aiAPI.getHint(code, challenge.slug);
-      setHint(response.data.hint);
-    } catch (error) {
-      console.error("Failed to get hint:", error);
-      setHint("Could not generate hint. Please try again.");
+      const resp = await fetch(`${import.meta.env.VITE_AI_URL}/hints`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_code: code,
+          challenge_slug: challenge.slug,
+          hint_level: hintLevel,
+          user_xp: user?.profile?.xp || 0,
+        }),
+      });
+      const data = await resp.json();
+      setHint(data.hint);
+      // Increment hint level for next request, max 3
+      setHintLevel((prev) => Math.min(prev + 1, 3));
+    } catch (err) {
+      console.error("Hint Error:", err);
     } finally {
       setIsHintLoading(false);
     }
@@ -501,6 +512,7 @@ const CodeArena = () => {
                 onGetHint={handleGetHint}
                 hint={hint}
                 isHintLoading={isHintLoading}
+                hintLevel={hintLevel}
               />
             )}
             {activeTab === "console" && (

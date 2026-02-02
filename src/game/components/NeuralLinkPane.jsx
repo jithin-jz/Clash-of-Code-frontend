@@ -9,13 +9,23 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 
-const NeuralLinkPane = ({ onGetHint, hint, isHintLoading }) => {
+const NeuralLinkPane = ({ onGetHint, hint, isHintLoading, hintLevel }) => {
   return (
     <Card className="flex-1 flex flex-col bg-[#09090b] border-none rounded-none overflow-hidden m-0">
       <CardHeader className="border-b border-white/5 px-4 py-3 flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-2">
-          AI Assistant
-        </CardTitle>
+        <div className="flex items-center gap-3">
+          <CardTitle className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-2">
+            AI Assistant
+          </CardTitle>
+          <div className="flex gap-1 ml-2">
+            {[1, 2, 3].map((lvl) => (
+              <div
+                key={lvl}
+                className={`w-1.5 h-1.5 rounded-full ${hintLevel >= lvl ? "bg-blue-500 shadow-[0_0_8px_#3b82f6]" : "bg-white/10"}`}
+              />
+            ))}
+          </div>
+        </div>
         {!hint && (
           <Button
             onClick={onGetHint}
@@ -29,7 +39,7 @@ const NeuralLinkPane = ({ onGetHint, hint, isHintLoading }) => {
             ) : (
               <Sparkles className="w-3 h-3 mr-2" />
             )}
-            {isHintLoading ? "Loading..." : "Get Hint"}
+            {isHintLoading ? "Analyzing..." : "Get Hint"}
           </Button>
         )}
       </CardHeader>
@@ -53,7 +63,11 @@ const NeuralLinkPane = ({ onGetHint, hint, isHintLoading }) => {
             <div className="flex flex-col items-center gap-3">
               <Loader2 className="w-6 h-6 text-blue-500 animate-spin opacity-70" />
               <p className="text-xs font-medium text-gray-500">
-                Generating Hint...
+                {hintLevel === 1
+                  ? "Generating Concept Hint..."
+                  : hintLevel === 2
+                    ? "Analyzing Logic..."
+                    : "Detailed Implementation Hint..."}
               </p>
             </div>
           </div>
@@ -61,7 +75,12 @@ const NeuralLinkPane = ({ onGetHint, hint, isHintLoading }) => {
 
         {hint && (
           <div className="p-6 max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="bg-blue-500/5 border border-blue-500/10 rounded-lg p-5">
+            <div className="bg-blue-500/5 border border-blue-500/10 rounded-lg p-5 relative">
+              <div className="absolute top-0 right-0 p-2 opacity-30">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400">
+                  Level {hintLevel - 1} Hint
+                </span>
+              </div>
               <div
                 className="prose prose-invert prose-sm max-w-none 
                         prose-p:text-gray-300 prose-p:leading-relaxed prose-p:text-sm
@@ -79,9 +98,12 @@ const NeuralLinkPane = ({ onGetHint, hint, isHintLoading }) => {
                 disabled={isHintLoading}
                 variant="ghost"
                 size="sm"
-                className="text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                className="text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 flex items-center gap-2"
               >
-                Get another hint
+                {isHintLoading && <Loader2 className="w-3 h-3 animate-spin" />}
+                {hintLevel <= 3
+                  ? "Need more help? Get a more specific hint"
+                  : "Get another hint"}
               </Button>
             </div>
           </div>
