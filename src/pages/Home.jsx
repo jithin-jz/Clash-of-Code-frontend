@@ -19,7 +19,7 @@ import CheckInReward from "../home/CheckInReward";
 import { checkInApi } from "../services/checkInApi";
 
 // Data
-import { generateLevels } from "../constants/levelData.jsx";
+import { generateLevels, ICONS } from "../constants/levelData.jsx";
 
 // Hooks
 const Home = () => {
@@ -77,45 +77,51 @@ const Home = () => {
 
   // Initialize Levels (Merge Visuals with API Data)
   const levels = useMemo(() => {
-    const visualLevels = generateLevels(); // 53 Levels + 1 Certificate
+    // Unified Processing for ALL Levels
+    // We trust the API to return the correct order.
+    // We map them to visuals dynamically.
 
-    return visualLevels.map((visual) => {
-      // Find matching API data by order
-      const apiData = apiLevels.find((l) => l.order === visual.id);
+    // Sort API levels by order
+    const sortedApiLevels = [...apiLevels].sort((a, b) => a.order - b.order);
 
-      // Certificate Special Case (Last Node)
-      if (visual.type === "CERTIFICATE") {
-        // Check if all 53 levels are completed
-        const allCompleted =
-          apiLevels.length >= 53 &&
-          apiLevels.every((l) => l.status === "COMPLETED");
-        return {
-          ...visual,
-          unlocked: allCompleted,
-          completed: false, // We'll fetch actual cert status later
-          type: "CERTIFICATE",
-        };
-      }
+    // We also need positions.
+    // We can reuse the spiral generator for positions, but we need to generate enough points
+    // for ALL levels returned by API, effectively extending the spiral infinitely if needed.
+    // For now, let's generate enough for the max order found in API + buffer.
 
-      if (apiData) {
-        return {
-          ...visual,
-          ...apiData,
-          unlocked:
-            apiData.status === "UNLOCKED" || apiData.status === "COMPLETED",
-          completed: apiData.status === "COMPLETED",
-          stars: apiData.stars || 0,
-          slug: apiData.slug,
-          type: "LEVEL",
-        };
-      }
+    const maxOrder =
+      sortedApiLevels.length > 0
+        ? sortedApiLevels[sortedApiLevels.length - 1].order
+        : 53;
+    const visualPositions = generateLevels(Math.max(53, maxOrder));
 
-      // Default Fallback (Locked)
+    return sortedApiLevels.map((apiData) => {
+      // Find matching position/visual config if it exists
+      // visualPositions are 0-indexed in the array, but correspond to order 1..N
+      // visualPositions[0] is usually Level 1 IF the generator returns sorted array?
+      // Wait, generateLevels returns an array of objects with { id: 1, ... }
+
+      const visual = visualPositions.find((v) => v.id === apiData.order);
+
+      // If we have a visual config (position), use it. otherwise null (Grid fallback handled in LevelMap?)
+      // Note: LevelMap uses a grid layout in the screenshot, so positions might be ignored anyway?
+      // Checking LevelMap code earlier: "Standard Grid Layout" ... "grid grid-cols-9".
+      // It seems LevelMap IGNORES the x/y positions from generateLevels entirely and just uses CSS grid!
+      // This makes things MUCH easier. We just need a flat list.
+
       return {
-        ...visual,
-        unlocked: false,
-        stars: 0,
+        id: apiData.order,
+        order: apiData.order,
+        name: `Level ${apiData.order}`,
+        slug: apiData.slug,
+        icon: ICONS[(apiData.order - 1) % ICONS.length],
+        stars: apiData.stars || 0,
+        status: apiData.status,
+        unlocked:
+          apiData.status === "UNLOCKED" || apiData.status === "COMPLETED",
+        completed: apiData.status === "COMPLETED",
         type: "LEVEL",
+        ...apiData,
       };
     });
   }, [apiLevels]);

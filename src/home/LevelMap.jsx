@@ -11,7 +11,7 @@ const LevelMap = ({
 }) => {
     // Standard Grid Layout
     return (
-        <div className="w-full h-screen relative overflow-hidden bg-[#0a0a0a] flex items-center justify-center">
+        <div className="w-full h-screen relative overflow-y-auto bg-[#0a0a0a] flex flex-col items-center py-20">
             {/* Play Button - Fixed */}
             {!isLeaderboardOpen && (
                 <PlayButton 

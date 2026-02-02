@@ -62,6 +62,45 @@ const CodeArena = () => {
     }
   };
 
+  // Polling for Next Level
+  const [isPollingNextLevel, setIsPollingNextLevel] = useState(false);
+
+  useEffect(() => {
+    let interval;
+    if (completionData && !completionData.next_level_slug && challenge) {
+      setIsPollingNextLevel(true);
+      interval = setInterval(async () => {
+        try {
+          const { challengesApi } = await import("../services/challengesApi");
+          const allLevels = await challengesApi.getAll();
+
+          const nextLevel = allLevels.find(
+            (l) => l.order === challenge.order + 1,
+          );
+
+          if (
+            nextLevel &&
+            (nextLevel.status === "UNLOCKED" ||
+              nextLevel.status === "COMPLETED")
+          ) {
+            setCompletionData((prev) => ({
+              ...prev,
+              next_level_slug: nextLevel.slug,
+            }));
+            setIsPollingNextLevel(false);
+            clearInterval(interval);
+          }
+        } catch (e) {
+          console.error("Polling error", e);
+        }
+      }, 3000); // Check every 3 seconds
+    } else if (completionData && completionData.next_level_slug) {
+      setIsPollingNextLevel(false);
+    }
+
+    return () => clearInterval(interval);
+  }, [completionData, challenge]);
+
   // Fetch Challenge Data
   useEffect(() => {
     const fetchChallenge = async () => {
@@ -73,6 +112,8 @@ const CodeArena = () => {
         setCode(data.initial_code || "");
       } catch (error) {
         console.error("Failed to load challenge:", error);
+        setChallenge(null);
+        setCode("");
         setOutput([
           { type: "error", content: "Failed to load challenge data." },
         ]);
@@ -436,7 +477,7 @@ const CodeArena = () => {
               )}
 
               <div className="flex flex-col w-full gap-3 mt-4">
-                {completionData.next_level_slug && (
+                {completionData.next_level_slug ? (
                   <Button
                     onClick={() => {
                       navigate(`/level/${completionData.next_level_slug}`);
@@ -446,7 +487,15 @@ const CodeArena = () => {
                   >
                     Next Challenge <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
-                )}
+                ) : isPollingNextLevel ? (
+                  <Button
+                    disabled
+                    className="w-full bg-white/20 text-white cursor-not-allowed"
+                  >
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating
+                    Level...
+                  </Button>
+                ) : null}
 
                 <Button
                   variant="ghost"
