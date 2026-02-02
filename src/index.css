@@ -60,11 +60,34 @@
 }
 
 @layer utilities {
-  /* Hide scrollbar for Chrome, Safari and Opera */
+  /* Custom Scrollbar - Slim and minimal */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #27272a;
+    border-radius: 99px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  /* Clean Glass - subtle and professional */
+  .bg-glass {
+    background: rgba(9, 9, 11, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  .border-glass {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
-  /* Hide scrollbar for IE, Edge and Firefox */
+}
   .no-scrollbar {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
@@ -72,70 +95,78 @@
 }
 
 @keyframes fade-in-down {
-    0% {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in-down {
-    animation: fade-in-down 0.3s ease-out;
+  animation: fade-in-down 0.3s ease-out;
 }
 
 /* Notification Stacking - Make them overlap on top of each other */
 [data-react-hot-toast] {
-    position: relative !important;
+  position: relative !important;
 }
 
 [data-react-hot-toast] > div {
-    position: absolute !important;
-    top: 0 !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
 }
 
 /* First notification (newest) on top */
 [data-react-hot-toast] > div:nth-child(1) {
-    z-index: 100;
-    top: 0 !important;
+  z-index: 100;
+  top: 0 !important;
 }
 
 [data-react-hot-toast] > div:nth-child(2) {
-    z-index: 99;
-    top: 8px !important;
-    opacity: 0.9;
+  z-index: 99;
+  top: 8px !important;
+  opacity: 0.9;
 }
 
 [data-react-hot-toast] > div:nth-child(3) {
-    z-index: 98;
-    top: 16px !important;
-    opacity: 0.8;
+  z-index: 98;
+  top: 16px !important;
+  opacity: 0.8;
 }
 
 [data-react-hot-toast] > div:nth-child(4) {
-    z-index: 97;
-    top: 24px !important;
-    opacity: 0.7;
+  z-index: 97;
+  top: 24px !important;
+  opacity: 0.7;
 }
 
 [data-react-hot-toast] > div:nth-child(5) {
-    z-index: 96;
-    top: 32px !important;
-    opacity: 0.6;
+  z-index: 96;
+  top: 32px !important;
+  opacity: 0.6;
 }
 
 /* Animations */
 @keyframes slide-in-right {
-  from { transform: translateX(100px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes progress-grow {
-  from { width: 0; }
+  from {
+    width: 0;
+  }
 }
 
 .animate-slide-in-right {
@@ -298,7 +329,8 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
   }
   50% {
@@ -307,7 +339,8 @@
 }
 
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(-50%) translateY(0);
   }
   50% {
@@ -320,7 +353,7 @@
   .calendar-grid {
     grid-template-columns: repeat(4, 1fr);
   }
-  
+
   .check-in-container {
     padding: 1.5rem;
   }

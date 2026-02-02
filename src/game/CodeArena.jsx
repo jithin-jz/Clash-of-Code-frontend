@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Loader2, Sparkles, ArrowRight, Home } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { motion } from "framer-motion";
+
 import useAuthStore from "../stores/useAuthStore";
 import CursorEffects from "./CursorEffects";
 import VictoryAnimation from "./VictoryAnimation";
@@ -12,6 +12,7 @@ import HeaderBar from "./components/HeaderBar";
 import EditorPane from "./components/EditorPane";
 import ProblemPane from "./components/ProblemPane";
 import ConsolePane from "./components/ConsolePane";
+import NeuralLinkPane from "./components/NeuralLinkPane"; // Renamed logically to AI Assistant in UI
 
 const CodeArena = () => {
   const { id } = useParams();
@@ -23,9 +24,32 @@ const CodeArena = () => {
   const [isPyodideReady, setPyodideReady] = useState(false);
   const editorRef = useRef(null);
 
+  // Tab State
+  const [activeTab, setActiveTab] = useState("task");
+
   // Initial code template
   const [code, setCode] = useState("");
   const [completionData, setCompletionData] = useState(null);
+
+  // AI Hint State
+  const [hint, setHint] = useState(null);
+  const [isHintLoading, setIsHintLoading] = useState(false);
+
+  const handleGetHint = async () => {
+    if (!challenge || !code) return;
+    setIsHintLoading(true);
+    setHint(null);
+    try {
+      const { aiAPI } = await import("../services/api");
+      const response = await aiAPI.getHint(code, challenge.slug);
+      setHint(response.data.hint);
+    } catch (error) {
+      console.error("Failed to get hint:", error);
+      setHint("Could not generate hint. Please try again.");
+    } finally {
+      setIsHintLoading(false);
+    }
+  };
 
   // Fetch Challenge Data
   useEffect(() => {
@@ -349,87 +373,55 @@ const CodeArena = () => {
   // if (!challenge) return <div className="h-screen flex items-center justify-center bg-[#0a0a0a] text-white"><Loader2 className="animate-spin" /></div>;
 
   return (
-    <div className="h-screen flex flex-col bg-[#0a0a0a] text-white overflow-hidden relative">
+    <div className="h-screen flex flex-col bg-modern text-white overflow-hidden relative">
       <CursorEffects effectType={user?.profile?.active_effect} />
 
       {/* Completion Modal */}
-      {/* Completion Modal */}
       {completionData && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#000000]/90 backdrop-blur-xl p-4 animate-in fade-in duration-500">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
           <VictoryAnimation type={user?.profile?.active_victory} />
           <motion.div
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-10 max-w-sm w-full flex flex-col items-center text-center shadow-[0_0_50px_-12px_rgba(74,222,128,0.2)] relative overflow-hidden z-70"
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-[#09090b] border border-white/10 rounded-xl p-8 max-w-sm w-full flex flex-col items-center text-center shadow-2xl relative overflow-hidden"
           >
-            {/* Background Glows */}
-            <div className="absolute -top-20 -right-20 w-64 h-64 bg-green-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-
             <div className="relative z-10 flex flex-col items-center gap-6">
-              <div className="w-24 h-24 bg-[#121212] border border-green-500/20 rounded-full flex items-center justify-center mb-2 shadow-inner shadow-green-500/10 relative group">
-                <div className="absolute inset-0 bg-green-500/20 rounded-full blur-xl opacity-50 animate-pulse" />
-                <Sparkles
-                  size={40}
-                  className="text-green-400 relative z-10 drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]"
-                />
+              <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mb-2">
+                <Sparkles size={32} className="text-green-500" />
               </div>
 
               <div className="space-y-1">
-                <h2 className="text-3xl font-black text-white tracking-tight">
-                  Level Conquered!
+                <h2 className="text-2xl font-bold text-white">
+                  Challenge Solved!
                 </h2>
-                <p className="text-gray-500 text-sm font-medium uppercase tracking-widest">
-                  Mission Accomplished
+                <p className="text-gray-400 text-sm">
+                  Great work. You've completed the goal.
                 </p>
               </div>
 
-              <div className="flex gap-3 my-2 bg-white/5 p-3 rounded-2xl border border-white/5">
+              <div className="flex gap-2 my-1">
                 {[1, 2, 3].map((star) => (
-                  <motion.div
+                  <div
                     key={star}
-                    initial={{ scale: 0, opacity: 0, rotate: -180 }}
-                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                    transition={{ delay: 0.2 + star * 0.15, type: "spring" }}
+                    className={`w-8 h-8 flex items-center justify-center ${star <= completionData.stars ? "text-yellow-400" : "text-gray-800"}`}
                   >
-                    <div
-                      className={`w-10 h-10 flex items-center justify-center transition-all duration-500 ${star <= completionData.stars ? "text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]" : "text-gray-800"}`}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="100%"
+                      height="100%"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="100%"
-                        height="100%"
-                        viewBox="0 0 24 24"
-                        fill={
-                          star <= completionData.stars
-                            ? "currentColor"
-                            : "currentColor"
-                        }
-                        className={
-                          star <= completionData.stars ? "" : "opacity-20"
-                        }
-                      >
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-5.82 3.25L7.38 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                    </div>
-                  </motion.div>
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-5.82 3.25L7.38 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </div>
                 ))}
               </div>
 
               {completionData.xp_earned > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 }}
-                  className="bg-linear-to-r from-yellow-500/10 to-orange-500/10 text-yellow-500 px-5 py-2 rounded-full font-bold text-sm border border-yellow-500/20 flex items-center gap-2"
-                >
-                  <span className="text-yellow-200">+</span>
-                  {completionData.xp_earned}{" "}
-                  <span className="text-xs uppercase opacity-70">
-                    XP Gained
-                  </span>
-                </motion.div>
+                <div className="bg-yellow-500/10 text-yellow-500 px-4 py-1.5 rounded-full font-medium text-sm border border-yellow-500/20">
+                  +{completionData.xp_earned} XP
+                </div>
               )}
 
               <div className="flex flex-col w-full gap-3 mt-4">
@@ -439,18 +431,18 @@ const CodeArena = () => {
                       navigate(`/level/${completionData.next_level_slug}`);
                       setCompletionData(null);
                     }}
-                    className="w-full py-6 font-bold text-base bg-white text-black hover:bg-gray-100 shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all flex items-center justify-center gap-2 rounded-xl"
+                    className="w-full bg-white text-black hover:bg-gray-200"
                   >
-                    Next Level <ArrowRight className="w-5 h-5" />
+                    Next Challenge <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 )}
 
                 <Button
                   variant="ghost"
                   onClick={() => navigate("/")}
-                  className="w-full py-6 font-bold text-base text-gray-500 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 rounded-xl transition-all flex items-center justify-center gap-2"
+                  className="w-full text-gray-400 hover:text-white"
                 >
-                  <Home className="w-5 h-5" /> Return to Base
+                  <Home className="w-4 h-4 mr-2" /> Back to Dashboard
                 </Button>
               </div>
             </div>
@@ -459,7 +451,7 @@ const CodeArena = () => {
       )}
 
       <HeaderBar
-        title={challenge?.title || "Loading Challenge..."}
+        title={challenge?.title || "Loading..."}
         navigate={navigate}
         isPyodideReady={isPyodideReady}
         isRunning={isRunning}
@@ -478,9 +470,67 @@ const CodeArena = () => {
         />
 
         {/* Right: Output/Task/AI */}
-        <div className="w-1/3 flex flex-col border-l border-white/10">
-          <ProblemPane challenge={challenge} loading={!challenge} />
-          <ConsolePane output={output} loading={!challenge} />
+        <div className="w-1/3 flex flex-col border-l border-white/5 bg-[#09090b]">
+          {/* Tab Navigation */}
+          <div className="flex border-b border-white/5 bg-[#09090b]">
+            {[
+              { id: "task", label: "Problem" },
+              { id: "ai", label: "AI Assistant" },
+              { id: "console", label: "Console" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 py-3 text-xs font-medium border-b-2 transition-colors ${
+                  activeTab === tab.id
+                    ? "border-primary text-primary bg-white/5"
+                    : "border-transparent text-gray-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex-1 flex flex-col overflow-hidden relative">
+            {activeTab === "task" && (
+              <ProblemPane challenge={challenge} loading={!challenge} />
+            )}
+            {activeTab === "ai" && (
+              <NeuralLinkPane
+                onGetHint={handleGetHint}
+                hint={hint}
+                isHintLoading={isHintLoading}
+              />
+            )}
+            {activeTab === "console" && (
+              <ConsolePane output={output} loading={!challenge} />
+            )}
+
+            {/* Quick Access Notification for AI Hint */}
+            {activeTab !== "ai" && hint && (
+              <button
+                onClick={() => setActiveTab("ai")}
+                className="absolute bottom-4 right-4 p-3 bg-blue-600 rounded-full shadow-lg shadow-blue-900/20 hover:scale-105 transition-transform text-white z-20"
+                title="New Hint Available"
+              >
+                <Sparkles size={18} />
+                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#09090b]" />
+              </button>
+            )}
+
+            {/* Quick Access for Console on error */}
+            {activeTab !== "console" &&
+              output.some((l) => l.type === "error") && (
+                <button
+                  onClick={() => setActiveTab("console")}
+                  className="absolute bottom-4 left-4 py-1.5 px-3 bg-red-500/10 border border-red-500/20 rounded-full text-[10px] font-medium text-red-400 hover:bg-red-500/20 transition-colors z-20 flex items-center gap-2"
+                >
+                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />{" "}
+                  Error in Console
+                </button>
+              )}
+          </div>
         </div>
       </div>
     </div>

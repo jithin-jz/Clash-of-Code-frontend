@@ -14,6 +14,8 @@ const aiApi = axios.create({
 export const aiAPI = {
   generate: (code, language = "python") =>
     aiApi.post("/explain", { code, language }),
+  getHint: (user_code, challenge_slug, language = "python") =>
+    aiApi.post("/hints", { user_code, challenge_slug, language }),
 };
 
 // Create axios instance
