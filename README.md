@@ -1,6 +1,6 @@
-# ⚛️ Code of Clans - Frontend
+# ⚛️ Clash of Code - Frontend
 
-The interactive client interface for **Code of Clans**, delivering a premium, gamified user experience. Built with performance and aesthetics in mind.
+The interactive client interface for **Clash of Code**, delivering a premium, gamified user experience. Built with performance and aesthetics in mind.
 
 ## ⚡ Technologies
 

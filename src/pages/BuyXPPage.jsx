@@ -68,7 +68,7 @@ const BuyXPPage = () => {
         key: orderData.key,
         amount: orderData.amount,
         currency: "INR",
-        name: "Code of Clans",
+        name: "Clash of Code",
         description: `Purchase ${pkg.xp} XP`,
         order_id: orderData.order_id,
         handler: async function (response) {
