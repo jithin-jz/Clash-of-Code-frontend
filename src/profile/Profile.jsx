@@ -62,8 +62,6 @@ const Profile = () => {
   const [editForm, setEditForm] = useState({
     username: "",
     bio: "",
-    github_username: "",
-    leetcode_username: "",
   });
 
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -137,8 +135,6 @@ const Profile = () => {
       setEditForm({
         username: currentUser?.username || "",
         bio: currentUser?.profile?.bio || "",
-        github_username: currentUser?.profile?.github_username || "",
-        leetcode_username: currentUser?.profile?.leetcode_username || "",
       });
       setLoading(false);
       fetchSuggestions();
@@ -363,7 +359,7 @@ const Profile = () => {
           {/* Main Content */}
           <main className="flex-1 overflow-auto no-scrollbar px-4 sm:px-6 py-6">
             <div className="max-w-5xl mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {/* Left Column - Profile Card */}
                 <div className="lg:col-span-1 space-y-4">
                   {/* Profile Card */}
@@ -513,7 +509,7 @@ const Profile = () => {
                             </h4>
                             <form
                               onSubmit={handleRedeemReferral}
-                              className="flex gap-2"
+                              className="flex gap-2 w-full"
                             >
                               <input
                                 type="text"
@@ -522,13 +518,13 @@ const Profile = () => {
                                   setReferralCodeInput(e.target.value)
                                 }
                                 placeholder="Enter code"
-                                className="flex-1 bg-zinc-800/50 border border-white/5 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20 placeholder-zinc-600"
+                                className="flex-1 min-w-0 bg-zinc-800/50 border border-white/5 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20 placeholder-zinc-600"
                               />
                               <Button
                                 type="submit"
                                 size="sm"
                                 disabled={isRedeeming || !referralCodeInput}
-                                className="bg-zinc-800 text-white hover:bg-zinc-700"
+                                className="bg-zinc-800 text-white hover:bg-zinc-700 shrink-0"
                               >
                                 {isRedeeming ? (
                                   <Loader2 size={12} className="animate-spin" />
@@ -538,37 +534,6 @@ const Profile = () => {
                               </Button>
                             </form>
                           </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {/* Social Links */}
-                  {(profileUser?.profile?.github_username ||
-                    profileUser?.profile?.leetcode_username) && (
-                    <Card className="bg-zinc-900/50 border-white/5">
-                      <CardContent className="p-4 space-y-3">
-                        {profileUser?.profile?.github_username && (
-                          <a
-                            href={`https://github.com/${profileUser.profile.github_username}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-3 text-sm text-zinc-400 hover:text-white transition-colors"
-                          >
-                            <Github size={16} />
-                            <span>{profileUser.profile.github_username}</span>
-                          </a>
-                        )}
-                        {profileUser?.profile?.leetcode_username && (
-                          <a
-                            href={`https://leetcode.com/${profileUser.profile.leetcode_username}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-3 text-sm text-zinc-400 hover:text-white transition-colors"
-                          >
-                            <Code size={16} />
-                            <span>{profileUser.profile.leetcode_username}</span>
-                          </a>
                         )}
                       </CardContent>
                     </Card>
@@ -612,42 +577,6 @@ const Profile = () => {
                             className="w-full bg-zinc-800/50 border border-white/5 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20 min-h-[80px] resize-none"
                             placeholder="Write something about yourself..."
                           />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <label className="text-xs text-zinc-500 flex items-center gap-1">
-                              <Github size={12} /> GitHub
-                            </label>
-                            <input
-                              type="text"
-                              value={editForm.github_username}
-                              onChange={(e) =>
-                                setEditForm({
-                                  ...editForm,
-                                  github_username: e.target.value,
-                                })
-                              }
-                              className="w-full bg-zinc-800/50 border border-white/5 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20"
-                              placeholder="username"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-xs text-zinc-500 flex items-center gap-1">
-                              <Code size={12} /> LeetCode
-                            </label>
-                            <input
-                              type="text"
-                              value={editForm.leetcode_username}
-                              onChange={(e) =>
-                                setEditForm({
-                                  ...editForm,
-                                  leetcode_username: e.target.value,
-                                })
-                              }
-                              className="w-full bg-zinc-800/50 border border-white/5 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20"
-                              placeholder="username"
-                            />
-                          </div>
                         </div>
 
                         {/* Banner Upload */}
@@ -737,54 +666,60 @@ const Profile = () => {
                         username={profileUser?.username || username}
                         refreshTrigger={refreshPosts}
                       />
-
-                      {/* Suggestions (moved to bottom or keep?) */}
-                      {/* Only show suggestions if own profile and no posts? keeping generic for now */}
-                      {isOwnProfile && suggestedUsers.length > 0 && (
-                        <div className="mt-8 pt-8 border-t border-white/5">
-                          <h3 className="text-sm font-medium text-zinc-400 mb-4 px-1">
-                            Suggested for you
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {suggestedUsers.map((user) => (
-                              <div
-                                key={user.username}
-                                className="flex items-center justify-between p-3 bg-zinc-900/30 rounded-lg border border-white/5"
-                              >
-                                <div
-                                  className="flex items-center gap-3 cursor-pointer flex-1"
-                                  onClick={() =>
-                                    navigate(`/profile/${user.username}`)
-                                  }
-                                >
-                                  <Avatar className="w-8 h-8">
-                                    <AvatarImage src={user.avatar_url} />
-                                    <AvatarFallback>
-                                      {user.username[0]}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  <div className="min-w-0">
-                                    <div className="text-sm font-medium text-white truncate">
-                                      {user.username}
-                                    </div>
-                                  </div>
-                                </div>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() =>
-                                    handleFollowSuggested(user.username)
-                                  }
-                                  className="h-7 text-xs border-white/10 hover:bg-white/5 text-zinc-300"
-                                >
-                                  Follow
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
+                  )}
+                </div>
+
+                {/* Right Column - Suggestions */}
+                <div className="lg:col-span-1 space-y-6">
+                  {isOwnProfile && suggestedUsers.length > 0 && (
+                    <Card className="bg-zinc-900/50 border-white/5 sticky top-4 shadow-xl overflow-hidden">
+                      <CardHeader className="py-3 px-4 border-b border-white/5 bg-zinc-900/50">
+                        <CardTitle className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center h-6">
+                          Suggested for you
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-4 space-y-4">
+                        {suggestedUsers.map((user) => (
+                          <div
+                            key={user.username}
+                            className="flex items-center justify-between group"
+                          >
+                            <div
+                              className="flex items-center gap-3 cursor-pointer flex-1 min-w-0"
+                              onClick={() =>
+                                navigate(`/profile/${user.username}`)
+                              }
+                            >
+                              <Avatar className="w-10 h-10 shrink-0 border border-white/10 shadow-sm transition-transform group-hover:scale-105">
+                                <AvatarImage src={user.avatar_url} />
+                                <AvatarFallback className="bg-zinc-800 text-zinc-400 font-medium">
+                                  {user.username[0]}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="truncate">
+                                <div className="text-sm font-semibold text-white truncate group-hover:text-blue-400 transition-colors">
+                                  {user.username}
+                                </div>
+                                <div className="text-xs text-zinc-500 truncate">
+                                  Suggested for you
+                                </div>
+                              </div>
+                            </div>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleFollowSuggested(user.username);
+                              }}
+                              variant="ghost"
+                              className="text-xs font-medium text-blue-400 hover:text-white hover:bg-blue-500/10 h-8 px-3 rounded-lg"
+                            >
+                              Follow
+                            </Button>
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
                   )}
                 </div>
               </div>
@@ -906,5 +841,4 @@ const Profile = () => {
     </AnimatePresence>
   );
 };
-
 export default Profile;

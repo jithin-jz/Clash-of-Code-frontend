@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
+import Cropper from "react-easy-crop";
 import {
   Dialog,
   DialogContent,
@@ -7,42 +8,116 @@ import {
   DialogFooter,
 } from "../components/ui/dialog";
 import { Button } from "../components/ui/button";
-import { Textarea } from "../components/ui/textarea"; // Assuming simple textarea or needs shadcn one
-import { ImagePlus, X, Loader2 } from "lucide-react";
+import { ImagePlus, X, Loader2, ArrowLeft } from "lucide-react";
 import { notify } from "../services/notification";
 import { postsAPI } from "../services/api";
 
+const createImage = (url) =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener("load", () => resolve(image));
+    image.addEventListener("error", (error) => reject(error));
+    image.setAttribute("crossOrigin", "anonymous");
+    image.src = url;
+  });
+
+const getCroppedImg = async (imageSrc, pixelCrop) => {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  if (!ctx) {
+    return null;
+  }
+
+  canvas.width = pixelCrop.width;
+  canvas.height = pixelCrop.height;
+
+  ctx.drawImage(
+    image,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    pixelCrop.width,
+    pixelCrop.height,
+  );
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        console.error("Canvas is empty");
+        return;
+      }
+      resolve(blob);
+    }, "image/jpeg");
+  });
+};
+
 const CreatePostDialog = ({ open, onOpenChange, onPostCreated }) => {
   const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [croppedImage, setCroppedImage] = useState(null); // The final blob
+  const [preview, setPreview] = useState(null); // For display (object URL)
+
+  // Cropper State
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [isCropping, setIsCropping] = useState(false);
+
   const [caption, setCaption] = useState("");
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
 
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImage(file);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-      };
+      reader.addEventListener("load", () => {
+        setImage(reader.result);
+        setIsCropping(true);
+      });
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCreateCroppedImage = async () => {
+    try {
+      const croppedBlob = await getCroppedImg(image, croppedAreaPixels);
+      const croppedUrl = URL.createObjectURL(croppedBlob);
+
+      setCroppedImage(croppedBlob);
+      setPreview(croppedUrl);
+      setIsCropping(false);
+    } catch (e) {
+      console.error(e);
+      notify.error("Something went wrong cropping the image");
     }
   };
 
   const handleRemoveImage = () => {
     setImage(null);
     setPreview(null);
+    setCroppedImage(null);
+    setIsCropping(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSubmit = async () => {
-    if (!image) return;
+    if (!croppedImage) return;
 
     setLoading(true);
     const formData = new FormData();
-    formData.append("image", image);
+    // Re-create a File object from Blob
+    const file = new File([croppedImage], "post.jpg", { type: "image/jpeg" });
+
+    formData.append("image", file);
     formData.append("caption", caption);
 
     try {
@@ -51,8 +126,7 @@ const CreatePostDialog = ({ open, onOpenChange, onPostCreated }) => {
       onPostCreated();
       onOpenChange(false);
       // Reset state
-      setImage(null);
-      setPreview(null);
+      handleRemoveImage();
       setCaption("");
     } catch (error) {
       console.error(error);
@@ -64,78 +138,111 @@ const CreatePostDialog = ({ open, onOpenChange, onPostCreated }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-zinc-900 border border-white/10 text-white sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Create New Post</DialogTitle>
+      <DialogContent className="bg-zinc-900 border border-white/10 text-white sm:max-w-[500px] gap-0 p-0 overflow-hidden">
+        <DialogHeader className="p-4 border-b border-white/10 flex flex-row items-center justify-between space-y-0">
+          {isCropping ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="-ml-2 text-white"
+              onClick={() => handleRemoveImage()}
+            >
+              <ArrowLeft size={20} />
+            </Button>
+          ) : (
+            <div />
+          )}
+          <DialogTitle className="text-center font-semibold text-base">
+            {isCropping ? "Crop" : "Create New Post"}
+          </DialogTitle>
+          {isCropping ? (
+            <Button
+              variant="ghost"
+              className="text-blue-500 font-semibold hover:text-blue-400 hover:bg-transparent px-0"
+              onClick={handleCreateCroppedImage}
+            >
+              Next
+            </Button>
+          ) : (
+            <div className="w-8" />
+          )}
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          {/* Image Upload Area */}
-          <div
-            className={`
-                            relative border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center min-h-[200px] transition-colors
-                            ${preview ? "border-transparent bg-zinc-950/50" : "border-zinc-700 hover:border-zinc-500 bg-zinc-800/20"}
-                        `}
-            onClick={() => !preview && fileInputRef.current?.click()}
-          >
-            {preview ? (
-              <div className="relative w-full h-full">
+        <div className="flex flex-col">
+          {isCropping ? (
+            <div className="relative w-full h-[500px] bg-black">
+              <Cropper
+                image={image}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                onCropChange={setCrop}
+                onCropComplete={onCropComplete}
+                onZoomChange={setZoom}
+              />
+            </div>
+          ) : !preview ? (
+            <div className="flex flex-col items-center justify-center h-[400px] gap-4">
+              <ImagePlus className="w-20 h-20 text-white/50" />
+              <p className="text-xl font-light">Drag photos and videos here</p>
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-blue-500 hover:bg-blue-600 font-semibold px-6"
+              >
+                Select from computer
+              </Button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              <div className="bg-black w-full h-[300px] relative flex items-center justify-center shrink-0">
                 <img
                   src={preview}
                   alt="Preview"
-                  className="w-full h-auto max-h-[300px] object-contain rounded-md"
+                  className="w-full h-full object-contain"
                 />
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveImage();
-                  }}
-                  className="absolute -top-2 -right-2 bg-zinc-800 rounded-full p-1 text-zinc-400 hover:text-white border border-white/10"
+                  onClick={handleRemoveImage}
+                  className="absolute top-2 right-2 bg-black/50 rounded-full p-1 text-white hover:bg-black/70"
                 >
-                  <X size={16} />
+                  <X size={20} />
                 </button>
               </div>
-            ) : (
-              <div className="text-center cursor-pointer">
-                <ImagePlus className="w-10 h-10 text-zinc-500 mx-auto mb-2" />
-                <p className="text-sm text-zinc-400 font-medium">
-                  Click to upload photo
-                </p>
-                <p className="text-xs text-zinc-600 mt-1">
-                  PEG, PNG up to 10MB
-                </p>
+              <div className="p-4 flex-1 border-t border-white/10">
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full bg-zinc-700 shrink-0 overflow-hidden">
+                    {/* User Avatar Placeholder */}
+                  </div>
+                  <textarea
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
+                    placeholder="Write a caption..."
+                    className="w-full bg-transparent border-none text-sm text-white placeholder-zinc-500 resize-none focus:outline-none min-h-[100px]"
+                  />
+                </div>
               </div>
-            )}
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-          </div>
-
-          {/* Caption */}
-          <div className="space-y-2">
-            <textarea
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              placeholder="Write a caption..."
-              className="w-full bg-zinc-800/50 border border-white/10 rounded-lg p-3 text-sm text-white placeholder-zinc-500 resize-none focus:outline-none focus:border-white/20 min-h-[100px]"
-            />
-          </div>
+              <div className="p-4 border-t border-white/10 flex justify-end">
+                <Button
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-8"
+                >
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Share"
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
-
-        <DialogFooter>
-          <Button
-            onClick={handleSubmit}
-            disabled={!image || loading}
-            className="w-full bg-white text-black hover:bg-zinc-200 font-medium"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-            {loading ? "Posting..." : "Share"}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

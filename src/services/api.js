@@ -166,6 +166,7 @@ export const authAPI = {
   getUsers: () => api.get("/admin/users/"),
   toggleBlockUser: (username) =>
     api.post(`/admin/users/${username}/toggle-block/`),
+  deleteUser: (username) => api.delete(`/admin/users/${username}/delete/`),
   getAdminStats: () => api.get("/admin/stats/"),
 };
 
@@ -186,11 +187,22 @@ export const postsAPI = {
   getFeed: () => api.get("/posts/"),
   getUserPosts: (username) => api.get(`/posts/?username=${username}`),
   createPost: (data) => {
-    const config = { headers: { "Content-Type": "multipart/form-data" } }; // Important for file upload
+    const config = {};
+    if (data instanceof FormData) {
+      config.headers = { "Content-Type": undefined };
+    }
     return api.post("/posts/", data, config);
   },
+  updatePost: (id, data) => api.patch(`/posts/${id}/`, data),
   deletePost: (id) => api.delete(`/posts/${id}/`),
   toggleLike: (id) => api.post(`/posts/${id}/like/`),
+};
+
+export const notificationsAPI = {
+  getNotifications: () => api.get("/notifications/"),
+  markRead: (id) => api.post(`/notifications/${id}/mark_read/`),
+  markAllRead: () => api.post("/notifications/mark_all_read/"),
+  clearAll: () => api.delete("/notifications/clear_all/"),
 };
 
 export default api;

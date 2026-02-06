@@ -8,20 +8,32 @@ import {
 } from "../components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Button } from "../components/ui/button";
-import { Heart, MessageCircle, Trash2, X, Loader2 } from "lucide-react";
+import { Heart, MessageCircle, MoreHorizontal, Loader2 } from "lucide-react";
 import { notify } from "../services/notification";
 import useAuthStore from "../stores/useAuthStore";
 import { formatDistanceToNow } from "date-fns";
+import { Textarea } from "../components/ui/textarea";
 
 const PostGrid = ({ username, refreshTrigger }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editCaption, setEditCaption] = useState("");
   const { user: currentUser } = useAuthStore();
 
   useEffect(() => {
     fetchPosts();
   }, [username, refreshTrigger]);
+
+  // Reset edit state when modal closes or post changes
+  useEffect(() => {
+    if (!selectedPost) {
+      setIsEditing(false);
+      setEditCaption("");
+    }
+  }, [selectedPost]);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -81,6 +93,24 @@ const PostGrid = ({ username, refreshTrigger }) => {
     }
   };
 
+  const handleUpdate = async () => {
+    try {
+      await postsAPI.updatePost(selectedPost.id, { caption: editCaption });
+
+      // Update local state
+      const updatedPost = { ...selectedPost, caption: editCaption };
+      setPosts((prev) =>
+        prev.map((p) => (p.id === selectedPost.id ? updatedPost : p)),
+      );
+      setSelectedPost(updatedPost);
+
+      setIsEditing(false);
+      notify.success("Post updated");
+    } catch (error) {
+      notify.error("Failed to update post");
+    }
+  };
+
   if (loading) {
     return (
       <div className="grid grid-cols-3 gap-1 md:gap-4 mt-6">
@@ -124,10 +154,23 @@ const PostGrid = ({ username, refreshTrigger }) => {
             />
             {/* Hover Overlay */}
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 text-white">
-              <div className="flex items-center gap-1">
-                <Heart className="fill-white" size={20} />
+              <button
+                className="flex items-center gap-1 hover:scale-110 transition-transform active:scale-95"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleLike(post);
+                }}
+              >
+                <Heart
+                  className={
+                    post.is_liked
+                      ? "fill-red-500 text-red-500"
+                      : "fill-white text-white"
+                  }
+                  size={20}
+                />
                 <span className="font-bold">{post.likes_count}</span>
-              </div>
+              </button>
             </div>
           </div>
         ))}
@@ -154,7 +197,7 @@ const PostGrid = ({ username, refreshTrigger }) => {
             {/* Details Section */}
             <div className="flex flex-col h-full bg-zinc-900">
               {/* Header */}
-              <div className="p-4 border-b border-white/5 flex items-center justify-between">
+              <div className="p-4 border-b border-white/5 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={selectedPost?.user?.avatar_url} />
@@ -162,54 +205,31 @@ const PostGrid = ({ username, refreshTrigger }) => {
                       {selectedPost?.user?.username?.[0]}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-semibold text-sm">
-                    {selectedPost?.user?.username}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-sm">
+                      {selectedPost?.user?.username}
+                    </span>
+                    {selectedPost?.user?.bio && (
+                      <span className="text-xs text-zinc-400 max-w-[200px] truncate">
+                        {selectedPost.user.bio}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 {currentUser?.username === selectedPost?.user?.username && (
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-zinc-500 hover:text-red-500"
-                    onClick={() => handleDelete(selectedPost.id)}
+                    className="text-white hover:bg-transparent"
+                    onClick={() => setIsOptionsOpen(true)}
                   >
-                    <Trash2 size={16} />
+                    <MoreHorizontal size={20} />
                   </Button>
                 )}
               </div>
 
-              {/* Comments/Caption Area (Scrollable) */}
-              <div className="flex-1 p-4 overflow-y-auto">
-                {/* Caption */}
-                {selectedPost?.caption && (
-                  <div className="flex gap-3 mb-4">
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src={selectedPost?.user?.avatar_url} />
-                      <AvatarFallback>
-                        {selectedPost?.user?.username?.[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="text-sm">
-                      <span className="font-semibold mr-2">
-                        {selectedPost?.user?.username}
-                      </span>
-                      <span className="text-zinc-300">
-                        {selectedPost.caption}
-                      </span>
-                      <div className="text-xs text-zinc-500 mt-1">
-                        {formatDistanceToNow(
-                          new Date(selectedPost.created_at),
-                          { addSuffix: true },
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {/* Comments would go here */}
-              </div>
-
-              {/* Actions / Footer */}
-              <div className="p-4 border-t border-white/5 space-y-3 bg-zinc-900">
+              {/* Actions Bar (Moved up) */}
+              <div className="p-4 border-b border-white/5 space-y-3 bg-zinc-900 shrink-0">
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => handleLike(selectedPost)}
@@ -239,7 +259,89 @@ const PostGrid = ({ username, refreshTrigger }) => {
                     )}
                 </div>
               </div>
+
+              {/* Comments/Caption Area (Scrollable) */}
+              <div className="flex-1 p-4 overflow-y-auto">
+                {/* Caption */}
+                {selectedPost && (
+                  <div className="flex gap-3 mb-4">
+                    <Avatar className="w-8 h-8 hidden sm:block">
+                      <AvatarImage src={selectedPost?.user?.avatar_url} />
+                      <AvatarFallback>
+                        {selectedPost?.user?.username?.[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="text-sm w-full">
+                      <span className="font-semibold mr-2">
+                        {selectedPost?.user?.username}
+                      </span>
+
+                      {isEditing ? (
+                        <div className="mt-2 space-y-2">
+                          <Textarea
+                            value={editCaption}
+                            onChange={(e) => setEditCaption(e.target.value)}
+                            className="bg-zinc-800 border-zinc-700 min-h-[100px]"
+                          />
+                          <div className="flex gap-2 justify-end">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setIsEditing(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button size="sm" onClick={handleUpdate}>
+                              Save
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <span className="text-zinc-300">
+                            {selectedPost.caption}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {/* Comments would go here */}
+              </div>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Options Dialog (Instagram Style) */}
+      <Dialog open={isOptionsOpen} onOpenChange={setIsOptionsOpen}>
+        <DialogContent className="bg-zinc-900 border border-white/10 p-0 text-white sm:max-w-[400px] gap-0 overflow-hidden rounded-xl">
+          <div className="flex flex-col">
+            <button
+              onClick={() => {
+                handleDelete(selectedPost.id);
+                setIsOptionsOpen(false);
+              }}
+              className="w-full p-3 text-center text-red-500 font-bold border-b border-white/10 hover:bg-white/5 transition-colors text-sm"
+            >
+              Delete
+            </button>
+            <button
+              onClick={() => {
+                setEditCaption(selectedPost.caption);
+                setIsEditing(true);
+                setIsOptionsOpen(false);
+              }}
+              className="w-full p-3 text-center text-white border-b border-white/10 hover:bg-white/5 transition-colors text-sm"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => setIsOptionsOpen(false)}
+              className="w-full p-3 text-center text-white hover:bg-white/5 transition-colors text-sm"
+            >
+              Cancel
+            </button>
           </div>
         </DialogContent>
       </Dialog>
