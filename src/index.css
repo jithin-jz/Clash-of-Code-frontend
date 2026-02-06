@@ -23,6 +23,13 @@
     --ring: 45 100% 51%;
     --radius: 0.5rem;
   }
+
+  /* Prevent white flash on page load */
+  html,
+  body {
+    background-color: #050505;
+    color: white;
+  }
 }
 
 @theme {
@@ -73,7 +80,7 @@
     border-radius: 99px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #3f3f46;
+    background: #3f3f46;
   }
 
   /* Clean Glass - subtle and professional */
@@ -82,7 +89,7 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
-  
+
   .border-glass {
     border: 1px solid rgba(255, 255, 255, 0.08);
   }

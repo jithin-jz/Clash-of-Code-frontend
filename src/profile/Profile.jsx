@@ -6,23 +6,34 @@ import { notify } from "../services/notification";
 import {
   Camera,
   Shield,
-  Layout,
-  Gift,
   Github,
   Code,
   Users,
   MapPin,
+  ArrowLeft,
+  Copy,
+  Check,
+  UserPlus,
+  Loader2,
+  LogOut,
+  Settings,
+  Gift,
+  Plus,
 } from "lucide-react";
 import { authAPI } from "../services/api";
-import Loader from "../common/Loader";
 import ProfileSkeleton from "./ProfileSkeleton";
+import CreatePostDialog from "../posts/CreatePostDialog";
+import PostGrid from "../posts/PostGrid";
 import { motion, AnimatePresence } from "framer-motion";
-import ReferralSection from "./ReferralSection";
-import IdentityCard from "./components/IdentityCard";
-import StatsGrid from "./components/StatsGrid";
-import CodingStats from "./components/CodingStats";
-import Milestones from "./components/Milestones";
-
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -36,19 +47,17 @@ const Profile = () => {
   const navigate = useNavigate();
   const { username } = useParams();
   const { user: currentUser, logout, deleteAccount } = useAuthStore();
-
-  const { updateProfile, followUser } = useUserStore();
+  const { updateProfile, followUser, redeemReferral } = useUserStore();
 
   const isOwnProfile =
     !username || (currentUser && username === currentUser.username);
-
-  // Determine profileUser based on ownership
   const [profileUser, setProfileUser] = useState(
     isOwnProfile ? currentUser : null,
   );
   const [loading, setLoading] = useState(true);
   const [userNotFound, setUserNotFound] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [suggestedUsers, setSuggestedUsers] = useState([]);
 
   const [editForm, setEditForm] = useState({
     username: "",
@@ -58,21 +67,26 @@ const Profile = () => {
   });
 
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  // Banner upload state effectively unused in current UI but kept for logic consistency
+  const [uploadingBanner, setUploadingBanner] = useState(false); // Added banner loading state
   const [savingProfile, setSavingProfile] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
-
-  // Delete Dialog State
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
+  // Referral Redeem State
+  const [referralCodeInput, setReferralCodeInput] = useState("");
+  const [isRedeeming, setIsRedeeming] = useState(false);
+  const [createPostOpen, setCreatePostOpen] = useState(false);
+  const [refreshPosts, setRefreshPosts] = useState(0);
+
+  const avatarInputRef = useRef(null);
   const bannerInputRef = useRef(null);
 
-  const [listType, setListType] = useState(null); // 'followers' or 'following' or null
+  const [listType, setListType] = useState(null);
   const [userList, setUserList] = useState([]);
   const [listLoading, setListLoading] = useState(false);
 
-  // Use authAPI to fetch profile
-  const { getUserProfile, getFollowers, getFollowing } = authAPI;
+  const { getUserProfile, getFollowers, getFollowing, getSuggestedUsers } =
+    authAPI;
 
   const fetchProfile = useCallback(
     async (targetUsername) => {
@@ -91,10 +105,21 @@ const Profile = () => {
     [getUserProfile],
   );
 
+  const fetchSuggestions = useCallback(async () => {
+    try {
+      if (getSuggestedUsers) {
+        const response = await getSuggestedUsers();
+        setSuggestedUsers(response.data?.slice(0, 5) || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch suggestions", error);
+    }
+  }, [getSuggestedUsers]);
+
   const fetchUserList = async (type) => {
     setListLoading(true);
     setUserList([]);
-    setListType(type); // Open modal immediately
+    setListType(type);
     try {
       const apiCall = type === "followers" ? getFollowers : getFollowing;
       const response = await apiCall(profileUser.username);
@@ -108,7 +133,6 @@ const Profile = () => {
 
   useEffect(() => {
     if (isOwnProfile) {
-      // Ensure we have the latest data from the store
       setProfileUser(currentUser);
       setEditForm({
         username: currentUser?.username || "",
@@ -117,27 +141,31 @@ const Profile = () => {
         leetcode_username: currentUser?.profile?.leetcode_username || "",
       });
       setLoading(false);
+      fetchSuggestions();
     } else if (username) {
       fetchProfile(username);
     }
-  }, [username, currentUser, isOwnProfile, fetchProfile]);
+  }, [username, currentUser, isOwnProfile, fetchProfile, fetchSuggestions]);
 
   const handleImageUpload = async (event, type) => {
     const file = event.target.files[0];
     if (!file) return;
 
     if (type === "avatar") setUploadingAvatar(true);
+    if (type === "banner") setUploadingBanner(true);
 
     try {
       const updatedUser = await updateProfile({ type, file }, true);
-      if (isOwnProfile) {
-        setProfileUser(updatedUser);
-      }
+      if (isOwnProfile) setProfileUser(updatedUser);
+      notify.success(
+        `${type === "avatar" ? "Profile picture" : "Banner"} updated!`,
+      );
     } catch (error) {
-      console.error(`Failed to upload ${type}`, error);
+      console.error(error);
       notify.error(`Failed to upload ${type}`);
     } finally {
       if (type === "avatar") setUploadingAvatar(false);
+      if (type === "banner") setUploadingBanner(false);
     }
   };
 
@@ -149,7 +177,7 @@ const Profile = () => {
       setIsEditing(false);
       notify.success("Profile updated!");
     } catch (error) {
-      console.error("Failed to update profile", error);
+      console.error(error);
       notify.error("Failed to update profile");
     } finally {
       setSavingProfile(false);
@@ -158,7 +186,6 @@ const Profile = () => {
 
   const handleFollowToggle = async () => {
     if (!currentUser) return navigate("/login");
-
     try {
       const data = await followUser(profileUser.username);
       setProfileUser((prev) => ({
@@ -171,13 +198,73 @@ const Profile = () => {
     }
   };
 
+  const handleListFollowToggle = async (targetUsername) => {
+    if (!currentUser) return;
+    try {
+      const data = await followUser(targetUsername);
+      setUserList((prev) =>
+        prev.map((u) => {
+          if (u.username === targetUsername) {
+            return { ...u, is_following: data.is_following };
+          }
+          return u;
+        }),
+      );
+
+      // Update main profile stats if we are following/unfollowing the displayed user
+      if (targetUsername === profileUser.username) {
+        setProfileUser((prev) => ({
+          ...prev,
+          is_following: data.is_following,
+          followers_count: data.follower_count,
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to toggle follow in list", error);
+    }
+  };
+
+  const handleFollowSuggested = async (suggestedUsername) => {
+    if (!currentUser) return navigate("/login");
+    try {
+      await followUser(suggestedUsername);
+      setSuggestedUsers((prev) =>
+        prev.filter((u) => u.username !== suggestedUsername),
+      );
+    } catch (error) {
+      console.error("Failed to follow", error);
+    }
+  };
+
+  const handleCopyReferral = () => {
+    if (currentUser?.profile?.referral_code) {
+      navigator.clipboard.writeText(currentUser.profile.referral_code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleRedeemReferral = async (e) => {
+    e.preventDefault();
+    if (!referralCodeInput.trim()) return;
+
+    setIsRedeeming(true);
+    try {
+      const result = await redeemReferral(referralCodeInput);
+      notify.success(`Referral redeemed! +${result.xp_awarded} XP`);
+      setReferralCodeInput("");
+      // Update local user state immediately to reflect new XP and redeemed status
+      // (Handled by store, but we might want to refresh visible UI if dependent)
+    } catch (error) {
+      notify.error("Failed to redeem: " + error.message);
+    } finally {
+      setIsRedeeming(false);
+    }
+  };
+
   const handleLogout = async () => {
     await logout();
     navigate("/login");
-  };
-
-  const handleDeleteAccount = () => {
-    setDeleteDialogOpen(true);
   };
 
   const confirmDeleteAccount = async () => {
@@ -191,31 +278,23 @@ const Profile = () => {
     }
   };
 
-  // Removed blocking loader
-  // if (loading && !profileUser) {
-  //   return <Loader isLoading={true} />;
-  // }
-
-  // if (!profileUser) return null; // We still might need this if we have absolutely nothing, but better to show skeleton
-
-  // User Not Found UI
   if (userNotFound) {
     return (
-      <div className="h-screen w-full bg-[#050505] text-white flex flex-col items-center justify-center gap-6">
+      <div className="h-screen w-full bg-[#09090b] text-white flex flex-col items-center justify-center gap-6">
         <div className="text-center">
-          <div className="w-24 h-24 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-6">
-            <Users size={48} className="text-red-400" />
+          <div className="w-20 h-20 rounded-xl bg-zinc-800 flex items-center justify-center mx-auto mb-6">
+            <Users size={40} className="text-zinc-600" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">User Not Found</h1>
-          <p className="text-gray-400 mb-6">
+          <h1 className="text-2xl font-semibold mb-2">User Not Found</h1>
+          <p className="text-zinc-500 mb-6 text-sm">
             This user may have changed their username or doesn't exist.
           </p>
-          <button
+          <Button
             onClick={() => navigate("/")}
-            className="px-6 py-3 bg-[#FFD700] hover:bg-[#FDB931] text-black rounded-xl font-bold transition-all hover:scale-105"
+            className="bg-white text-black hover:bg-zinc-200"
           >
             Back to Home
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -229,7 +308,7 @@ const Profile = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.3 }}
           className="h-screen w-full"
         >
           <ProfileSkeleton />
@@ -239,272 +318,553 @@ const Profile = () => {
           key="content"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="h-screen w-full bg-[#050505] text-white font-sans overflow-hidden content-center p-4 md:p-6 flex justify-center gap-6 selection:bg-[#FFD700] selection:text-black"
+          transition={{ duration: 0.3 }}
+          className="h-screen bg-[#09090b] text-white flex flex-col overflow-hidden"
         >
-          {/* Left Panel - Identity & Actions */}
-          <div className="w-full md:w-80 lg:w-96 shrink-0 flex flex-col gap-6 h-full overflow-y-auto no-scrollbar">
-            <IdentityCard
-              profileUser={profileUser || {}} // Pass empty object if null to safely render skeleton
-              loading={loading} // Pass loading state
-              isOwnProfile={isOwnProfile}
-              isEditing={isEditing}
-              setIsEditing={setIsEditing}
-              uploadingAvatar={uploadingAvatar}
-              handleImageUpload={handleImageUpload}
-              handleLogout={handleLogout}
-              handleFollowToggle={handleFollowToggle}
-              fetchUserList={fetchUserList}
-            />
-          </div>
-
-          {/* Right Panel - Content */}
-          <div className="w-full max-w-3xl bg-[#121212]/50 border border-white/5 rounded-3xl overflow-hidden flex flex-col shadow-2xl relative">
-            {/* Background Pattern */}
-            <div
-              className="absolute inset-0 opacity-20 pointer-events-none"
-              style={{
-                backgroundImage:
-                  "radial-gradient(circle at top right, rgba(255, 215, 0, 0.05), transparent 40%)",
-              }}
-            ></div>
-
-            {isEditing && isOwnProfile ? (
-              <div className="flex-1 p-8 overflow-y-auto no-scrollbar">
-                <div className="max-w-2xl mx-auto">
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-indigo-400 uppercase tracking-wider">
-                        Display Name
-                      </label>
-                      <input
-                        type="text"
-                        value={editForm.username}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, username: e.target.value })
-                        }
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#FFD700] transition-colors"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-indigo-400 uppercase tracking-wider">
-                        Bio
-                      </label>
-                      <textarea
-                        value={editForm.bio}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, bio: e.target.value })
-                        }
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-gray-300 focus:outline-none focus:border-[#FFD700] transition-colors min-h-[80px] resize-none"
-                        placeholder="Tell your story..."
-                      />
-                    </div>
-
-                    {/* Coding Profiles Inputs */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-2">
-                          <Github size={14} /> GitHub Username
-                        </label>
-                        <input
-                          type="text"
-                          value={editForm.github_username}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              github_username: e.target.value,
-                            })
-                          }
-                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#FFD700] transition-colors placeholder-white/20"
-                          placeholder="username"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-2">
-                          <Code size={14} /> LeetCode Username
-                        </label>
-                        <input
-                          type="text"
-                          value={editForm.leetcode_username}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              leetcode_username: e.target.value,
-                            })
-                          }
-                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#FFD700] transition-colors placeholder-white/20"
-                          placeholder="username"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Banner Upload */}
-                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-black/40 flex items-center justify-center text-gray-400">
-                          <Camera size={18} />
-                        </div>
-                        <div>
-                          <div className="text-sm font-bold text-white">
-                            Profile Banner
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            Used in search cards and previews
-                          </div>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => bannerInputRef.current.click()}
-                        className="text-xs font-bold text-[#FFD700] hover:text-[#ffea7d] transition-colors px-3 py-1.5 bg-[#FFD700]/10 rounded-lg"
-                      >
-                        Change
-                      </button>
-                      <input
-                        type="file"
-                        ref={bannerInputRef}
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload(e, "banner")}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between pt-8 mt-8 border-t border-white/5">
-                      <button
-                        type="button"
-                        onClick={handleDeleteAccount}
-                        className="text-red-500 hover:text-red-400 text-sm font-bold hover:bg-red-500/10 px-4 py-2 rounded-xl transition-colors flex items-center gap-2"
-                      >
-                        <Shield size={14} /> Delete Account
-                      </button>
-
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => setIsEditing(false)}
-                          className="px-6 py-3 rounded-xl font-bold text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={handleSaveProfile}
-                          disabled={savingProfile}
-                          className="bg-[#FFD700] hover:bg-[#ffea7d] text-black px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-yellow-900/20 disabled:opacity-50 flex items-center gap-2"
-                        >
-                          {savingProfile ? "Saving..." : "Save Changes"}
-                        </button>
-                      </div>
-                    </div>
+          {/* Header */}
+          <header className="bg-[#09090b] border-b border-white/5">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6">
+              <div className="h-14 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate(-1)}
+                    className="h-9 w-9 text-zinc-400 hover:text-white hover:bg-white/5"
+                  >
+                    <ArrowLeft size={18} />
+                  </Button>
+                  <h1 className="text-base font-semibold">Profile</h1>
+                </div>
+                {isOwnProfile && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsEditing(!isEditing)}
+                      className="h-9 w-9 text-zinc-400 hover:text-white hover:bg-white/5"
+                    >
+                      <Settings size={18} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleLogout}
+                      className="h-9 w-9 text-zinc-400 hover:text-white hover:bg-white/5"
+                    >
+                      <LogOut size={18} />
+                    </Button>
                   </div>
+                )}
+              </div>
+            </div>
+          </header>
+
+          {/* Main Content */}
+          <main className="flex-1 overflow-auto no-scrollbar px-4 sm:px-6 py-6">
+            <div className="max-w-5xl mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left Column - Profile Card */}
+                <div className="lg:col-span-1 space-y-4">
+                  {/* Profile Card */}
+                  <Card className="bg-zinc-900/50 border-white/5 overflow-hidden">
+                    {/* Banner Image */}
+                    <div className="h-32 bg-zinc-800/50 relative">
+                      {profileUser?.profile?.banner_url ? (
+                        <img
+                          src={profileUser.profile.banner_url}
+                          alt="Banner"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-linear-to-r from-zinc-800 to-zinc-900" />
+                      )}
+                      {/* Avatar (Absolute positioned) */}
+                      <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
+                        <Avatar className="w-24 h-24 border-4 border-[#09090b]">
+                          <AvatarImage
+                            src={profileUser?.profile?.avatar_url}
+                            alt={profileUser?.username}
+                          />
+                          <AvatarFallback className="bg-zinc-800 text-zinc-400 text-2xl">
+                            {profileUser?.username?.[0]?.toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        {isOwnProfile && (
+                          <>
+                            <button
+                              onClick={() => avatarInputRef.current?.click()}
+                              disabled={uploadingAvatar}
+                              className="absolute bottom-0 right-0 w-8 h-8 bg-zinc-800 border border-white/10 rounded-full flex items-center justify-center text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                            >
+                              {uploadingAvatar ? (
+                                <Loader2 size={14} className="animate-spin" />
+                              ) : (
+                                <Camera size={14} />
+                              )}
+                            </button>
+                            <input
+                              type="file"
+                              ref={avatarInputRef}
+                              className="hidden"
+                              accept="image/*"
+                              onChange={(e) => handleImageUpload(e, "avatar")}
+                            />
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <CardContent className="pt-16 pb-6 px-6 text-center">
+                      {/* Name */}
+                      <h2 className="text-xl font-bold text-white mb-1">
+                        {profileUser?.first_name || profileUser?.username}
+                      </h2>
+                      {/* Username Removed as requested */}
+                      {/* <p className="text-sm text-zinc-500 mb-4">
+                          @{profileUser?.username}
+                        </p> */}
+
+                      {/* Bio */}
+                      {profileUser?.profile?.bio &&
+                        profileUser.profile.bio !== "User" && (
+                          <p className="text-sm text-zinc-400 mt-2 mb-6 max-w-[240px] mx-auto leading-relaxed">
+                            {profileUser.profile.bio}
+                          </p>
+                        )}
+
+                      {!profileUser?.profile?.bio && (
+                        <div className="mb-4"></div>
+                      )}
+
+                      {/* Follow/Following Stats */}
+                      <div className="flex items-center justify-center gap-8 mb-6 border-t border-white/5 pt-4">
+                        <button
+                          onClick={() => fetchUserList("followers")}
+                          className="text-center group"
+                        >
+                          <div className="text-lg font-bold text-white group-hover:text-zinc-300 transition-colors">
+                            {profileUser?.followers_count || 0}
+                          </div>
+                          <div className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
+                            Followers
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => fetchUserList("following")}
+                          className="text-center group"
+                        >
+                          <div className="text-lg font-bold text-white group-hover:text-zinc-300 transition-colors">
+                            {profileUser?.following_count || 0}
+                          </div>
+                          <div className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
+                            Following
+                          </div>
+                        </button>
+                      </div>
+
+                      {/* Action Button */}
+                      {!isOwnProfile && (
+                        <Button
+                          onClick={handleFollowToggle}
+                          className={`w-full h-10 font-bold ${
+                            profileUser?.is_following
+                              ? "bg-zinc-800 text-white hover:bg-zinc-700"
+                              : "bg-white text-black hover:bg-zinc-200"
+                          }`}
+                        >
+                          {profileUser?.is_following ? "Following" : "Follow"}
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Referral Section - Optimized */}
+                  {isOwnProfile && currentUser?.profile?.referral_code && (
+                    <Card className="bg-zinc-900/50 border-white/5">
+                      <CardHeader className="p-4 border-b border-white/5">
+                        <CardTitle className="text-sm font-medium flex items-center gap-2">
+                          <Gift size={14} className="text-zinc-500" /> Referral
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-4 space-y-4">
+                        {/* Copy Code */}
+                        <div className="flex items-center justify-between bg-zinc-800/50 p-2.5 rounded-lg border border-white/5">
+                          <code className="text-sm font-mono text-white px-1">
+                            {currentUser.profile.referral_code}
+                          </code>
+                          <button
+                            onClick={handleCopyReferral}
+                            className="p-1.5 hover:bg-white/10 rounded transition-colors text-zinc-400 hover:text-white"
+                          >
+                            {copied ? (
+                              <Check size={14} className="text-emerald-400" />
+                            ) : (
+                              <Copy size={14} />
+                            )}
+                          </button>
+                        </div>
+
+                        {/* Redeem Input */}
+                        {!currentUser.profile.is_referred && (
+                          <div>
+                            <h4 className="text-xs text-zinc-500 font-medium mb-2 uppercase tracking-wide">
+                              Redeem Code
+                            </h4>
+                            <form
+                              onSubmit={handleRedeemReferral}
+                              className="flex gap-2"
+                            >
+                              <input
+                                type="text"
+                                value={referralCodeInput}
+                                onChange={(e) =>
+                                  setReferralCodeInput(e.target.value)
+                                }
+                                placeholder="Enter code"
+                                className="flex-1 bg-zinc-800/50 border border-white/5 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20 placeholder-zinc-600"
+                              />
+                              <Button
+                                type="submit"
+                                size="sm"
+                                disabled={isRedeeming || !referralCodeInput}
+                                className="bg-zinc-800 text-white hover:bg-zinc-700"
+                              >
+                                {isRedeeming ? (
+                                  <Loader2 size={12} className="animate-spin" />
+                                ) : (
+                                  "Go"
+                                )}
+                              </Button>
+                            </form>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Social Links */}
+                  {(profileUser?.profile?.github_username ||
+                    profileUser?.profile?.leetcode_username) && (
+                    <Card className="bg-zinc-900/50 border-white/5">
+                      <CardContent className="p-4 space-y-3">
+                        {profileUser?.profile?.github_username && (
+                          <a
+                            href={`https://github.com/${profileUser.profile.github_username}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 text-sm text-zinc-400 hover:text-white transition-colors"
+                          >
+                            <Github size={16} />
+                            <span>{profileUser.profile.github_username}</span>
+                          </a>
+                        )}
+                        {profileUser?.profile?.leetcode_username && (
+                          <a
+                            href={`https://leetcode.com/${profileUser.profile.leetcode_username}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 text-sm text-zinc-400 hover:text-white transition-colors"
+                          >
+                            <Code size={16} />
+                            <span>{profileUser.profile.leetcode_username}</span>
+                          </a>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+
+                {/* Right Column - Content */}
+                <div className="lg:col-span-2 space-y-4">
+                  {isEditing && isOwnProfile ? (
+                    /* Edit Form */
+                    <Card className="bg-zinc-900/50 border-white/5">
+                      <CardHeader className="p-4 border-b border-white/5">
+                        <CardTitle className="text-sm font-medium">
+                          Edit Profile
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-4 space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-xs text-zinc-500">
+                            Username
+                          </label>
+                          <input
+                            type="text"
+                            value={editForm.username}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                username: e.target.value,
+                              })
+                            }
+                            className="w-full bg-zinc-800/50 border border-white/5 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs text-zinc-500">Bio</label>
+                          <textarea
+                            value={editForm.bio}
+                            onChange={(e) =>
+                              setEditForm({ ...editForm, bio: e.target.value })
+                            }
+                            className="w-full bg-zinc-800/50 border border-white/5 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20 min-h-[80px] resize-none"
+                            placeholder="Write something about yourself..."
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-xs text-zinc-500 flex items-center gap-1">
+                              <Github size={12} /> GitHub
+                            </label>
+                            <input
+                              type="text"
+                              value={editForm.github_username}
+                              onChange={(e) =>
+                                setEditForm({
+                                  ...editForm,
+                                  github_username: e.target.value,
+                                })
+                              }
+                              className="w-full bg-zinc-800/50 border border-white/5 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20"
+                              placeholder="username"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-xs text-zinc-500 flex items-center gap-1">
+                              <Code size={12} /> LeetCode
+                            </label>
+                            <input
+                              type="text"
+                              value={editForm.leetcode_username}
+                              onChange={(e) =>
+                                setEditForm({
+                                  ...editForm,
+                                  leetcode_username: e.target.value,
+                                })
+                              }
+                              className="w-full bg-zinc-800/50 border border-white/5 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20"
+                              placeholder="username"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Banner Upload */}
+                        <div className="flex items-center justify-between p-3 bg-zinc-800/30 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <Camera size={16} className="text-zinc-500" />
+                            <span className="text-sm text-zinc-400">
+                              Profile Banner
+                            </span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={uploadingBanner}
+                            onClick={() => bannerInputRef.current?.click()}
+                            className="text-xs text-zinc-500 hover:text-white"
+                          >
+                            {uploadingBanner ? (
+                              <Loader2 size={12} className="animate-spin" />
+                            ) : (
+                              "Change"
+                            )}
+                          </Button>
+                          <input
+                            type="file"
+                            ref={bannerInputRef}
+                            className="hidden"
+                            accept="image/*"
+                            onChange={(e) => handleImageUpload(e, "banner")}
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                          <Button
+                            variant="ghost"
+                            onClick={() => setDeleteDialogOpen(true)}
+                            className="text-red-500 hover:text-red-400 hover:bg-red-500/10 text-xs"
+                          >
+                            <Shield size={14} className="mr-1" />
+                            Delete Account
+                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="ghost"
+                              onClick={() => setIsEditing(false)}
+                              className="text-zinc-500 hover:text-white text-sm"
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              onClick={handleSaveProfile}
+                              disabled={savingProfile}
+                              className="bg-white text-black hover:bg-zinc-200 text-sm"
+                            >
+                              {savingProfile ? "Saving..." : "Save"}
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    /* Main Content Area */
+                    <div className="space-y-6">
+                      {/* Tabs / Actions */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex bg-zinc-900/50 p-1 rounded-lg border border-white/5">
+                          <button className="px-4 py-1.5 text-sm font-medium bg-zinc-800 text-white rounded-md shadow-sm">
+                            Posts
+                          </button>
+                          {/* Future: Saved Tab */}
+                        </div>
+
+                        {isOwnProfile && (
+                          <Button
+                            onClick={() => setCreatePostOpen(true)}
+                            size="sm"
+                            className="bg-white text-black hover:bg-zinc-200 gap-2"
+                          >
+                            <Plus size={16} />
+                            Create Post
+                          </Button>
+                        )}
+                      </div>
+
+                      {/* Posts Grid */}
+                      <PostGrid
+                        username={profileUser?.username || username}
+                        refreshTrigger={refreshPosts}
+                      />
+
+                      {/* Suggestions (moved to bottom or keep?) */}
+                      {/* Only show suggestions if own profile and no posts? keeping generic for now */}
+                      {isOwnProfile && suggestedUsers.length > 0 && (
+                        <div className="mt-8 pt-8 border-t border-white/5">
+                          <h3 className="text-sm font-medium text-zinc-400 mb-4 px-1">
+                            Suggested for you
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {suggestedUsers.map((user) => (
+                              <div
+                                key={user.username}
+                                className="flex items-center justify-between p-3 bg-zinc-900/30 rounded-lg border border-white/5"
+                              >
+                                <div
+                                  className="flex items-center gap-3 cursor-pointer flex-1"
+                                  onClick={() =>
+                                    navigate(`/profile/${user.username}`)
+                                  }
+                                >
+                                  <Avatar className="w-8 h-8">
+                                    <AvatarImage src={user.avatar_url} />
+                                    <AvatarFallback>
+                                      {user.username[0]}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="min-w-0">
+                                    <div className="text-sm font-medium text-white truncate">
+                                      {user.username}
+                                    </div>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() =>
+                                    handleFollowSuggested(user.username)
+                                  }
+                                  className="h-7 text-xs border-white/10 hover:bg-white/5 text-zinc-300"
+                                >
+                                  Follow
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-            ) : (
-              <>
-                {/* Tabs Header */}
-                <div className="flex items-center gap-1 p-2 border-b border-white/5 bg-black/20">
-                  {[
-                    { id: "overview", label: "Overview", icon: Layout },
-                    ...(isOwnProfile
-                      ? [{ id: "referral", label: "Referral", icon: Gift }]
-                      : []),
-                  ].map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all ${
-                        activeTab === tab.id
-                          ? "bg-white/10 text-white shadow-lg"
-                          : "text-gray-500 hover:text-white hover:bg-white/5"
-                      }`}
-                    >
-                      <tab.icon size={16} /> {tab.label}
-                    </button>
-                  ))}
-                </div>
+            </div>
+          </main>
 
-                {/* Tab Content */}
-                <div className="flex-1 overflow-y-auto p-4 no-scrollbar">
-                  {activeTab === "overview" && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 space-y-4">
-                      <StatsGrid
-                        profileUser={profileUser || {}}
-                        isOwnProfile={isOwnProfile}
-                        loading={loading}
-                      />
-                      <CodingStats
-                        profileUser={profileUser || {}}
-                        loading={loading}
-                      />
-                      <Milestones
-                        profileUser={profileUser || {}}
-                        loading={loading}
-                      />
-                    </div>
-                  )}
-
-                  {activeTab === "referral" && isOwnProfile && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                      <ReferralSection />
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
+          <CreatePostDialog
+            open={createPostOpen}
+            onOpenChange={setCreatePostOpen}
+            onPostCreated={() => setRefreshPosts((prev) => prev + 1)}
+          />
 
           {/* User List Modal */}
           <Dialog
             open={!!listType}
             onOpenChange={(open) => !open && setListType(null)}
           >
-            <DialogContent className="bg-[#121212] border border-white/10 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-0">
-              <DialogHeader className="p-5 border-b border-white/5 bg-[#1a1a1a]">
-                <DialogTitle className="text-white font-bold text-lg flex items-center gap-2">
-                  {listType === "followers" ? (
-                    <Users size={18} className="text-[#FFD700]" />
-                  ) : (
-                    <MapPin size={18} className="text-[#FFD700]" />
-                  )}
+            <DialogContent className="bg-zinc-900 border border-white/10 max-w-sm rounded-xl p-0">
+              <DialogHeader className="p-4 border-b border-white/5">
+                <DialogTitle className="text-white text-sm font-medium">
                   {listType === "followers" ? "Followers" : "Following"}
                 </DialogTitle>
               </DialogHeader>
-
-              <div className="max-h-[60vh] overflow-y-auto p-2">
+              <div className="max-h-[60vh] overflow-y-auto">
                 {listLoading ? (
-                  <div className="p-8 flex flex-col gap-4">
-                    <SkeletonBase className="h-12 w-full rounded-xl" />
-                    <SkeletonBase className="h-12 w-full rounded-xl" />
-                    <SkeletonBase className="h-12 w-full rounded-xl" />
+                  <div className="p-8 text-center">
+                    <Loader2 className="w-6 h-6 animate-spin text-zinc-500 mx-auto" />
                   </div>
                 ) : userList.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500">
+                  <div className="p-8 text-center text-zinc-500 text-sm">
                     No users found.
                   </div>
                 ) : (
-                  <div className="space-y-1">
+                  <div>
                     {userList.map((user) => (
                       <div
                         key={user.username}
-                        onClick={() => {
-                          setListType(null);
-                          navigate(`/profile/${user.username}`);
-                        }}
-                        className="flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl cursor-pointer transition-colors group"
+                        className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
                       >
-                        <img
-                          src={
-                            user.avatar_url || "https://github.com/shadcn.png"
-                          }
-                          alt={user.username}
-                          className="w-10 h-10 rounded-full bg-black/50 object-cover border border-white/10 group-hover:border-[#FFD700]"
-                        />
-                        <div>
-                          <div className="font-bold text-white group-hover:text-[#FFD700] transition-colors text-sm">
-                            {user.first_name || user.username}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            @{user.username}
+                        <div
+                          className="flex items-center gap-3 cursor-pointer flex-1"
+                          onClick={() => {
+                            setListType(null);
+                            navigate(`/profile/${user.username}`);
+                          }}
+                        >
+                          <Avatar className="w-9 h-9">
+                            <AvatarImage
+                              src={user.avatar_url}
+                              alt={user.username}
+                            />
+                            <AvatarFallback className="bg-zinc-800 text-zinc-400 text-sm">
+                              {user.username?.[0]?.toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="text-sm font-medium text-white">
+                              {user.first_name || user.username}
+                            </div>
+                            <div className="text-xs text-zinc-500">
+                              @{user.username}
+                            </div>
                           </div>
                         </div>
+                        {currentUser &&
+                          user.username !== currentUser.username && (
+                            <Button
+                              size="sm"
+                              variant={
+                                user.is_following ? "secondary" : "default"
+                              }
+                              className={`h-8 text-xs ${user.is_following ? "bg-zinc-800 text-zinc-300 hover:bg-zinc-700" : "bg-white text-black hover:bg-zinc-200"}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleListFollowToggle(user.username);
+                              }}
+                            >
+                              {user.is_following ? "Unfollow" : "Follow"}
+                            </Button>
+                          )}
                       </div>
                     ))}
                   </div>
@@ -513,31 +873,31 @@ const Profile = () => {
             </DialogContent>
           </Dialog>
 
-          {/* Delete Account Confirmation Dialog */}
+          {/* Delete Account Dialog */}
           <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-            <DialogContent className="bg-[#121212] border border-white/10 text-white rounded-2xl max-w-md">
+            <DialogContent className="bg-zinc-900 border border-white/10 text-white rounded-xl max-w-sm">
               <DialogHeader>
-                <DialogTitle className="text-red-500 flex items-center gap-2">
-                  <Shield className="w-5 h-5" /> Delete Account
+                <DialogTitle className="text-red-500 flex items-center gap-2 text-sm">
+                  <Shield className="w-4 h-4" /> Delete Account
                 </DialogTitle>
-                <DialogDescription className="text-gray-400 mt-2">
-                  Are you sure you want to delete your account? This action
-                  cannot be undone and you will lose all progress.
+                <DialogDescription className="text-zinc-400 text-sm mt-2">
+                  This action cannot be undone. You will lose all your data.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter className="flex gap-2 mt-4">
-                <button
+                <Button
+                  variant="ghost"
                   onClick={() => setDeleteDialogOpen(false)}
-                  className="px-4 py-2 rounded-lg text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+                  className="text-zinc-400 hover:text-white text-sm"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={confirmDeleteAccount}
-                  className="px-4 py-2 rounded-lg text-sm font-bold bg-red-600 hover:bg-red-700 text-white transition-colors"
+                  className="bg-red-600 hover:bg-red-700 text-white text-sm"
                 >
-                  Yes, Delete My Account
-                </button>
+                  Delete
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

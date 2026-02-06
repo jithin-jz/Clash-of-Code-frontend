@@ -4,60 +4,57 @@ import { loadRazorpay } from "../utils/loadRazorpay";
 import useAuthStore from "../stores/useAuthStore";
 import useUserStore from "../stores/useUserStore";
 import { toast } from "sonner";
-import { Loader2, Zap, ArrowLeft, Shield, Star, Check } from "lucide-react";
-import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  Loader2,
+  Zap,
+  ArrowLeft,
+  Check,
+  Sparkles,
+  Crown,
+  Flame,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
 import BuyXPSkeleton from "./BuyXPSkeleton";
 
 const XP_PACKAGES = [
-  {
-    amount: 99,
-    xp: 100,
-    label: "Starter Pack",
-    description: "Begin your journey",
-    features: ["100 XP Added", "Instant Boost"],
-  },
-  {
-    amount: 249,
-    xp: 250,
-    label: "Booster Pack",
-    description: "Great value for leveling",
-    features: ["250 XP Added", "Crucial Progress"],
-  },
-  {
-    amount: 499,
-    xp: 500,
-    label: "Pro Pack",
-    description: "Serious commitment",
-    features: ["500 XP Added", "Major Leap"],
-  },
-  {
-    amount: 999,
-    xp: 1000,
-    label: "Ultimate Pack",
-    description: "Dominate the leaderboard",
-    features: ["1,000 XP Added", "Maximum Power"],
-  },
+  { amount: 49, xp: 50, label: "Mini", icon: Zap },
+  { amount: 99, xp: 100, label: "Starter", icon: Zap },
+  { amount: 199, xp: 200, label: "Growth", icon: Sparkles },
+  { amount: 249, xp: 250, label: "Booster", icon: Sparkles },
+  { amount: 499, xp: 500, label: "Pro", icon: Flame, popular: true },
+  { amount: 749, xp: 800, label: "Elite", icon: Crown },
+  { amount: 999, xp: 1000, label: "Ultimate", icon: Crown, bestValue: true },
+  { amount: 1999, xp: 2500, label: "Champion", icon: Crown },
 ];
 
 const BuyXPPage = () => {
   const [loading, setLoading] = useState(true);
-
-  React.useEffect(() => {
-    // Simulate brief loading for static content to show skeleton
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
-  }, []);
+  const [purchasing, setPurchasing] = useState(null);
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const { fetchCurrentUser } = useUserStore();
 
+  React.useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleBuy = async (pkg) => {
-    setLoading(true);
+    setPurchasing(pkg.amount);
 
     const isLoaded = await loadRazorpay();
     if (!isLoaded) {
       toast.error("Razorpay SDK failed to load");
-      setLoading(false);
+      setPurchasing(null);
       return;
     }
 
@@ -78,10 +75,8 @@ const BuyXPPage = () => {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
             });
-
-            toast.success(`Successfully purchased ${pkg.xp} XP!`);
-            if (fetchCurrentUser) await fetchCurrentUser(); // Refresh User XP
-            // Optional: navigate back after success or stay
+            toast.success(`+${pkg.xp} XP added!`);
+            if (fetchCurrentUser) await fetchCurrentUser();
           } catch (verifyError) {
             console.error(verifyError);
             toast.error("Payment verification failed");
@@ -91,13 +86,11 @@ const BuyXPPage = () => {
           name: user?.username || "",
           email: user?.email || "",
         },
-        theme: {
-          color: "#FFD700",
-        },
+        theme: { color: "#18181b" },
       };
 
       const rzp1 = new window.Razorpay(options);
-      rzp1.on("payment.failed", function (response) {
+      rzp1.on("payment.failed", (response) => {
         toast.error(response.error.description);
       });
       rzp1.open();
@@ -105,7 +98,7 @@ const BuyXPPage = () => {
       console.error(error);
       toast.error("Failed to initiate payment");
     } finally {
-      setLoading(false);
+      setPurchasing(null);
     }
   };
 
@@ -117,8 +110,8 @@ const BuyXPPage = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="h-screen w-full"
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 z-50 overflow-hidden"
         >
           <BuyXPSkeleton />
         </motion.div>
@@ -127,106 +120,149 @@ const BuyXPPage = () => {
           key="content"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="min-h-screen bg-[#050505] text-white p-6 relative overflow-hidden font-sans"
+          transition={{ duration: 0.3 }}
+          className="h-screen bg-[#09090b] text-white flex flex-col overflow-hidden"
         >
-          {/* Subtle Background */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] from-white/5 via-transparent to-transparent opacity-20 pointer-events-none" />
-
-          <div className="relative z-10 max-w-7xl mx-auto pt-16">
-            {/* Header */}
-            <div className="max-w-6xl mx-auto mb-16 flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                <Link
-                  to="/"
-                  className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all group"
-                >
-                  <ArrowLeft
-                    className="group-hover:-translate-x-1 transition-transform text-gray-400 group-hover:text-white"
-                    size={20}
-                  />
-                </Link>
-                <div>
-                  <h1 className="text-2xl font-bold tracking-tight text-white mb-1">
-                    XP Store
+          {/* Header */}
+          <header className="bg-[#09090b] border-b border-white/5">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6">
+              <div className="h-14 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate(-1)}
+                    className="h-9 w-9 text-zinc-400 hover:text-white hover:bg-white/5"
+                  >
+                    <ArrowLeft size={18} />
+                  </Button>
+                  <h1 className="text-base font-semibold tracking-tight">
+                    Buy XP
                   </h1>
-                  <p className="text-gray-500 text-sm font-medium">
-                    Accelerate your progress
-                  </p>
+                </div>
+
+                {/* Current Balance */}
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800/50 rounded-lg border border-white/5">
+                  <Zap size={14} className="text-amber-400" />
+                  <span className="text-sm font-medium text-white">
+                    {user?.profile?.xp?.toLocaleString() || 0}
+                  </span>
+                  <span className="text-xs text-zinc-500">XP</span>
                 </div>
               </div>
             </div>
+          </header>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {XP_PACKAGES.map((pkg, idx) => (
-                <div
-                  key={idx}
-                  className="bg-[#0A0A0A] border border-white/5 hover:border-white/10 rounded-xl p-6 relative overflow-hidden transition-all hover:translate-y-[-2px] group flex flex-col h-full"
-                >
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="mb-8">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="p-3 bg-white/5 rounded-lg text-white group-hover:text-[#FFD700] transition-colors">
-                          <Zap
+          {/* Main Content */}
+          <main className="flex-1 overflow-hidden px-4 sm:px-6 py-6">
+            <div className="max-w-6xl mx-auto h-full">
+              {/* Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 h-full content-start">
+                {XP_PACKAGES.map((pkg) => {
+                  const Icon = pkg.icon;
+                  const isPurchasing = purchasing === pkg.amount;
+
+                  return (
+                    <Card
+                      key={pkg.amount}
+                      className={`
+                        bg-zinc-900/50 border-white/5 hover:border-white/10 transition-all relative
+                        ${pkg.popular ? "ring-1 ring-amber-500/30" : ""}
+                        ${pkg.bestValue ? "ring-1 ring-emerald-500/30" : ""}
+                      `}
+                    >
+                      {/* Badge */}
+                      {(pkg.popular || pkg.bestValue) && (
+                        <div className="absolute top-3 right-3">
+                          <Badge
+                            className={`text-[9px] px-1.5 py-0 ${
+                              pkg.popular
+                                ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                                : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                            }`}
+                          >
+                            {pkg.popular ? "Popular" : "Best Value"}
+                          </Badge>
+                        </div>
+                      )}
+
+                      <CardHeader className="p-5 pb-3">
+                        {/* Icon */}
+                        <div
+                          className={`w-10 h-10 rounded-lg flex items-center justify-center mb-4 ${
+                            pkg.popular
+                              ? "bg-amber-500/10"
+                              : pkg.bestValue
+                                ? "bg-emerald-500/10"
+                                : "bg-white/5"
+                          }`}
+                        >
+                          <Icon
                             size={20}
-                            fill="currentColor"
-                            className="opacity-70 group-hover:opacity-100 transition-opacity"
+                            className={
+                              pkg.popular
+                                ? "text-amber-400"
+                                : pkg.bestValue
+                                  ? "text-emerald-400"
+                                  : "text-zinc-400"
+                            }
                           />
                         </div>
-                        {idx === 3 && (
-                          <span className="bg-[#FFD700]/10 text-[#FFD700] text-[10px] uppercase font-bold px-2 py-1 rounded tracking-wider border border-[#FFD700]/20">
-                            Best Value
+
+                        <CardTitle className="text-base font-medium text-white">
+                          {pkg.label}
+                        </CardTitle>
+
+                        {/* XP Amount */}
+                        <div className="flex items-baseline gap-1 mt-2">
+                          <span className="text-3xl font-bold text-white">
+                            {pkg.xp.toLocaleString()}
                           </span>
+                          <span className="text-sm text-zinc-500 font-medium">
+                            XP
+                          </span>
+                        </div>
+                      </CardHeader>
+
+                      <CardContent className="p-5 pt-2">
+                        {/* Bonus indicator */}
+                        {pkg.xp > pkg.amount && (
+                          <div className="flex items-center gap-1 mb-4">
+                            <Check size={12} className="text-emerald-400" />
+                            <span className="text-xs text-emerald-400">
+                              +{Math.round((pkg.xp / pkg.amount - 1) * 100)}%
+                              bonus
+                            </span>
+                          </div>
                         )}
-                      </div>
-                      <h3 className="text-lg font-semibold text-white mb-2">
-                        {pkg.label}
-                      </h3>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-3xl font-bold tracking-tighter text-white">
-                          {pkg.xp.toLocaleString()}
-                        </span>
-                        <span className="text-xs font-bold text-gray-500 uppercase">
-                          XP
-                        </span>
-                      </div>
-                    </div>
 
-                    <div className="h-px bg-white/5 w-full mb-6"></div>
-
-                    <ul className="space-y-4 mb-8 flex-1">
-                      {pkg.features.map((feature, i) => (
-                        <li
-                          key={i}
-                          className="flex items-start gap-3 text-sm text-gray-400 group-hover:text-gray-300 transition-colors"
+                        <Button
+                          onClick={() => handleBuy(pkg)}
+                          disabled={isPurchasing}
+                          className={`
+                            w-full h-10 text-sm font-medium
+                            ${
+                              pkg.popular
+                                ? "bg-amber-500 hover:bg-amber-600 text-black"
+                                : pkg.bestValue
+                                  ? "bg-emerald-500 hover:bg-emerald-600 text-black"
+                                  : "bg-white text-black hover:bg-zinc-200"
+                            }
+                          `}
                         >
-                          <Check
-                            size={14}
-                            className="text-[#FFD700] mt-0.5 shrink-0"
-                          />
-                          <span className="leading-tight">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <button
-                      onClick={() => handleBuy(pkg)}
-                      disabled={loading}
-                      className="w-full py-3 rounded-lg font-medium text-sm bg-white text-black hover:bg-gray-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                    >
-                      {loading ? (
-                        <Loader2 className="animate-spin" size={16} />
-                      ) : (
-                        <>
-                          <span>Purchase for ₹{pkg.amount}</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              ))}
+                          {isPurchasing ? (
+                            <Loader2 className="animate-spin w-4 h-4" />
+                          ) : (
+                            <span>₹{pkg.amount}</span>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          </main>
         </motion.div>
       )}
     </AnimatePresence>

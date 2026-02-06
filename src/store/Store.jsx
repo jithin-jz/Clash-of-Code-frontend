@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ShoppingBag,
   ArrowLeft,
   Loader2,
   Lock,
@@ -11,10 +10,18 @@ import {
   Palette,
   Package,
   PartyPopper,
-  Crown,
+  Zap,
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { storeAPI } from "../services/api";
 import useAuthStore from "../stores/useAuthStore";
 import { toast } from "sonner";
@@ -22,7 +29,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import StoreSkeleton from "./StoreSkeleton";
 
 const CATEGORIES = [
-  { id: "ALL", label: "All Items", icon: ShoppingBag },
   { id: "THEME", label: "Themes", icon: Palette },
   { id: "FONT", label: "Fonts", icon: Type },
   { id: "EFFECT", label: "Effects", icon: Sparkles },
@@ -35,7 +41,7 @@ const Store = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(null);
-  const [activeCategory, setActiveCategory] = useState("ALL");
+  const [activeCategory, setActiveCategory] = useState("THEME");
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -106,43 +112,12 @@ const Store = () => {
 
   const renderIcon = (iconName) => {
     const Icon = LucideIcons[iconName] || LucideIcons.Package;
-    return <Icon className="w-12 h-12" />;
+    return <Icon className="w-8 h-8" />;
   };
 
-  const getCategoryColor = (category) => {
-    switch (category) {
-      case "THEME":
-        return "from-purple-500/20 to-purple-600/10 border-purple-500/30";
-      case "FONT":
-        return "from-blue-500/20 to-blue-600/10 border-blue-500/30";
-      case "EFFECT":
-        return "from-amber-500/20 to-amber-600/10 border-amber-500/30";
-      case "VICTORY":
-        return "from-emerald-500/20 to-emerald-600/10 border-emerald-500/30";
-      default:
-        return "from-gray-500/20 to-gray-600/10 border-gray-500/30";
-    }
-  };
-
-  const getCategoryBadgeColor = (category) => {
-    switch (category) {
-      case "THEME":
-        return "bg-purple-500/20 text-purple-300 border-purple-500/30";
-      case "FONT":
-        return "bg-blue-500/20 text-blue-300 border-blue-500/30";
-      case "EFFECT":
-        return "bg-amber-500/20 text-amber-300 border-amber-500/30";
-      case "VICTORY":
-        return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
-      default:
-        return "bg-gray-500/20 text-gray-300 border-gray-500/30";
-    }
-  };
-
-  const filteredItems =
-    activeCategory === "ALL"
-      ? items
-      : items.filter((item) => item.category === activeCategory);
+  const filteredItems = items.filter(
+    (item) => item.category === activeCategory,
+  );
 
   return (
     <AnimatePresence mode="wait">
@@ -152,7 +127,7 @@ const Store = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.3 }}
           className="fixed inset-0 z-50 overflow-hidden"
         >
           <StoreSkeleton />
@@ -162,229 +137,204 @@ const Store = () => {
           key="content"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="min-h-screen bg-[#09090b] text-gray-100"
+          transition={{ duration: 0.3 }}
+          className="min-h-screen bg-[#09090b] text-white overflow-auto no-scrollbar"
         >
-          {/* Premium Header */}
-          <div className="sticky top-0 z-50 bg-[#0a0a0c]/80 backdrop-blur-xl border-b border-white/5">
-            <div className="max-w-7xl mx-auto px-6">
-              {/* Top Bar */}
-              <div className="h-16 flex items-center justify-between">
-                <div className="flex items-center gap-4">
+          {/* Minimal Header */}
+          <header className="sticky top-0 z-50 bg-[#09090b]/95 backdrop-blur-sm border-b border-white/5">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6">
+              <div className="h-14 flex items-center justify-between">
+                {/* Left: Back + Title */}
+                <div className="flex items-center gap-3">
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => navigate("/")}
-                    className="text-gray-400 hover:text-white hover:bg-white/5"
+                    className="h-9 w-9 text-zinc-400 hover:text-white hover:bg-white/5"
                   >
-                    <ArrowLeft size={20} />
+                    <ArrowLeft size={18} />
                   </Button>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-linear-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                      <ShoppingBag size={20} className="text-black" />
-                    </div>
-                    <div>
-                      <h1 className="text-lg font-bold text-white">
-                        Premium Store
-                      </h1>
-                      <p className="text-xs text-gray-500">
-                        Customize your experience
-                      </p>
-                    </div>
-                  </div>
+                  <h1 className="text-base font-semibold tracking-tight">
+                    Store
+                  </h1>
                 </div>
 
-                {/* XP Balance */}
-                <div className="flex items-center gap-2 px-4 py-2 bg-linear-to-r from-amber-500/10 to-amber-600/5 rounded-full border border-amber-500/20">
-                  <Crown size={16} className="text-amber-400" />
-                  <span className="text-sm font-bold text-amber-400">
+                {/* Right: XP Balance - Clickable */}
+                <button
+                  onClick={() => navigate("/buy-xp")}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800/50 rounded-lg border border-white/5 hover:bg-zinc-700/50 hover:border-white/10 transition-all cursor-pointer"
+                >
+                  <Zap size={14} className="text-amber-400" />
+                  <span className="text-sm font-medium text-white">
                     {user?.profile?.xp?.toLocaleString() || 0}
                   </span>
-                  <span className="text-xs text-amber-400/60">XP</span>
-                </div>
+                  <span className="text-xs text-zinc-500">XP</span>
+                </button>
               </div>
+            </div>
+          </header>
 
-              {/* Category Pills */}
-              <div className="flex items-center gap-2 pb-4 overflow-x-auto no-scrollbar">
+          {/* Category Tabs */}
+          <div className="border-b border-white/5 bg-[#09090b]">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6">
+              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-2">
                 {CATEGORIES.map((cat) => {
                   const isActive = activeCategory === cat.id;
                   const Icon = cat.icon;
                   return (
-                    <motion.button
+                    <button
                       key={cat.id}
                       onClick={() => setActiveCategory(cat.id)}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
                       className={`
-                                                flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap
-                                                ${
-                                                  isActive
-                                                    ? "bg-white text-black shadow-lg shadow-white/10"
-                                                    : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/5"
-                                                }
-                                            `}
+                        flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap
+                        ${
+                          isActive
+                            ? "bg-white text-black"
+                            : "text-zinc-400 hover:text-white hover:bg-white/5"
+                        }
+                      `}
                     >
                       <Icon size={14} />
                       {cat.label}
-                    </motion.button>
+                    </button>
                   );
                 })}
               </div>
             </div>
           </div>
 
-          {/* Main Content */}
-          <div className="max-w-7xl mx-auto p-6">
+          {/* Items Grid */}
+          <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
             {filteredItems.length === 0 ? (
-              /* Empty State */
-              <div className="h-80 flex flex-col items-center justify-center text-gray-500 gap-4">
-                <div className="w-20 h-20 rounded-2xl bg-white/2 border border-white/5 flex items-center justify-center">
-                  <Package size={32} className="opacity-30" />
-                </div>
-                <p className="text-sm">No items found in this category.</p>
+              <div className="h-64 flex flex-col items-center justify-center text-zinc-500 gap-3">
+                <Package size={32} className="opacity-30" />
+                <p className="text-sm">No items in this category</p>
               </div>
             ) : (
-              /* Items Grid */
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 <AnimatePresence mode="popLayout">
                   {filteredItems.map((item) => {
                     const isActive = isItemActive(item);
                     const canAfford = user?.profile?.xp >= item.cost;
+                    const isOwned = item.is_owned;
 
                     return (
                       <motion.div
                         key={item.id}
                         layout
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.3 }}
-                        className="group"
+                        transition={{ duration: 0.2 }}
                       >
-                        <div
+                        <Card
                           className={`
-                                                    relative rounded-2xl overflow-hidden
-                                                    bg-linear-to-b ${getCategoryColor(item.category)}
-                                                    border transition-all duration-300
-                                                    hover:border-white/20 hover:shadow-xl hover:shadow-black/20
-                                                    ${isActive ? "ring-2 ring-amber-500/50" : ""}
-                                                `}
+                            bg-zinc-900/50 border-white/5 hover:border-white/10 transition-all
+                            ${isActive ? "ring-1 ring-white/20" : ""}
+                          `}
                         >
-                          {/* Preview Area */}
-                          <div className="relative h-44 bg-linear-to-b from-black/20 to-black/40 flex items-center justify-center overflow-hidden">
+                          {/* Icon/Preview */}
+                          <div className="h-32 flex items-center justify-center bg-zinc-900 border-b border-white/5 relative">
                             {item.image ? (
                               <img
                                 src={item.image}
                                 alt={item.name}
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="text-white/20 group-hover:text-white/40 transition-colors duration-300">
+                              <div className="text-zinc-600">
                                 {renderIcon(item.icon_name)}
                               </div>
                             )}
 
-                            {/* Gradient Overlay */}
-                            <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
-
-                            {/* Category Badge */}
-                            <div className="absolute top-3 left-3">
-                              <span
-                                className={`
-                                                                text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full
-                                                                border backdrop-blur-sm ${getCategoryBadgeColor(item.category)}
-                                                            `}
-                              >
-                                {item.category}
-                              </span>
+                            {/* Status Badges */}
+                            <div className="absolute top-2 right-2 flex gap-1.5">
+                              {isOwned && (
+                                <Badge
+                                  variant="secondary"
+                                  className="bg-zinc-800 text-zinc-300 text-[10px] px-1.5 py-0.5"
+                                >
+                                  <Check size={10} className="mr-0.5" />
+                                  {isActive ? "Active" : "Owned"}
+                                </Badge>
+                              )}
                             </div>
 
-                            {/* Owned/Active Badge */}
-                            {item.is_owned && (
-                              <div className="absolute top-3 right-3">
-                                <div
-                                  className={`
-                                                                    flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold
-                                                                    backdrop-blur-sm border
-                                                                    ${
-                                                                      isActive
-                                                                        ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
-                                                                        : "bg-white/10 text-white/80 border-white/20"
-                                                                    }
-                                                                `}
-                                >
-                                  <Check size={10} />
-                                  {isActive ? "Active" : "Owned"}
-                                </div>
-                              </div>
-                            )}
+                            {/* Category Badge */}
+                            <Badge
+                              variant="outline"
+                              className="absolute top-2 left-2 bg-black/50 border-white/10 text-zinc-400 text-[10px] px-1.5 py-0.5"
+                            >
+                              {item.category}
+                            </Badge>
                           </div>
 
                           {/* Content */}
-                          <div className="p-5">
-                            <h3 className="text-base font-semibold text-white mb-1 truncate">
+                          <CardHeader className="p-4 pb-2">
+                            <CardTitle className="text-sm font-medium text-white truncate">
                               {item.name}
-                            </h3>
-                            <p className="text-xs text-gray-400 line-clamp-2 mb-4 min-h-[32px]">
+                            </CardTitle>
+                            <CardDescription className="text-xs text-zinc-500 line-clamp-2 min-h-[32px]">
                               {item.description}
-                            </p>
+                            </CardDescription>
+                          </CardHeader>
 
-                            {/* Action Button */}
-                            {item.is_owned ? (
+                          <CardContent className="p-3 pt-0">
+                            {isOwned ? (
                               <Button
+                                variant={isActive ? "outline" : "default"}
                                 className={`
-                                                                    w-full h-11 text-sm font-semibold rounded-xl transition-all
-                                                                    ${
-                                                                      isActive
-                                                                        ? "bg-white/10 text-white hover:bg-white/15 border border-white/10"
-                                                                        : "bg-linear-to-r from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20"
-                                                                    }
-                                                                `}
+                                  w-full h-7 text-[10px] font-medium
+                                  ${
+                                    isActive
+                                      ? "bg-transparent border-white/10 text-zinc-400 hover:bg-white/5"
+                                      : "bg-white text-black hover:bg-zinc-200"
+                                  }
+                                `}
                                 onClick={() =>
                                   isActive
                                     ? handleUnequip(item)
                                     : handleEquip(item)
                                 }
                               >
-                                {isActive ? "Unequip" : "Equip Now"}
+                                {isActive ? "Unequip" : "Equip"}
                               </Button>
                             ) : (
                               <Button
                                 className={`
-                                                                    w-full h-11 text-sm font-semibold rounded-xl transition-all
-                                                                    ${
-                                                                      canAfford
-                                                                        ? "bg-linear-to-r from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20"
-                                                                        : "bg-white/5 text-gray-500 cursor-not-allowed border border-white/5"
-                                                                    }
-                                                                `}
+                                  w-full h-7 text-[10px] font-medium
+                                  ${
+                                    canAfford
+                                      ? "bg-white text-black hover:bg-zinc-200"
+                                      : "bg-zinc-800 text-zinc-500 cursor-not-allowed"
+                                  }
+                                `}
                                 disabled={!canAfford || purchasing === item.id}
                                 onClick={() => handleBuy(item)}
                               >
                                 {purchasing === item.id ? (
-                                  <Loader2 className="animate-spin w-4 h-4" />
-                                ) : canAfford ? (
-                                  <span className="flex items-center gap-2">
-                                    <Crown size={14} />
-                                    Buy for {item.cost.toLocaleString()} XP
-                                  </span>
+                                  <Loader2 className="animate-spin w-3 h-3" />
                                 ) : (
-                                  <span className="flex items-center gap-2">
-                                    <Lock size={14} />
-                                    {item.cost.toLocaleString()} XP Required
+                                  <span className="flex items-center gap-1">
+                                    {canAfford ? (
+                                      <Zap size={10} />
+                                    ) : (
+                                      <Lock size={10} />
+                                    )}
+                                    {item.cost} XP
                                   </span>
                                 )}
                               </Button>
                             )}
-                          </div>
-                        </div>
+                          </CardContent>
+                        </Card>
                       </motion.div>
                     );
                   })}
                 </AnimatePresence>
               </div>
             )}
-          </div>
+          </main>
         </motion.div>
       )}
     </AnimatePresence>

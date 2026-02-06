@@ -5,45 +5,46 @@ const StoreSkeleton = () => {
   return (
     <SkeletonPage className="flex flex-col">
       {/* Header Skeleton */}
-      <div className="sticky top-0 z-50 bg-[#0a0a0c]/80 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="h-16 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <SkeletonBase className="w-10 h-10 rounded-lg" />
-              <div className="flex items-center gap-3">
-                <SkeletonBase className="w-10 h-10 rounded-xl" />
-                <div className="space-y-1">
-                  <SkeletonBase className="w-32 h-4" />
-                  <SkeletonBase className="w-24 h-2" />
-                </div>
-              </div>
+      <div className="sticky top-0 z-50 bg-[#09090b]/95 backdrop-blur-sm border-b border-white/5">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="h-14 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <SkeletonBase className="w-9 h-9 rounded-lg" />
+              <SkeletonBase className="w-16 h-5 rounded-md" />
             </div>
-            <SkeletonBase className="w-32 h-10 rounded-full" />
-          </div>
-          {/* Categories */}
-          <div className="flex items-center gap-2 pb-4 overflow-x-auto no-scrollbar">
-            <SkeletonBase className="w-24 h-8 rounded-full" />
-            <SkeletonBase className="w-24 h-8 rounded-full" />
-            <SkeletonBase className="w-24 h-8 rounded-full" />
-            <SkeletonBase className="w-24 h-8 rounded-full" />
-            <SkeletonBase className="w-24 h-8 rounded-full" />
+            <SkeletonBase className="w-24 h-8 rounded-lg" />
           </div>
         </div>
       </div>
 
-      {/* Main Content Skeleton */}
-      <div className="max-w-7xl mx-auto p-6 w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      {/* Category Tabs Skeleton */}
+      <div className="border-b border-white/5 bg-[#09090b]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center gap-1 py-2">
+            <SkeletonBase className="w-14 h-7 rounded-md" />
+            <SkeletonBase className="w-20 h-7 rounded-md" />
+            <SkeletonBase className="w-16 h-7 rounded-md" />
+            <SkeletonBase className="w-18 h-7 rounded-md" />
+            <SkeletonBase className="w-18 h-7 rounded-md" />
+          </div>
+        </div>
+      </div>
+
+      {/* Items Grid Skeleton */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="rounded-2xl border border-white/5 overflow-hidden"
+              className="rounded-xl border border-white/5 overflow-hidden bg-zinc-900/50"
             >
-              <SkeletonBase className="h-44 rounded-none" />
-              <div className="p-5 space-y-3">
-                <SkeletonBase className="h-5 w-3/4" />
-                <SkeletonBase className="h-3 w-1/2" />
-                <SkeletonBase className="h-10 w-full mt-4 rounded-xl" />
+              {/* Preview Area */}
+              <SkeletonBase className="h-32 rounded-none" />
+              {/* Content */}
+              <div className="p-4 space-y-3">
+                <SkeletonBase className="h-4 w-3/4 rounded-md" />
+                <SkeletonBase className="h-3 w-1/2 rounded-md" />
+                <SkeletonBase className="h-9 w-full rounded-md mt-2" />
               </div>
             </div>
           ))}

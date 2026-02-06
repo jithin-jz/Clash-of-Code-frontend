@@ -1,41 +1,43 @@
 import React from "react";
-import {
-  SkeletonBase,
-  SkeletonPage,
-  SkeletonCircle,
-} from "../common/SkeletonPrimitives";
+import { SkeletonBase, SkeletonPage } from "../common/SkeletonPrimitives";
 
 const ProfileSkeleton = () => {
   return (
-    <SkeletonPage className="p-4 md:p-6 flex justify-center gap-6">
-      {/* Left Panel Skeleton */}
-      <div className="w-full md:w-80 lg:w-96 shrink-0 flex flex-col gap-6 h-full">
-        <SkeletonBase className="w-full h-[500px] rounded-3xl" />
-      </div>
-
-      {/* Right Panel Skeleton */}
-      <div className="w-full max-w-3xl bg-[#121212]/50 border border-white/5 rounded-3xl overflow-hidden flex flex-col shadow-2xl">
-        {/* Tabs Header Skeleton */}
-        <div className="flex items-center gap-1 p-2 border-b border-white/5 bg-black/20">
-          <SkeletonBase className="w-32 h-10 rounded-xl m-1" />
-          <SkeletonBase className="w-32 h-10 rounded-xl m-1" />
-        </div>
-
-        {/* Tab Content Skeleton */}
-        <div className="flex-1 p-4 space-y-4">
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <SkeletonBase className="h-32 rounded-2xl" />
-            <SkeletonBase className="h-32 rounded-2xl" />
-            <SkeletonBase className="h-32 rounded-2xl" />
-            <SkeletonBase className="h-32 rounded-2xl" />
+    <SkeletonPage className="flex flex-col">
+      {/* Header */}
+      <div className="bg-[#09090b] border-b border-white/5">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="h-14 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <SkeletonBase className="h-9 w-9 rounded-lg" />
+              <SkeletonBase className="h-5 w-16 rounded" />
+            </div>
+            <div className="flex items-center gap-2">
+              <SkeletonBase className="h-9 w-9 rounded-lg" />
+              <SkeletonBase className="h-9 w-9 rounded-lg" />
+            </div>
           </div>
-          {/* Coding Stats */}
-          <SkeletonBase className="h-48 rounded-2xl" />
-          {/* Milestones */}
-          <SkeletonBase className="h-64 rounded-2xl" />
         </div>
       </div>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-hidden px-4 sm:px-6 py-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column */}
+            <div className="lg:col-span-1 space-y-4">
+              <SkeletonBase className="h-72 rounded-xl" />
+              <SkeletonBase className="h-12 rounded-xl" />
+              <SkeletonBase className="h-20 rounded-xl" />
+            </div>
+
+            {/* Right Column */}
+            <div className="lg:col-span-2">
+              <SkeletonBase className="h-80 rounded-xl" />
+            </div>
+          </div>
+        </div>
+      </main>
     </SkeletonPage>
   );
 };

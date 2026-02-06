@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import useAuthStore from "../stores/useAuthStore";
+import useChallengesStore from "../stores/useChallengesStore";
 
 // Components
-
-// import Loader from '../common/Loader';
 import HomeSkeleton from "./HomeSkeleton";
 import LevelModal from "../game/LevelModal";
 import ProfilePanel from "../home/ProfilePanel";
@@ -21,23 +20,26 @@ import { checkInApi } from "../services/checkInApi";
 // Data
 import { ICONS } from "../constants/levelData.jsx";
 
-// Hooks
 const Home = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
-  // Audio Removed
 
-  // State
+  // Use centralized challenges store
+  const {
+    challenges: apiLevels,
+    isLoading,
+    fetchChallenges,
+    isPollingForNewLevel,
+    startPollingForNewLevel,
+  } = useChallengesStore();
+
+  // Local UI State
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [isChatOpen, setChatOpen] = useState(false);
   const [isLeaderboardOpen, setLeaderboardOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [checkInOpen, setCheckInOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [hasUnclaimedReward, setHasUnclaimedReward] = useState(false);
-
-  // Level Data State
-  const [apiLevels, setApiLevels] = useState([]);
 
   // Check for daily reward status on mount
   useEffect(() => {
@@ -54,26 +56,25 @@ const Home = () => {
     checkRewardStatus();
   }, [user]);
 
-  // Fetch Levels
+  // Fetch levels when user is authenticated
   useEffect(() => {
-    const fetchLevels = async () => {
-      if (!user) {
-        setIsLoading(false);
-        return;
-      }
-      try {
-        // Dynamic Import to avoid circular dependency if any
-        const { challengesApi } = await import("../services/challengesApi");
-        const data = await challengesApi.getAll();
-        setApiLevels(data);
-      } catch (error) {
-        console.error("Failed to fetch challenges:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchLevels();
-  }, [user]);
+    if (user) {
+      fetchChallenges();
+    }
+  }, [user, fetchChallenges]);
+
+  // Smart Polling: Poll when user completed highest level (waiting for AI generation)
+  useEffect(() => {
+    if (!user || apiLevels.length === 0 || isPollingForNewLevel) return;
+
+    const sortedLevels = [...apiLevels].sort((a, b) => a.order - b.order);
+    const highestLevel = sortedLevels[sortedLevels.length - 1];
+
+    // If highest level is completed, start polling for new level
+    if (highestLevel?.status === "COMPLETED") {
+      startPollingForNewLevel(highestLevel.order + 1);
+    }
+  }, [user, apiLevels, isPollingForNewLevel, startPollingForNewLevel]);
 
   // Initialize Levels (Merge Visuals with API Data)
   const levels = useMemo(() => {

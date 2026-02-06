@@ -7,18 +7,20 @@ import { Button } from "../components/ui/button";
 import useAuthStore from "../stores/useAuthStore";
 import CursorEffects from "./CursorEffects";
 import VictoryAnimation from "./VictoryAnimation";
+import CodeArenaSkeleton from "./CodeArenaSkeleton";
 
 // Subcomponents
 import HeaderBar from "./components/HeaderBar";
 import EditorPane from "./components/EditorPane";
 import ProblemPane from "./components/ProblemPane";
 import ConsolePane from "./components/ConsolePane";
-import NeuralLinkPane from "./components/NeuralLinkPane"; // Renamed logically to AI Assistant in UI
+import NeuralLinkPane from "./components/NeuralLinkPane";
 
 const CodeArena = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [challenge, setChallenge] = useState(null);
+  const [isLoadingChallenge, setIsLoadingChallenge] = useState(true);
   const [output, setOutput] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
   const { user } = useAuthStore();
@@ -109,12 +111,33 @@ const CodeArena = () => {
 
   // Polling for Next Level
   const [isPollingNextLevel, setIsPollingNextLevel] = useState(false);
+  const pollCountRef = useRef(0);
+  const MAX_POLL_ATTEMPTS = 20; // 20 * 3s = 60 seconds max
 
   useEffect(() => {
     let interval;
+    pollCountRef.current = 0;
+
     if (completionData && !completionData.next_level_slug && challenge) {
       setIsPollingNextLevel(true);
       interval = setInterval(async () => {
+        pollCountRef.current += 1;
+
+        // Timeout after max attempts
+        if (pollCountRef.current >= MAX_POLL_ATTEMPTS) {
+          setIsPollingNextLevel(false);
+          setOutput((prev) => [
+            ...prev,
+            {
+              type: "error",
+              content:
+                "⏱️ Level generation timed out. Please go back to dashboard and try again.",
+            },
+          ]);
+          clearInterval(interval);
+          return;
+        }
+
         try {
           const { challengesApi } = await import("../services/challengesApi");
           const allLevels = await challengesApi.getAll();
@@ -149,6 +172,7 @@ const CodeArena = () => {
   // Fetch Challenge Data
   useEffect(() => {
     const fetchChallenge = async () => {
+      setIsLoadingChallenge(true);
       try {
         // Reset AI state on challenge change
         setHint("");
@@ -185,10 +209,12 @@ const CodeArena = () => {
             },
           ]);
         }
+      } finally {
+        setIsLoadingChallenge(false);
       }
     };
     fetchChallenge();
-  }, [id]);
+  }, [id, navigate]);
 
   // Refs for accessing fresh state inside Worker callback
   const challengeRef = useRef(challenge);
@@ -496,7 +522,10 @@ const CodeArena = () => {
 
   // See Replacement Content below.
 
-  // if (!challenge) return <div className="h-screen flex items-center justify-center bg-[#0a0a0a] text-white"><Loader2 className="animate-spin" /></div>;
+  // Show skeleton while loading challenge data
+  if (isLoadingChallenge) {
+    return <CodeArenaSkeleton />;
+  }
 
   return (
     <div className="h-screen flex flex-col bg-modern text-white overflow-hidden relative">

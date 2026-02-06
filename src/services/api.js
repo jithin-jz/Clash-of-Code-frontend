@@ -160,6 +160,7 @@ export const authAPI = {
   redeemReferral: (code) =>
     api.post("/profiles/user/redeem-referral/", { code }),
   deleteAccount: () => api.delete("/auth/user/delete/"),
+  getSuggestedUsers: () => api.get("/profiles/users/suggestions/"),
 
   // Admin endpoints
   getUsers: () => api.get("/admin/users/"),
@@ -179,6 +180,17 @@ export const storeAPI = {
   buyItem: (id) => api.post(`/store/buy/${id}/`),
   equipItem: (id) => api.post("/store/equip/", { item_id: id }),
   unequipItem: (category) => api.post("/store/unequip/", { category }),
+};
+
+export const postsAPI = {
+  getFeed: () => api.get("/posts/"),
+  getUserPosts: (username) => api.get(`/posts/?username=${username}`),
+  createPost: (data) => {
+    const config = { headers: { "Content-Type": "multipart/form-data" } }; // Important for file upload
+    return api.post("/posts/", data, config);
+  },
+  deletePost: (id) => api.delete(`/posts/${id}/`),
+  toggleLike: (id) => api.post(`/posts/${id}/like/`),
 };
 
 export default api;
