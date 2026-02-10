@@ -41,4 +41,21 @@ export const challengesApi = {
         const response = await api.delete(`/challenges/${slug}/`);
         return response.data;
     },
+    
+    // Certificate APIs
+    getMyCertificate: async () => {
+        const response = await api.get('/certificates/my_certificate/');
+        return response.data;
+    },
+    verifyCertificate: async (certificateId) => {
+        const response = await api.get(`/certificates/verify/${certificateId}/`);
+        return response.data;
+    },
+    downloadCertificate: async () => {
+        return api.get('/certificates/download/', { responseType: 'blob' });
+    },
+    checkCertificateEligibility: async () => {
+        const response = await api.get('/certificates/check_eligibility/');
+        return response.data;
+    },
 };

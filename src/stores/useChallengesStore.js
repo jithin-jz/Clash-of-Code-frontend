@@ -14,9 +14,7 @@ const useChallengesStore = create((set, get) => ({
   error: null,
   lastFetched: null,
   
-  // Polling state
-  isPollingForNewLevel: false,
-  pollAttempts: 0,
+  // Polling removed - manual tasks don't need generation
 
   // Cache duration (5 minutes)
   CACHE_DURATION: 5 * 60 * 1000,
@@ -116,56 +114,7 @@ const useChallengesStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Start polling for a newly generated level.
-   * Used after completing the last available level.
-   */
-  startPollingForNewLevel: (expectedOrder) => {
-    const MAX_ATTEMPTS = 20;
-    set({ isPollingForNewLevel: true, pollAttempts: 0 });
-
-    const poll = async () => {
-      const state = get();
-      
-      if (!state.isPollingForNewLevel) return;
-      if (state.pollAttempts >= MAX_ATTEMPTS) {
-        set({ isPollingForNewLevel: false, pollAttempts: 0 });
-        return null;
-      }
-
-      set((s) => ({ pollAttempts: s.pollAttempts + 1 }));
-
-      try {
-        const data = await challengesApi.getAll();
-        const newLevel = data.find((l) => l.order === expectedOrder);
-
-        if (newLevel) {
-          set({
-            challenges: data,
-            isPollingForNewLevel: false,
-            pollAttempts: 0,
-            lastFetched: Date.now(),
-          });
-          return newLevel;
-        }
-      } catch (error) {
-        console.error("Polling error:", error);
-      }
-
-      // Continue polling after delay
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      return poll();
-    };
-
-    return poll();
-  },
-
-  /**
-   * Stop polling for new level.
-   */
-  stopPolling: () => {
-    set({ isPollingForNewLevel: false, pollAttempts: 0 });
-  },
+  // Polling methods removed
 
   /**
    * Clear all cached data.

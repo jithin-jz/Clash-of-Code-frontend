@@ -25,6 +25,9 @@ const AdminDashboard = lazy(() => import("./admin/Dashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const BuyXPPage = lazy(() => import("./pages/BuyXPPage"));
 const Game = lazy(() => import("./pages/Game"));
+const CertificateVerification = lazy(
+  () => import("./pages/CertificateVerification"),
+);
 
 const CodeArena = lazy(() => import("./game/CodeArena"));
 const Store = lazy(() => import("./store/Store"));
@@ -141,6 +144,12 @@ const AppContent = () => {
                       <Store />
                     </ProtectedRoute>
                   }
+                />
+
+                {/* Public Certificate Verification */}
+                <Route
+                  path="/verify/:certificateId"
+                  element={<CertificateVerification />}
                 />
 
                 {/* Fallback */}

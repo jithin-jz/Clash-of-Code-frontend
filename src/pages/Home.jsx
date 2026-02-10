@@ -16,6 +16,8 @@ import RightSideUI from "../home/RightSideUI";
 import LevelMap from "../home/LevelMap";
 import CheckInReward from "../home/CheckInReward";
 import { checkInApi } from "../services/checkInApi";
+import { challengesApi } from "../services/challengesApi";
+import CertificateModal from "../components/CertificateModal";
 
 // Data
 import { ICONS } from "../constants/levelData.jsx";
@@ -29,8 +31,6 @@ const Home = () => {
     challenges: apiLevels,
     isLoading,
     fetchChallenges,
-    isPollingForNewLevel,
-    startPollingForNewLevel,
   } = useChallengesStore();
 
   // Local UI State
@@ -40,6 +40,8 @@ const Home = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [hasUnclaimedReward, setHasUnclaimedReward] = useState(false);
+  const [certificateModalOpen, setCertificateModalOpen] = useState(false);
+  const [userCertificate, setUserCertificate] = useState(null);
 
   // Check for daily reward status on mount
   useEffect(() => {
@@ -63,18 +65,33 @@ const Home = () => {
     }
   }, [user, fetchChallenges]);
 
-  // Smart Polling: Poll when user completed highest level (waiting for AI generation)
+  // Check certificate eligibility when challenges are loaded
   useEffect(() => {
-    if (!user || apiLevels.length === 0 || isPollingForNewLevel) return;
+    const checkCertificate = async () => {
+      if (!user || !apiLevels || apiLevels.length === 0) return;
 
-    const sortedLevels = [...apiLevels].sort((a, b) => a.order - b.order);
-    const highestLevel = sortedLevels[sortedLevels.length - 1];
+      try {
+        const eligibility = await challengesApi.checkCertificateEligibility();
 
-    // If highest level is completed, start polling for new level
-    if (highestLevel?.status === "COMPLETED") {
-      startPollingForNewLevel(highestLevel.order + 1);
-    }
-  }, [user, apiLevels, isPollingForNewLevel, startPollingForNewLevel]);
+        // If eligible and has certificate, try to fetch it
+        if (eligibility.has_certificate) {
+          const certData = await challengesApi.getMyCertificate();
+          setUserCertificate(certData);
+
+          // Auto-show modal if they just earned it (check local storage to avoid annoying repeated shows)
+          const shownKey = `cert_shown_${user.id}`;
+          if (!localStorage.getItem(shownKey)) {
+            setCertificateModalOpen(true);
+            localStorage.setItem(shownKey, "true");
+          }
+        }
+      } catch (error) {
+        console.error("Failed to check certificate:", error);
+      }
+    };
+
+    checkCertificate();
+  }, [user, apiLevels]);
 
   // Initialize Levels (Merge Visuals with API Data)
   const levels = useMemo(() => {
@@ -242,6 +259,13 @@ const Home = () => {
                 onClose={() => setSelectedLevel(null)}
               />
             )}
+
+            {/* Certificate Modal */}
+            <CertificateModal
+              isOpen={certificateModalOpen}
+              onClose={() => setCertificateModalOpen(false)}
+              certificate={userCertificate}
+            />
           </motion.div>
         )}
       </AnimatePresence>

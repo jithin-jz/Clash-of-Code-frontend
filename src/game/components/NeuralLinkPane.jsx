@@ -16,6 +16,7 @@ const NeuralLinkPane = ({
   isHintLoading,
   hintLevel,
   ai_hints_purchased,
+  userXp, // Add userXp prop
 }) => {
   const [hintHistory, setHintHistory] = React.useState([]);
 
@@ -38,8 +39,10 @@ const NeuralLinkPane = ({
   // Cost Logic: 10, 20, 30 XP
   // Consistent with backend logic
   const nextCost = 10 * (ai_hints_purchased + 1);
-  const isLocked = ai_hints_purchased < hintLevel;
+
+  // Lock if max hints reached OR if need to purchase next hint
   const isMaxReached = ai_hints_purchased >= 3;
+  const isLocked = ai_hints_purchased < hintLevel && !isMaxReached;
 
   // Star Penalty Logic (Balanced Option 3)
   // 0-1 Hint: Safe (3 Stars)
@@ -65,14 +68,31 @@ const NeuralLinkPane = ({
     <Card className="flex-1 flex flex-col bg-[#09090b] border-none rounded-none overflow-hidden m-0">
       <CardHeader className="border-b border-white/5 px-4 py-3 flex flex-row items-center justify-between space-y-0 bg-[#0c0c0e]">
         <div className="flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_#3b82f6]" />
-          <CardTitle className="text-xs font-bold text-gray-200 uppercase tracking-widest">
-            Neural Link
-          </CardTitle>
+          <div className="p-1.5 bg-blue-500/10 rounded border border-blue-500/20">
+            <Sparkles size={16} className="text-blue-500" />
+          </div>
+          <div>
+            <CardTitle className="text-sm font-bold text-white">
+              🤖 AI Assistant
+            </CardTitle>
+            <p className="text-[10px] text-gray-500 mt-0.5">
+              Get help when you're stuck!
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {userXp !== undefined && (
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded-md">
+              <span className="text-yellow-500 text-xs font-bold">
+                💰 {userXp}
+              </span>
+              <span className="text-[9px] text-yellow-500/60 font-medium">
+                XP
+              </span>
+            </div>
+          )}
           <span className="text-[10px] text-gray-500 font-mono">
-            LVL {ai_hints_purchased} ACCESS
+            Hints: {ai_hints_purchased}/3
           </span>
         </div>
       </CardHeader>
@@ -119,7 +139,10 @@ const NeuralLinkPane = ({
             <div className="h-full flex flex-col items-center justify-center opacity-40 py-20">
               <Sparkles size={32} className="text-blue-500 mb-4" />
               <p className="text-xs font-medium text-gray-400">
-                Tactical analysis standby...
+                Ready to help when you need it!
+              </p>
+              <p className="text-[10px] text-gray-500 mt-1">
+                Unlock a hint to get started
               </p>
             </div>
           )}
@@ -127,28 +150,53 @@ const NeuralLinkPane = ({
 
         {/* Action Bar */}
         <div className="p-4 border-t border-white/5 bg-[#0c0c0e]">
-          {isLocked ? (
-            <Button
-              onClick={onPurchase}
-              disabled={isHintLoading}
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold h-10 rounded-lg transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2"
-            >
-              {isHintLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+          {isMaxReached ? (
+            <div>
+              <Button
+                disabled
+                className="w-full bg-red-500/10 text-red-400 border border-red-500/20 text-sm font-bold h-11 rounded-lg cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <Sparkles size={16} />
+                All Hints Used (3/3)
+              </Button>
+              <p className="text-[10px] text-gray-400 text-center mt-2">
+                🎯 You've used all available hints for this challenge!
+              </p>
+            </div>
+          ) : isLocked ? (
+            <>
+              <Button
+                onClick={onPurchase}
+                disabled={
+                  isHintLoading || (userXp !== undefined && userXp < nextCost)
+                }
+                className={`w-full text-sm font-bold h-11 rounded-lg transition-all shadow-lg flex items-center justify-center gap-2 ${
+                  userXp !== undefined && userXp < nextCost
+                    ? "bg-red-500/20 border-2 border-red-500/40 text-red-300 cursor-not-allowed"
+                    : "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-blue-900/30"
+                }`}
+              >
+                {isHintLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Sparkles size={16} className="fill-current" />
+                )}
+                Get Hint <span className="opacity-50">•</span> {nextCost} XP
+              </Button>
+              {userXp !== undefined && userXp < nextCost ? (
+                <p className="text-[11px] text-red-400 text-center mt-2.5 font-medium">
+                  ❌ Need {nextCost - userXp} more XP
+                  <br />
+                  <span className="text-gray-500">
+                    🎯 Complete challenges to earn XP!
+                  </span>
+                </p>
               ) : (
-                <Sparkles size={14} className="fill-current" />
+                <p className="text-[10px] text-gray-400 text-center mt-2">
+                  💡 Hints cost XP but keep you moving forward
+                </p>
               )}
-              Unlock Next Hint <span className="opacity-50">•</span> {nextCost}{" "}
-              XP
-            </Button>
-          ) : isMaxReached ? (
-            <Button
-              disabled
-              className="w-full bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold h-10 rounded-lg cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              <Sparkles size={14} />
-              Max Hints Reached (3/3)
-            </Button>
+            </>
           ) : (
             <Button
               onClick={onGetHint}

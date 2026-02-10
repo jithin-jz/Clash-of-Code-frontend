@@ -60,7 +60,8 @@ const HeaderBar = ({
         ) : (
           <Button
             onClick={runCode}
-            className="h-8 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-lg shadow-lg shadow-emerald-900/20 transition-all flex items-center gap-2"
+            disabled={!isPyodideReady}
+            className="h-8 px-4 bg-emerald-600 hover:bg-emerald-500 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50 text-white text-xs font-medium rounded-lg shadow-lg shadow-emerald-900/20 transition-all flex items-center gap-2"
           >
             <Play size={14} fill="currentColor" />
             Run

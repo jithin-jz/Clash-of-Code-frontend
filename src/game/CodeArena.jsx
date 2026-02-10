@@ -3,6 +3,7 @@ import { Loader2, Sparkles, ArrowRight, Home } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
+import { toast } from "sonner";
 
 import useAuthStore from "../stores/useAuthStore";
 import CursorEffects from "./CursorEffects";
@@ -93,17 +94,102 @@ const CodeArena = () => {
         ...prev,
         {
           type: "success",
-          content: `🔓 AI Hint Level ${data.hints_purchased} Unlocked!`,
+          content:
+            data.message ||
+            `🔓 AI Hint Level ${data.hints_purchased} Unlocked!`,
+        },
+        {
+          type: "log",
+          content: `XP Remaining: ${data.remaining_xp}`,
         },
       ]);
+
+      // Automatically fetch the hint after successful purchase (single-click UX)
+      if (code) {
+        try {
+          const hintData = await challengesApi.getAIHint(challenge.slug, {
+            user_code: code,
+            hint_level: data.hints_purchased,
+          });
+          setHint(hintData.hint);
+          setHintLevel(data.hints_purchased + 1);
+          setOutput((prev) => [
+            ...prev,
+            {
+              type: "success",
+              content: "🤖 AI Hint Generated!",
+            },
+          ]);
+          toast.success("AI Hint Generated!", {
+            description: `Hint Level ${data.hints_purchased} unlocked successfully`,
+          });
+        } catch (hintErr) {
+          console.error("Hint generation error:", hintErr);
+          setOutput((prev) => [
+            ...prev,
+            {
+              type: "error",
+              content:
+                "⚠️ Hint unlocked but generation failed. Click 'Receive Intelligence' to retry.",
+            },
+          ]);
+          toast.error("Hint Generation Failed", {
+            description: "Click 'Receive Intelligence' to retry",
+          });
+        }
+      }
     } catch (err) {
       console.error("Purchase Error:", err);
-      const errorMsg =
-        err.response?.data?.error || "Failed to purchase AI Assistance.";
-      setOutput((prev) => [
-        ...prev,
-        { type: "error", content: `❌ Error: ${errorMsg}` },
-      ]);
+
+      const errorResponse = err.response?.data;
+
+      if (err.response?.status === 402 && errorResponse) {
+        // Insufficient XP - Show detailed message
+        setOutput((prev) => [
+          ...prev,
+          {
+            type: "error",
+            content: `❌ ${errorResponse.error}: ${errorResponse.detail || "Insufficient XP"}`,
+          },
+          {
+            type: "log",
+            content: `💰 Your XP: ${errorResponse.current_xp} | Required: ${errorResponse.required_xp} | Short by: ${errorResponse.shortage} XP`,
+          },
+          {
+            type: "log",
+            content: `💡 Tip: ${errorResponse.how_to_earn || "Complete challenges to earn XP"}`,
+          },
+        ]);
+        toast.error("Insufficient XP", {
+          description: `You need ${errorResponse.shortage} more XP. Complete challenges to earn XP!`,
+        });
+      } else if (
+        err.response?.status === 400 &&
+        errorResponse?.error === "Maximum AI hints reached"
+      ) {
+        // Max hints reached
+        setOutput((prev) => [
+          ...prev,
+          {
+            type: "error",
+            content: `⚠️ ${errorResponse.detail}`,
+          },
+        ]);
+        toast.warning("Maximum Hints Reached", {
+          description: "You've used all 3 AI hints for this challenge",
+        });
+      } else {
+        // Generic error
+        const errorMsg =
+          errorResponse?.error || "Failed to purchase AI Assistance.";
+        setOutput((prev) => [
+          ...prev,
+          { type: "error", content: `❌ Error: ${errorMsg}` },
+        ]);
+        toast.error("Purchase Failed", {
+          description: errorMsg,
+        });
+      }
     } finally {
       setIsHintLoading(false);
     }
@@ -256,6 +342,21 @@ const CodeArena = () => {
             const result = await challengesApi.submit(currentId, {
               passed: true,
             });
+
+            // Update User XP if earned
+            if (result.xp_earned && result.xp_earned > 0) {
+              const { setUser } = useAuthStore.getState();
+              const currentUser = useAuthStore.getState().user;
+              if (currentUser) {
+                setUser({
+                  ...currentUser,
+                  profile: {
+                    ...currentUser.profile,
+                    xp: (currentUser.profile.xp || 0) + result.xp_earned,
+                  },
+                });
+              }
+            }
 
             // We can't easily call the callback if it depends on state,
             // but we can duplicate the simple logic or use a ref for the handler too.
@@ -676,6 +777,7 @@ const CodeArena = () => {
                 isHintLoading={isHintLoading}
                 hintLevel={hintLevel}
                 ai_hints_purchased={challenge?.ai_hints_purchased || 0}
+                userXp={user?.profile?.xp}
               />
             )}
             {activeTab === "console" && (
