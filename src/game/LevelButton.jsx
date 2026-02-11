@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Star, Lock, MapPin } from "lucide-react";
+import { Star, Lock, Trophy } from "lucide-react";
 
 // 3D Level Button
 const LevelButton = ({ level, isCurrentLevel, onClick }) => {
@@ -16,6 +16,10 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
         boxShadow: "inset 0 2px 4px rgba(0,0,0,0.5)",
       };
 
+  // Special Certificate Level Style - NOW INTEGRATED INTO STANDARD BUTTON FOR UNIFORMITY
+  // But with distinct "Premium" styling
+  const isCertificate = level.order === 54;
+
   return (
     <motion.button
       onClick={onClick}
@@ -24,36 +28,36 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
       whileHover={level.unlocked ? { scale: 1.1, y: -4 } : {}}
       whileTap={level.unlocked ? { scale: 0.95, y: 2 } : {}}
     >
-      {/* Level Square */}
       <div
-        className={`w-10 h-10 rounded-lg flex items-center justify-center relative transition-all duration-300
+        className={`w-12 h-12 rounded-xl flex items-center justify-center relative transition-all duration-300
                 ${isCurrentLevel ? "ring-2 ring-yellow-400 ring-offset-2 ring-offset-black" : ""}
-                ${level.unlocked ? "hover:scale-105" : "opacity-80 grayscale"}
+                ${isCertificate ? "bg-linear-to-br from-yellow-600 to-yellow-900 border-2 border-[#FFD700] shadow-[0_0_15px_rgba(255,215,0,0.4)]" : ""}
+                ${level.unlocked && !isCertificate ? "hover:scale-105" : ""}
+                ${!level.unlocked ? "opacity-80 grayscale" : ""}
             `}
-        style={baseStyle}
+        style={!isCertificate ? baseStyle : {}}
       >
         {/* Glass Gloss (Subtle) */}
         <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent rounded-lg pointer-events-none" />
 
         {level.unlocked ? (
-          <span className="text-white drop-shadow-md scale-75">
-            {level.icon}
+          <span className="text-white drop-shadow-md scale-100">
+            {isCertificate ? (
+              <Trophy
+                size={20}
+                className="text-yellow-100"
+                fill="currentColor"
+              />
+            ) : (
+              level.icon
+            )}
           </span>
         ) : (
           <span className="text-white/50">
-            <Lock size={16} />
+            {isCertificate ? <Trophy size={20} /> : <Lock size={18} />}
           </span>
         )}
 
-        {isCurrentLevel && (
-          <motion.div
-            className="absolute -top-6 left-1/2 -translate-x-1/2 text-yellow-400"
-            animate={{ y: [0, -4, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-          >
-            <MapPin size={20} fill="currentColor" />
-          </motion.div>
-        )}
         {/* Stars (Small Overlay) */}
         {level.unlocked && (
           <div className="absolute -bottom-1 flex gap-0.5 bg-[#1f2937]/80 rounded-full px-1 py-0.5 backdrop-blur-xs border border-white/5 shadow-sm transform scale-[0.6]">
@@ -69,11 +73,11 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
       </div>
 
       {/* Label */}
-      <div className="mt-0.5">
+      <div className="mt-1">
         <p
-          className={`text-[10px] font-bold font-mono ${level.unlocked ? "text-yellow-400" : "text-gray-500"}`}
+          className={`text-[9px] font-bold font-mono ${isCertificate ? "text-[#FFD700]" : level.unlocked ? "text-yellow-400" : "text-gray-500"}`}
         >
-          {`L${level.order || level.id}`}
+          {isCertificate ? "BADGE" : `L${level.order || level.id}`}
         </p>
       </div>
     </motion.button>

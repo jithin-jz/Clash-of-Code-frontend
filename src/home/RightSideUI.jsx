@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { cn } from "../lib/utils";
-import NotificationDropdown from "./NotificationDropdown";
+import { Bell } from "lucide-react";
 
 const RightSideUI = ({
   user,
@@ -19,6 +19,7 @@ const RightSideUI = ({
   setSettingsOpen,
   setCheckInOpen,
   setLeaderboardOpen,
+  setNotificationOpen,
   hasUnclaimedReward,
 }) => {
   const navigate = useNavigate();
@@ -131,7 +132,13 @@ const RightSideUI = ({
         </Button>
 
         {/* Notifications */}
-        {user && <NotificationDropdown className={glassButtonClass} />}
+        <Button
+          variant="ghost"
+          className={glassButtonClass}
+          onClick={() => setNotificationOpen((prev) => !prev)}
+        >
+          <Bell size={24} className="text-gray-400" />
+        </Button>
 
         <Button
           variant="ghost"

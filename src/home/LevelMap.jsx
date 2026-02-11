@@ -3,12 +3,21 @@ import { motion } from "framer-motion";
 import LevelButton from "../game/LevelButton";
 import PlayButton from "./PlayButton";
 
-const LevelMap = ({ levels, handleLevelClick, user, isLeaderboardOpen }) => {
+const LevelMap = ({
+  levels,
+  handleLevelClick,
+  user,
+  isLeaderboardOpen,
+  isNotificationOpen,
+}) => {
   // Standard Grid Layout
   return (
-    <div className="w-full h-screen relative overflow-y-auto bg-[#0a0a0a] flex flex-col items-center pt-32 pb-20">
+    <div
+      className="w-full h-screen relative overflow-y-auto bg-[#0a0a0a] flex flex-col items-center pt-28 pb-20 [&::-webkit-scrollbar]:hidden"
+      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+    >
       {/* Play Button - Fixed */}
-      {!isLeaderboardOpen && (
+      {!isLeaderboardOpen && !isNotificationOpen && (
         <PlayButton
           user={user}
           levels={levels}
@@ -17,8 +26,8 @@ const LevelMap = ({ levels, handleLevelClick, user, isLeaderboardOpen }) => {
       )}
 
       {/* Added left and right padding to prevent overlap with fixed UI buttons */}
-      <div className="w-full max-w-7xl pl-28 pr-28">
-        <div className="grid grid-cols-9 gap-4 gap-y-6 justify-items-center">
+      <div className="w-full max-w-[95%] px-10">
+        <div className="grid grid-cols-9 gap-3 gap-y-4 justify-items-center">
           {levels.map((level, index) => {
             const isCurrentLevel =
               level.unlocked && !levels[index + 1]?.unlocked;
@@ -29,7 +38,7 @@ const LevelMap = ({ levels, handleLevelClick, user, isLeaderboardOpen }) => {
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.01 }}
-                className="relative group"
+                className="relative group col-span-1"
               >
                 {/* Active Pulse */}
                 {isCurrentLevel && (

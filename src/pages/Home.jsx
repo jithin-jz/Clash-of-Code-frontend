@@ -12,6 +12,7 @@ import ChatDrawer from "../home/ChatDrawer";
 import LeaderboardDrawer from "../home/LeaderboardDrawer";
 import ShopButton from "../home/ShopButton";
 import RightSideUI from "../home/RightSideUI";
+import NotificationDrawer from "../home/NotificationDrawer";
 
 import LevelMap from "../home/LevelMap";
 import CheckInReward from "../home/CheckInReward";
@@ -37,6 +38,7 @@ const Home = () => {
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [isChatOpen, setChatOpen] = useState(false);
   const [isLeaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [isNotificationOpen, setNotificationOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [hasUnclaimedReward, setHasUnclaimedReward] = useState(false);
@@ -182,7 +184,11 @@ const Home = () => {
     }
 
     if (level.unlocked) {
-      setSelectedLevel(level);
+      if (level.order === 54) {
+        setCertificateModalOpen(true);
+      } else {
+        setSelectedLevel(level);
+      }
     }
   };
 
@@ -229,6 +235,10 @@ const Home = () => {
               isLeaderboardOpen={isLeaderboardOpen}
               setLeaderboardOpen={setLeaderboardOpen}
             />
+            <NotificationDrawer
+              isOpen={isNotificationOpen}
+              onClose={() => setNotificationOpen(false)}
+            />
             <ShopButton />
             <RightSideUI
               user={user}
@@ -238,6 +248,7 @@ const Home = () => {
               checkInOpen={checkInOpen}
               setCheckInOpen={setCheckInOpen}
               setLeaderboardOpen={setLeaderboardOpen}
+              setNotificationOpen={setNotificationOpen}
               hasUnclaimedReward={hasUnclaimedReward}
             />
             <CheckInReward
@@ -250,6 +261,7 @@ const Home = () => {
               levels={levels}
               handleLevelClick={handleLevelClick}
               isLeaderboardOpen={isLeaderboardOpen}
+              isNotificationOpen={isNotificationOpen}
             />
 
             {/* Level Modal */}

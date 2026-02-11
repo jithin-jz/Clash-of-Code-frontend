@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Trophy, Crown, Medal, Users } from "lucide-react";
+import { Trophy, Crown, Medal, Users, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { SkeletonBase } from "../common/SkeletonPrimitives";
 import api from "../services/api";
@@ -62,6 +62,14 @@ const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
           <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#FFD700]/30 to-transparent" />
 
           <div className="flex items-center gap-3">
+            {/* Close Button */}
+            <button
+              onClick={() => setLeaderboardOpen(false)}
+              className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+              title="Close Leaderboard"
+            >
+              <X size={18} />
+            </button>
             <div className="w-9 h-9 rounded-xl bg-linear-to-br from-[#FFD700]/20 to-[#FFD700]/5 border border-[#FFD700]/20 flex items-center justify-center">
               <Trophy size={16} className="text-[#FFD700]" />
             </div>

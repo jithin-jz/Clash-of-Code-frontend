@@ -138,7 +138,7 @@ const Store = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="min-h-screen bg-[#09090b] text-white overflow-auto no-scrollbar"
+          className="min-h-screen bg-[#09090b] text-white overflow-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
           {/* Minimal Header */}
           <header className="sticky top-0 z-50 bg-[#09090b]/95 backdrop-blur-sm border-b border-white/5">
@@ -177,7 +177,7 @@ const Store = () => {
           {/* Category Tabs */}
           <div className="border-b border-white/5 bg-[#09090b]">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
-              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-2">
+              <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-2">
                 {CATEGORIES.map((cat) => {
                   const isActive = activeCategory === cat.id;
                   const Icon = cat.icon;
@@ -211,7 +211,7 @@ const Store = () => {
                 <p className="text-sm">No items in this category</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 <AnimatePresence mode="popLayout">
                   {filteredItems.map((item) => {
                     const isActive = isItemActive(item);
@@ -233,8 +233,8 @@ const Store = () => {
                             ${isActive ? "ring-1 ring-white/20" : ""}
                           `}
                         >
-                          {/* Icon/Preview */}
-                          <div className="h-32 flex items-center justify-center bg-zinc-900 border-b border-white/5 relative">
+                          {/* Icon/Preview - Reduced Height */}
+                          <div className="h-28 flex items-center justify-center bg-zinc-900 border-b border-white/5 relative">
                             {item.image ? (
                               <img
                                 src={item.image}
@@ -269,17 +269,17 @@ const Store = () => {
                             </Badge>
                           </div>
 
-                          {/* Content */}
-                          <CardHeader className="p-4 pb-2">
-                            <CardTitle className="text-sm font-medium text-white truncate">
+                          {/* Content - Compact Padding */}
+                          <CardHeader className="p-3 pb-1.5">
+                            <CardTitle className="text-xs font-medium text-white truncate">
                               {item.name}
                             </CardTitle>
-                            <CardDescription className="text-xs text-zinc-500 line-clamp-2 min-h-[32px]">
+                            <CardDescription className="text-[10px] text-zinc-500 line-clamp-2 min-h-[32px] leading-tight">
                               {item.description}
                             </CardDescription>
                           </CardHeader>
 
-                          <CardContent className="p-3 pt-0">
+                          <CardContent className="p-2.5 pt-0">
                             {isOwned ? (
                               <Button
                                 variant={isActive ? "outline" : "default"}
