@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Loader2, Sparkles, ArrowRight, Home } from "lucide-react";
+import {
+  Loader2,
+  Sparkles,
+  ArrowRight,
+  Home,
+  Download,
+  Trophy,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
@@ -577,16 +584,26 @@ const CodeArena = () => {
             className="bg-[#09090b] border border-white/10 rounded-xl p-8 max-w-sm w-full flex flex-col items-center text-center shadow-2xl relative overflow-hidden"
           >
             <div className="relative z-10 flex flex-col items-center gap-6">
-              <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mb-2">
-                <Sparkles size={32} className="text-green-500" />
+              <div
+                className={`w-16 h-16 rounded-full flex items-center justify-center mb-2 ${completionData.certificate_unlocked ? "bg-yellow-500/10" : "bg-green-500/10"}`}
+              >
+                {completionData.certificate_unlocked ? (
+                  <Sparkles size={32} className="text-yellow-500" />
+                ) : (
+                  <Sparkles size={32} className="text-green-500" />
+                )}
               </div>
 
               <div className="space-y-1">
                 <h2 className="text-2xl font-bold text-white">
-                  Challenge Solved!
+                  {completionData.certificate_unlocked
+                    ? "Certificate Unlocked!"
+                    : "Challenge Solved!"}
                 </h2>
                 <p className="text-gray-400 text-sm">
-                  Great work. You've completed the goal.
+                  {completionData.certificate_unlocked
+                    ? "Congratulations! You've mastered the Python course."
+                    : "Great work. You've completed the goal."}
                 </p>
               </div>
 
@@ -616,7 +633,14 @@ const CodeArena = () => {
               )}
 
               <div className="flex flex-col w-full gap-3 mt-4">
-                {completionData.next_level_slug ? (
+                {completionData.certificate_unlocked ? (
+                  <Button
+                    onClick={() => navigate("/")}
+                    className="w-full bg-yellow-600 hover:bg-yellow-500 text-white border border-yellow-400/20 shadow-[0_0_15px_rgba(234,179,8,0.3)]"
+                  >
+                    <Trophy className="w-4 h-4 mr-2" /> Claim Certificate
+                  </Button>
+                ) : completionData.next_level_slug ? (
                   <Button
                     onClick={async () => {
                       // Small transition delay

@@ -116,7 +116,27 @@ const Home = () => {
     // Sort API levels by order
     const sortedApiLevels = [...apiLevels].sort((a, b) => a.order - b.order);
 
-    return sortedApiLevels.map((apiData) => {
+    const levelsWithCert = [...sortedApiLevels];
+
+    // Check if user has completed Level 53 (the last level)
+    const level53 = sortedApiLevels.find((l) => l.order === 53);
+    const isLevel53Completed = level53?.status === "COMPLETED";
+
+    // Manually append Level 54 (Certificate) if it doesn't exist
+    if (!levelsWithCert.find((l) => l.order === 54)) {
+      levelsWithCert.push({
+        id: "certificate",
+        order: 54,
+        slug: "certificate",
+        title: "Professional Certificate",
+        description: "Proof of your mastery",
+        stars: 0,
+        status: isLevel53Completed ? "UNLOCKED" : "LOCKED", // Unlock if 53 is done
+        xp_reward: 0,
+      });
+    }
+
+    return levelsWithCert.map((apiData) => {
       const isCertificate = apiData.order === 54;
       return {
         id: apiData.order,
@@ -129,7 +149,9 @@ const Home = () => {
         stars: apiData.stars || 0,
         status: apiData.status,
         unlocked:
-          apiData.status === "UNLOCKED" || apiData.status === "COMPLETED",
+          apiData.status === "UNLOCKED" ||
+          apiData.status === "COMPLETED" ||
+          (isCertificate && isLevel53Completed),
         completed: apiData.status === "COMPLETED",
         type: isCertificate ? "CERTIFICATE" : "LEVEL",
         ...apiData,
@@ -250,6 +272,7 @@ const Home = () => {
               setLeaderboardOpen={setLeaderboardOpen}
               setNotificationOpen={setNotificationOpen}
               hasUnclaimedReward={hasUnclaimedReward}
+              userCertificate={userCertificate}
             />
             <CheckInReward
               isOpen={checkInOpen}
