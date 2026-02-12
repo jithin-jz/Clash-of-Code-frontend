@@ -185,10 +185,13 @@ export const paymentAPI = {
 
 export const storeAPI = {
   getItems: () => api.get("/store/items/"),
-  buyItem: (id) => api.post(`/store/buy/${id}/`),
+  getPurchasedItems: () => api.get("/store/purchased/"),
+  purchaseItem: (id) => api.post(`/store/buy/${id}/`),
+  buyItem: (id) => api.post(`/store/buy/${id}/`), // Alias
   equipItem: (id) => api.post("/store/equip/", { item_id: id }),
   unequipItem: (category) => api.post("/store/unequip/", { category }),
 };
+
 
 export const postsAPI = {
   getFeed: () => api.get("/posts/"),

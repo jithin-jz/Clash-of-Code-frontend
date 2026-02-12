@@ -129,6 +129,15 @@ const AppContent = () => {
                 />
 
                 <Route
+                  path="/buy-xp"
+                  element={
+                    <ProtectedRoute>
+                      <BuyXPPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
                   path="/game"
                   element={
                     <ProtectedRoute>

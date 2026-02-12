@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,76 +8,66 @@ import {
 } from "../components/ui/dropdown-menu";
 import { Button } from "../components/ui/button";
 import { Bell, Check } from "lucide-react";
-import { notificationsAPI } from "../services/api";
 import { formatDistanceToNow } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { cn } from "../lib/utils";
+import useNotificationStore from "../stores/useNotificationStore";
 
 const NotificationDropdown = ({ className }) => {
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+  const [hasNewNotification, setHasNewNotification] = useState(false);
+  const prevUnreadCountRef = useRef(0);
 
-  const fetchNotifications = async () => {
-    try {
-      const response = await notificationsAPI.getNotifications();
-      setNotifications(response.data);
-      setUnreadCount(response.data.filter((n) => !n.is_read).length);
-    } catch (error) {
-      console.error("Failed to fetch notifications", error);
-    }
-  };
+  const {
+    notifications,
+    unreadCount,
+    fetchNotifications,
+    markAsRead,
+    markAllAsRead,
+    clearAll,
+  } = useNotificationStore();
 
   // Poll for notifications every 30 seconds
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
+    const interval = setInterval(() => fetchNotifications(), 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchNotifications]);
+
+  // Detect new notifications and trigger animation
+  useEffect(() => {
+    if (
+      unreadCount > prevUnreadCountRef.current &&
+      prevUnreadCountRef.current > 0
+    ) {
+      setHasNewNotification(true);
+      // Reset animation after 3 seconds
+      const timeout = setTimeout(() => setHasNewNotification(false), 3000);
+      return () => clearTimeout(timeout);
+    }
+    prevUnreadCountRef.current = unreadCount;
+  }, [unreadCount]);
 
   const handleMarkRead = async (id, e) => {
     e.stopPropagation();
-    try {
-      await notificationsAPI.markRead(id);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)),
-      );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error(error);
-    }
+    await markAsRead(id);
   };
 
   const handleMarkAllRead = async () => {
-    try {
-      await notificationsAPI.markAllRead();
-      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-      setUnreadCount(0);
-    } catch (error) {
-      console.error("Failed to mark all read", error);
-    }
+    await markAllAsRead();
   };
 
   const handleClearAll = async () => {
-    try {
-      await notificationsAPI.clearAll();
-      setNotifications([]);
-      setUnreadCount(0);
-    } catch (error) {
-      console.error("Failed to clear notifications", error);
-    }
+    await clearAll();
   };
 
   const handleNotificationClick = async (notification) => {
     if (!notification.is_read) {
-      handleMarkRead(notification.id, { stopPropagation: () => {} });
+      await markAsRead(notification.id);
     }
 
-    // Navigate based on target logic (if we had it fully implemented)
-    // For now, if it's a post (has image), maybe navigate to profile or show post?
-    // Since we don't have a dedicated single-post URL yet (it's a modal on home/profile),
-    // we might just navigate to the actor's profile for now.
+    // Navigate to actor's profile
     if (notification.actor?.username) {
       navigate(`/profile/${notification.actor.username}`);
     }
@@ -99,10 +90,65 @@ const NotificationDropdown = ({ className }) => {
             className,
           )}
         >
-          <Bell size={24} />
-          {unreadCount > 0 && (
-            <span className="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50" />
-          )}
+          {/* Bell Icon with shake animation on new notification */}
+          <motion.div
+            animate={
+              hasNewNotification
+                ? {
+                    rotate: [0, -10, 10, -10, 10, 0],
+                    scale: [1, 1.1, 1, 1.1, 1],
+                  }
+                : {}
+            }
+            transition={{ duration: 0.5 }}
+          >
+            <Bell size={24} />
+          </motion.div>
+
+          {/* Animated Badge with Count */}
+          <AnimatePresence>
+            {unreadCount > 0 && (
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{
+                  scale: 1,
+                  opacity: 1,
+                }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 500,
+                  damping: 15,
+                }}
+                className={cn(
+                  "absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-bold shadow-lg",
+                  hasNewNotification
+                    ? "bg-gradient-to-r from-red-500 to-pink-500 ring-2 ring-red-400 ring-offset-1 ring-offset-transparent animate-pulse"
+                    : "bg-red-500",
+                )}
+              >
+                {unreadCount > 99 ? "99+" : unreadCount}
+
+                {/* Ripple effect for new notifications */}
+                {hasNewNotification && (
+                  <>
+                    <motion.div
+                      className="absolute inset-0 rounded-full bg-red-400"
+                      initial={{ scale: 1, opacity: 0.5 }}
+                      animate={{ scale: 2, opacity: 0 }}
+                      transition={{ duration: 1, repeat: 2 }}
+                    />
+                    <motion.div
+                      className="absolute inset-0 rounded-full bg-pink-400"
+                      initial={{ scale: 1, opacity: 0.5 }}
+                      animate={{ scale: 2.5, opacity: 0 }}
+                      transition={{ duration: 1, delay: 0.2, repeat: 2 }}
+                    />
+                  </>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -111,7 +157,14 @@ const NotificationDropdown = ({ className }) => {
         className="w-80 bg-[#121212]/95 backdrop-blur-xl border-zinc-800 p-0 text-white max-h-[400px] flex flex-col shadow-2xl rounded-2xl overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-right-5 duration-200"
       >
         <div className="p-3 border-b border-zinc-800 flex items-center justify-between shrink-0 bg-zinc-900 z-10">
-          <h4 className="font-semibold text-sm">Notifications</h4>
+          <div className="flex items-center gap-2">
+            <h4 className="font-semibold text-sm">Notifications</h4>
+            {unreadCount > 0 && (
+              <span className="px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </div>
           <div className="flex gap-2">
             {unreadCount > 0 && (
               <button
@@ -186,7 +239,7 @@ const NotificationDropdown = ({ className }) => {
                   </div>
                 )}
 
-                {/* Unread Indicator / Mark Read Action */}
+                {/* Unread Indicator */}
                 {!notification.is_read && (
                   <div className="self-center">
                     <div className="w-2 h-2 bg-blue-500 rounded-full" />

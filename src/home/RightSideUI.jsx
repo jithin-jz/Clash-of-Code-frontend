@@ -31,7 +31,7 @@ const RightSideUI = ({
 
   return (
     <div className="fixed right-6 top-6 z-30 flex flex-col gap-4 items-end animate-slide-in-right">
-      {/* XP Bar - Link to Buy XP Page */}
+      {/* XP Bar - Link to Shop */}
       <div
         onClick={() => navigate("/shop")}
         className="bg-[#121212]/80 backdrop-blur-xl border border-white/10 rounded-full pl-4 pr-6 py-2.5 flex items-center gap-4 shadow-xl cursor-pointer hover:border-[#FFD700]/50 transition-all active:scale-95 group"

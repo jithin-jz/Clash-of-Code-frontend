@@ -26,9 +26,11 @@
 
   /* Prevent white flash on page load */
   html,
-  body {
-    background-color: #050505;
+  body,
+  #root {
+    background-color: #09090b;
     color: white;
+    min-height: 100vh;
   }
 }
 
