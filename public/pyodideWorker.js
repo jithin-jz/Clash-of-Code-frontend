@@ -2,7 +2,7 @@
 importScripts("https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.js");
 
 let pyodide = null;
-const EXECUTION_TIMEOUT = 10000; // 10 seconds timeout
+const EXECUTION_TIMEOUT = 3000; // 3 seconds timeout for better UX
 
 async function loadPyodideAndPackages() {
     try {

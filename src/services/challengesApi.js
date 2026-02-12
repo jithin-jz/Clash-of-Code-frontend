@@ -51,9 +51,6 @@ export const challengesApi = {
         const response = await api.get(`/certificates/verify/${certificateId}/`);
         return response.data;
     },
-    downloadCertificate: async () => {
-        return api.get('/certificates/download/', { responseType: 'blob' });
-    },
     checkCertificateEligibility: async () => {
         const response = await api.get('/certificates/check_eligibility/');
         return response.data;
