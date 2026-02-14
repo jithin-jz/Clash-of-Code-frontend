@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { authAPI } from "../services/api";
 import useChallengesStore from "./useChallengesStore";
+import { notify } from "../services/notification";
 
 // Helper function to open OAuth in a popup window
 const openOAuthPopup = (url, name = "OAuth Login") => {
@@ -29,9 +30,16 @@ const useAuthStore = create((set) => ({
   isInitialized: false, // Tracks if initial auth check is complete
   error: null,
   oauthPopup: null,
+  email: "",
+  otp: "",
+  showOtpInput: false,
+  isOtpLoading: false,
 
   // Actions
   setLoading: (loading) => set({ loading }),
+  setEmail: (email) => set({ email }),
+  setOtp: (otp) => set({ otp }),
+  setShowOtpInput: (showOtpInput) => set({ showOtpInput }),
 
   clearError: () => set({ error: null }),
 
@@ -164,15 +172,51 @@ const useAuthStore = create((set) => ({
     }
   },
 
+  handleOAuthMessage: async (event) => {
+    const { checkAuth } = useAuthStore.getState();
+    
+    // Relaxed origin check for development to handle port changes (5173 vs 5174 etc)
+    if (event.origin !== window.location.origin) {
+      console.warn(
+        "Login: Received message from different origin:",
+        event.origin,
+        "Expected:",
+        window.location.origin,
+      );
+      // In production, you might want to force strict equality or a whitelist
+      const authorizedOrigin = new URL(import.meta.env.VITE_API_URL).origin;
+      if (
+        !event.origin.startsWith(authorizedOrigin) &&
+        !event.origin.startsWith("https://souled.jithin.site")
+      ) {
+        return;
+      }
+    }
+
+    const { type, provider, error } = event.data;
+    if (type === "oauth-success") {
+      await checkAuth();
+    } else if (type === "oauth-error") {
+      console.error(`OAuth error from ${provider}:`, error);
+      if (error === "User account is disabled.") {
+        notify.error("Your account has been blocked by an administrator.", {
+          duration: 5000,
+        });
+      } else {
+        notify.error(`Login failed: ${error}`);
+      }
+    }
+  },
+
   requestOtp: async (email) => {
-    set({ loading: true, error: null });
+    set({ isOtpLoading: true, error: null });
     try {
       await authAPI.requestOtp(email);
-      set({ loading: false });
+      set({ isOtpLoading: false });
       return true;
     } catch (error) {
       set({ 
-        loading: false, 
+        isOtpLoading: false, 
         error: error.response?.data?.error || "Failed to send OTP" 
       });
       return false;
@@ -180,7 +224,7 @@ const useAuthStore = create((set) => ({
   },
 
   verifyOtp: async (email, otp) => {
-    set({ loading: true, error: null });
+    set({ isOtpLoading: true, error: null });
     try {
       const response = await authAPI.verifyOtp(email, otp);
       const { access_token, refresh_token, user } = response.data;
@@ -191,14 +235,14 @@ const useAuthStore = create((set) => ({
       set({
         user,
         isAuthenticated: true,
-        loading: false,
+        isOtpLoading: false,
         error: null,
       });
 
       return true;
     } catch (error) {
       set({ 
-        loading: false, 
+        isOtpLoading: false, 
         error: error.response?.data?.error || "Invalid OTP" 
       });
       return false;
@@ -222,6 +266,9 @@ const useAuthStore = create((set) => ({
       isAuthenticated: false,
       loading: false,
       error: null,
+      email: "",
+      otp: "",
+      showOtpInput: false,
     });
   },
 
@@ -240,6 +287,9 @@ const useAuthStore = create((set) => ({
         isAuthenticated: false,
         loading: false,
         error: null,
+        email: "",
+        otp: "",
+        showOtpInput: false,
       });
 
       return true;

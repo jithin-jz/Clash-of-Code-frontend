@@ -1,4 +1,4 @@
-import { Toaster as Sonner } from "sonner"
+import { Toaster as Sonner } from "sonner";
 
 const Toaster = ({ ...props }) => {
   return (
@@ -6,6 +6,8 @@ const Toaster = ({ ...props }) => {
       theme="dark"
       className="toaster group"
       position="top-center"
+      richColors
+      expand
       toastOptions={{
         classNames: {
           toast:
@@ -19,7 +21,7 @@ const Toaster = ({ ...props }) => {
       }}
       {...props}
     />
-  )
-}
+  );
+};
 
-export { Toaster }
+export { Toaster };

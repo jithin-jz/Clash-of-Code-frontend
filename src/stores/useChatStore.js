@@ -12,14 +12,17 @@ const useChatStore = create((set, get) => ({
   
   // Actions
   connect: (token) => {
-    // Prevent multiple connections
-    if (get().socket?.readyState === WebSocket.OPEN) return;
+    const { socket: existingSocket } = get();
     
-    // Create new WebSocket connection
-    // We pass the token as a query param or header if possible, 
-    // but standard WebSocket API connects via URL.
-    // The backend expects `?token=<jwt>` or a ticket system.
-    // Assuming backend extracts from query param for now as standardized in previous steps.
+    // Prevent multiple connections
+    if (existingSocket) {
+      if (existingSocket.readyState === WebSocket.OPEN || existingSocket.readyState === WebSocket.CONNECTING) {
+        return;
+      }
+      // Close stale socket
+      existingSocket.close();
+    }
+    
     const wsUrl = `${WS_URL}/global?token=${token}`;
     const socket = new WebSocket(wsUrl);
 
@@ -31,21 +34,26 @@ const useChatStore = create((set, get) => ({
       try {
         const data = JSON.parse(event.data);
         
-        // Handle different message types
         if (data.type === 'chat_message') {
-            // Backend sends the full message object now including timestamp
-            set((state) => ({
-                messages: [...state.messages, data]
-            }));
+            set((state) => {
+                // De-duplication check: if message with same ID or same content/user/timestamp exists
+                const isDuplicate = state.messages.some(msg => 
+                    (data.id && msg.id === data.id) || 
+                    (msg.message === data.message && msg.user_id === data.user_id && msg.timestamp === data.timestamp)
+                );
+                
+                if (isDuplicate) return state;
+
+                return {
+                    messages: [...state.messages, data]
+                };
+            });
         } else if (data.type === 'history') {
-             // Replace messages with history from DB
              set({ messages: data.messages });
         } else if (data.type === 'presence') {
              set({ onlineCount: data.count });
         } else if (data.type === 'error') {
-             // Handle rate limit and other errors from backend
              set({ error: data.message });
-             // Auto-clear error after 3 seconds
              setTimeout(() => set({ error: null }), 3000);
         }
       } catch (err) {
@@ -56,9 +64,7 @@ const useChatStore = create((set, get) => ({
     socket.onclose = (event) => {
       console.log("WS Close:", event.code, event.reason);
       set({ isConnected: false, socket: null });
-      // Optional: data.code === 1008 (Policy Violation) -> Auth failed
       if (event.code === 1008) {
-          console.error("WS Auth Failed (1008)");
           set({ error: "Authentication failed" });
       }
     };
@@ -75,20 +81,20 @@ const useChatStore = create((set, get) => ({
     const { socket } = get();
     if (socket) {
       socket.close();
-      set({ socket: null, isConnected: false });
+      set({ socket: null, isConnected: false, messages: [] });
     }
   },
 
   sendMessage: (content) => {
     const { socket, isConnected } = get();
-    if (socket && isConnected) {
+    if (socket && isConnected && socket.readyState === WebSocket.OPEN) {
       const payload = {
           type: "chat_message",
           message: content
       };
       socket.send(JSON.stringify(payload));
     } else {
-        console.error("Cannot send message: Socket not connected");
+        console.error("Cannot send message: Socket not open", socket?.readyState);
     }
   },
 

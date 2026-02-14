@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { notificationsAPI } from "../services/api";
+import { notify } from "../services/notification";
+
 
 /**
  * Centralized notification management.
@@ -13,6 +15,119 @@ const useNotificationStore = create((set, get) => ({
   isLoading: false,
   error: null,
   lastFetched: null,
+  fcmToken: null,
+  permission: typeof Notification !== 'undefined' ? Notification.permission : 'default',
+  _listenerSetup: false,
+
+  /**
+   * Initialize FCM notifications.
+   */
+  initFCM: async () => {
+    if (typeof Notification === 'undefined') {
+        console.warn("Notifications are not supported in this browser.");
+        return;
+    }
+    
+    console.log("Initializing FCM... Current permission:", Notification.permission);
+    if (Notification.permission === "granted") {
+        await get().registerFCM();
+    }
+
+    // Listen for foreground messages (only once)
+    if (get()._listenerSetup) return;
+    set({ _listenerSetup: true });
+    try {
+        const { onMessageListener } = await import("../services/firebase");
+        onMessageListener((payload) => {
+            console.log("Foreground message received (FULL):", JSON.stringify(payload, null, 2));
+            
+            // Show toast notification - try accessing data if notification is missing
+            const title = payload.notification?.title || payload.data?.title || "New Notification";
+            const body = payload.notification?.body || payload.data?.body || "You have a new message.";
+
+            // Only show if we have some content
+            if (payload.notification || payload.data) {
+                notify.info(title, {
+                    description: body,
+                    duration: 5000,
+                });
+            }
+
+            // Always refetch to update the red dot/count
+            get().fetchNotifications(true);
+        });
+
+
+    } catch (error) {
+
+        console.error("Error setting up foreground message listener:", error);
+    }
+  },
+
+  /**
+   * Request notification permission and register token.
+   */
+  requestPermission: async () => {
+    if (typeof Notification === 'undefined') return 'default';
+    
+    console.log("Requesting notification permission...");
+    try {
+        const permission = await Notification.requestPermission();
+        console.log("Permission result:", permission);
+        set({ permission });
+        if (permission === 'granted') {
+            await get().registerFCM();
+        }
+        return permission;
+    } catch (error) {
+        console.error("Error requesting notification permission:", error);
+        return 'default';
+    }
+  },
+
+  /**
+   * Register FCM token with backend.
+   */
+  registerFCM: async () => {
+    console.log("[FCM] registration process started...");
+    try {
+        const { requestForToken } = await import("../services/firebase");
+        const token = await requestForToken();
+        
+        if (!token) {
+            console.warn("[FCM] No token received from Firebase. Registration aborted.");
+            return;
+        }
+
+        console.log("[FCM] Token received from Firebase. Current stored token:", get().fcmToken ? "Present" : "None");
+        
+        if (token !== get().fcmToken) {
+            console.log("[FCM] Syncing new token with backend...");
+            const response = await notificationsAPI.registerFCMToken({
+                token: token,
+                device_id: navigator.userAgent
+            });
+            console.log("[FCM] Backend response status:", response.status);
+            
+            set({ fcmToken: token });
+            console.log("[FCM] Token successfully synced with backend.");
+            notify.success("Push notifications active! 🔔");
+        } else {
+            console.log("[FCM] Token is already synced with backend.");
+        }
+    } catch (error) {
+        console.error("[FCM] Registration error details:", {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status
+        });
+        notify.error("Failed to enable real-time notifications.");
+    }
+  },
+
+
+
+
 
   // Cache duration (2 minutes for real-time feel)
   CACHE_DURATION: 2 * 60 * 1000,

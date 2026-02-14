@@ -65,36 +65,37 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
 
   /* --------------------------- websocket connect --------------------------- */
   useEffect(() => {
+    let timeoutId;
+
     if (isChatOpen && user) {
       const token = localStorage.getItem("access_token");
       if (token) {
-        // Connect using store
-        connect(token);
+        // Slight delay to ensure state is settled
+        timeoutId = setTimeout(() => {
+          connect(token);
+        }, 100);
       }
     }
 
     return () => {
-      // Optional: disconnect on unmount
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [isChatOpen, user, connect]);
 
   // Handle Auth Error (Token Expiry)
-  const { connect: reconnect } = useChatStore();
   useEffect(() => {
     if (error === "Authentication failed" && isChatOpen && user) {
-      // Attempt to refresh token by triggering an auth check
-      // which uses the interceptor to refresh if needed
       useAuthStore
         .getState()
         .checkAuth()
         .then(() => {
           const newToken = localStorage.getItem("access_token");
           if (newToken) {
-            reconnect(newToken);
+            connect(newToken);
           }
         });
     }
-  }, [error, isChatOpen, user, reconnect]);
+  }, [error, isChatOpen, user, connect]);
 
   /* ----------------------------- send message ------------------------------ */
   const sendMessage = useCallback(

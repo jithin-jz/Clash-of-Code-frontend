@@ -32,13 +32,22 @@ const CertificateVerification = lazy(
 const CodeArena = lazy(() => import("./game/CodeArena"));
 const Store = lazy(() => import("./store/Store"));
 
+import useNotificationStore from "./stores/useNotificationStore";
+
 // Auth initializer component
 const AuthInitializer = ({ children }) => {
-  const { checkAuth } = useAuthStore();
+  const { checkAuth, user } = useAuthStore();
+  const { initFCM } = useNotificationStore();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  useEffect(() => {
+    if (user) {
+      initFCM();
+    }
+  }, [user, initFCM]);
 
   return children;
 };

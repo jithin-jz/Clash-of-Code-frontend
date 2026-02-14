@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import useAuthStore from "../stores/useAuthStore";
 import { notify } from "../services/notification";
 import { Sword, Shield, Crown, Sparkles } from "lucide-react";
@@ -39,52 +39,26 @@ const DiscordIcon = () => (
 );
 
 const Login = () => {
-  const navigate = useNavigate();
-  const [email, setEmail] = React.useState("");
-  const [otp, setOtp] = React.useState("");
-  const [showOtpInput, setShowOtpInput] = React.useState(false);
-  const { loading, openOAuthPopup, checkAuth, requestOtp, verifyOtp } =
-    useAuthStore();
+  const {
+    loading,
+    isOtpLoading,
+    email,
+    otp,
+    showOtpInput,
+    setEmail,
+    setOtp,
+    setShowOtpInput,
+    openOAuthPopup,
+    requestOtp,
+    verifyOtp,
+    handleOAuthMessage,
+  } = useAuthStore();
 
   useEffect(() => {
-    const handleMessage = async (event) => {
-      // Relaxed origin check for development to handle port changes (5173 vs 5174 etc)
-      if (event.origin !== window.location.origin) {
-        console.warn(
-          "Login: Received message from different origin:",
-          event.origin,
-          "Expected:",
-          window.location.origin,
-        );
-        // In production, you might want to force strict equality or a whitelist
-        const authorizedOrigin = new URL(import.meta.env.VITE_API_URL).origin;
-        if (
-          !event.origin.startsWith(authorizedOrigin) &&
-          !event.origin.startsWith("https://souled.jithin.site")
-        ) {
-          return;
-        }
-      }
-
-      const { type, provider, error } = event.data;
-      if (type === "oauth-success") {
-        await checkAuth();
-        // Get fresh user data - Router will handle redirection via PublicOnlyRoute
-        await checkAuth();
-      } else if (type === "oauth-error") {
-        console.error(`OAuth error from ${provider}:`, error);
-        if (error === "User account is disabled.") {
-          notify.error("Your account has been blocked by an administrator.", {
-            duration: 5000,
-          });
-        } else {
-          notify.error(`Login failed: ${error}`);
-        }
-      }
-    };
+    const handleMessage = (event) => handleOAuthMessage(event);
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [checkAuth, navigate]);
+  }, [handleOAuthMessage]);
 
   // Note: Redirection is handled by the PublicOnlyRoute wrapper in App.jsx
   // when isAuthenticated becomes true.
@@ -160,10 +134,10 @@ const Login = () => {
                 />
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={isOtpLoading}
                   className="w-full h-10 bg-[#FFD700] text-black font-bold text-sm rounded-lg hover:bg-[#FFA500] transition-colors disabled:opacity-50"
                 >
-                  {loading ? "Sending..." : "Send Code"}
+                  {isOtpLoading ? "Sending..." : "Send Code"}
                 </button>
               </form>
             ) : (
@@ -191,10 +165,10 @@ const Login = () => {
                 />
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={isOtpLoading}
                   className="w-full h-10 bg-[#FFD700] text-black font-bold text-sm rounded-lg hover:bg-[#FFA500] transition-colors disabled:opacity-50"
                 >
-                  {loading ? "Verifying..." : "Verify & Continue"}
+                  {isOtpLoading ? "Verifying..." : "Verify & Continue"}
                 </button>
               </form>
             )}

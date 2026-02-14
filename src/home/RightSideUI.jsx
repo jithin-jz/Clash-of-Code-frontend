@@ -169,7 +169,12 @@ const RightSideUI = ({
         <Button
           variant="ghost"
           className={cn(glassButtonClass, "relative overflow-visible")}
-          onClick={() => setNotificationOpen((prev) => !prev)}
+          onClick={() => {
+            if (Notification.permission === "default") {
+              useNotificationStore.getState().requestPermission();
+            }
+            setNotificationOpen((prev) => !prev);
+          }}
         >
           <motion.div
             animate={
