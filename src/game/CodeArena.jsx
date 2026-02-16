@@ -562,23 +562,6 @@ const CodeArena = () => {
     ]);
   }, [initWorker]);
 
-  // Re-bind listener for restart (fix for above)
-  // We can wrap the listener in a ref or useCallback to share it.
-
-  // REDOING this block with shared listener logic in next tool call or improved implementation now.
-  // I will use a ref for the listener to keep it clean.
-
-  // ... For this specific tool call, I will provide the simplified logic and fix reusable listener in next step.
-  // ACTUALLY, I will invoke a state update that triggers re-init if possible? No.
-  // I will write the `initWorker` inside the Effect and just re-copy it? No that's bad code.
-  // I will define `initWorker` outside? No, has dependencies.
-
-  // Strategy: Just define the message handler inside the render body (as a ref or const) and attach it.
-
-  // Let's do a replace that is clean.
-
-  // See Replacement Content below.
-
   // Show skeleton while loading challenge data
   if (isLoadingChallenge) {
     return <CodeArenaSkeleton />;
