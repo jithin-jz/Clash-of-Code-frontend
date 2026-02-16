@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Trophy, Crown, Medal, Users, X } from "lucide-react";
+import { Trophy, Crown, Medal, Users, X, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { SkeletonBase } from "../common/SkeletonPrimitives";
 import api from "../services/api";
@@ -51,13 +51,13 @@ const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
       animate={{ x: isLeaderboardOpen ? 0 : "100%" }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <div className="w-full h-full bg-linear-to-b from-[#0d0d0d] via-[#0a0a0a] to-[#080808] backdrop-blur-3xl border-l border-white/5 flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative">
+      <div className="w-full h-full bg-[#09090b] backdrop-blur-3xl border-l border-white/5 flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative">
         {/* Decorative gradient orb */}
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#FFD700]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 -left-10 w-32 h-32 bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 -left-10 w-32 h-32 bg-zinc-500/5 rounded-full blur-3xl pointer-events-none" />
 
         {/* Header */}
-        <div className="relative h-16 border-b border-white/5 flex items-center justify-between px-5 bg-linear-to-r from-[#141414] to-[#0f0f0f]">
+        <div className="relative h-16 border-b border-white/5 flex items-center justify-between px-5 bg-[#18181b]">
           {/* Header glow line */}
           <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#FFD700]/30 to-transparent" />
 
@@ -74,12 +74,12 @@ const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
               <Trophy size={16} className="text-[#FFD700]" />
             </div>
             <div>
-              <span className="text-white font-bold text-base tracking-tight block leading-tight">
+              <span className="text-white font-bold text-base tracking-tight block leading-tight font-sans">
                 Leaderboard
               </span>
               <div className="flex items-center gap-1">
                 <Users size={10} className="text-[#FFD700]" />
-                <span className="text-[10px] text-gray-500 uppercase tracking-wider">
+                <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-sans">
                   Top Players
                 </span>
               </div>
@@ -94,15 +94,15 @@ const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
               {[...Array(8)].map((_, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-white/2 border border-white/5"
+                  className="flex items-center gap-3 p-3 rounded-none bg-white/2 border border-white/5"
                 >
-                  <SkeletonBase className="w-8 h-8 rounded-lg" />
+                  <SkeletonBase className="w-8 h-8 rounded-none" />
                   <SkeletonBase className="w-9 h-9 rounded-full" />
                   <div className="flex-1 space-y-2">
                     <SkeletonBase className="h-4 w-24" />
                     <SkeletonBase className="h-3 w-16" />
                   </div>
-                  <SkeletonBase className="w-10 h-6 rounded-md" />
+                  <SkeletonBase className="w-10 h-6 rounded-none" />
                 </div>
               ))}
             </div>
@@ -128,7 +128,7 @@ const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
                   key={rankUser.username}
                   to={`/profile/${rankUser.username}`}
                   onClick={() => setLeaderboardOpen(false)}
-                  className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group ${
+                  className={`flex items-center gap-3 p-3 rounded-none transition-all duration-200 group ${
                     isMe
                       ? "bg-[#FFD700]/10 border border-[#FFD700]/20 hover:bg-[#FFD700]/15"
                       : "bg-white/2 border border-white/5 hover:bg-white/5 hover:border-white/10"
@@ -136,7 +136,7 @@ const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
                 >
                   {/* Rank */}
                   <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    className={`w-8 h-8 rounded-none flex items-center justify-center ${
                       isTopThree
                         ? "bg-linear-to-br from-[#FFD700]/20 to-[#FFD700]/5"
                         : "bg-white/5"

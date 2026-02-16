@@ -12,16 +12,22 @@ import {
 const NeuralLinkPane = ({
   onGetHint,
   onPurchase,
-  onDeepAnalysis, // Added
   hint,
   isHintLoading,
   hintLevel,
   ai_hints_purchased,
   userXp,
-  analysis, // Added
-  isAnalyzing, // Added
 }) => {
   const [hintHistory, setHintHistory] = React.useState([]);
+  const scrollRef = React.useRef(null);
+  const [activeIndex, setActiveIndex] = React.useState(0);
+
+  const handleScroll = (e) => {
+    const scrollLeft = e.target.scrollLeft;
+    const width = e.target.offsetWidth;
+    const index = Math.round(scrollLeft / width);
+    setActiveIndex(index);
+  };
 
   React.useEffect(() => {
     if (hint) {
@@ -29,280 +35,224 @@ const NeuralLinkPane = ({
         if (prev.includes(hint)) return prev;
         return [...prev, hint];
       });
+      // Auto-scroll to latest hint
+      setTimeout(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTo({
+            left: scrollRef.current.scrollWidth,
+            behavior: "smooth",
+          });
+        }
+      }, 100);
     }
   }, [hint]);
 
-  // Reset history if challenge id changes (handled by parent resetting hintLevel to 1)
+  // Reset history if challenge id changes
   React.useEffect(() => {
     if (hintLevel === 1) {
       setHintHistory([]);
+      setActiveIndex(0);
     }
   }, [hintLevel]);
 
-  // Cost Logic: 10, 20, 30 XP
-  // Consistent with backend logic
+  // Cost Logic
   const nextCost = 10 * (ai_hints_purchased + 1);
-
-  // Lock if max hints reached OR if need to purchase next hint
   const isMaxReached = ai_hints_purchased >= 3;
   const isLocked = ai_hints_purchased < hintLevel && !isMaxReached;
 
-  // Star Penalty Logic (Balanced Option 3)
-  // 0-1 Hint: Safe (3 Stars)
-  // 2 Hints: 2 Stars
-  // 3 Hints: 1 Star
-  let penaltyText = "";
-  let penaltyColor = "text-green-400";
-
-  if (ai_hints_purchased === 0) {
-    penaltyText = "Safe: 3-Star Rating Preserved";
-  } else if (ai_hints_purchased === 1) {
-    penaltyText = "Warning: Max Reward drops to 2 Stars";
-    penaltyColor = "text-yellow-400";
-  } else if (ai_hints_purchased === 2) {
-    penaltyText = "Critical: Max Reward drops to 1 Star";
-    penaltyColor = "text-red-400";
-  } else {
-    penaltyText = "Max Hints Used (1 Star Limit)";
-    penaltyColor = "text-red-500";
-  }
-
   return (
-    <Card className="flex-1 flex flex-col bg-[#09090b] border-none rounded-none overflow-hidden m-0">
-      <CardHeader className="border-b border-white/5 px-4 py-3 flex flex-row items-center justify-between space-y-0 bg-[#0c0c0e]">
-        <div className="flex items-center gap-3">
-          <div className="p-1.5 bg-blue-500/10 rounded border border-blue-500/20">
-            <Sparkles size={16} className="text-blue-500" />
-          </div>
-          <div>
-            <CardTitle className="text-sm font-bold text-white">
-              🤖 AI Assistant
-            </CardTitle>
-            <p className="text-[10px] text-gray-500 mt-0.5">
-              Get help when you're stuck!
-            </p>
-          </div>
+    <Card className="flex-1 flex flex-col bg-[#18181b] border-none rounded-none overflow-hidden m-0">
+      <CardHeader className="border-b border-white/5 px-4 py-2 flex flex-row items-center justify-between space-y-0 bg-[#09090b]">
+        <div className="flex items-center gap-2">
+          <Sparkles size={14} className="text-blue-500" />
+          <CardTitle className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest font-sans">
+            Assistant
+          </CardTitle>
         </div>
         <div className="flex items-center gap-3">
           {userXp !== undefined && (
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded-md">
-              <span className="text-yellow-500 text-xs font-bold">
-                💰 {userXp}
+            <div className="flex items-center gap-1">
+              <span className="text-yellow-500 text-[10px] font-bold">
+                {userXp}
               </span>
-              <span className="text-[9px] text-yellow-500/60 font-medium">
-                XP
-              </span>
+              <span className="text-[8px] text-yellow-600 font-bold">XP</span>
             </div>
           )}
-          <span className="text-[10px] text-gray-500 font-mono">
-            Hints: {ai_hints_purchased}/3
-          </span>
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 overflow-y-auto relative custom-scrollbar p-0 bg-[#09090b] flex flex-col">
-        {/* Hint History */}
-        <div className="flex-1 p-4 space-y-4">
-          {hintHistory.map((h, i) => (
-            <div
-              key={i}
-              className="group animate-in fade-in slide-in-from-left-2 duration-300"
-            >
-              <div className="flex items-start gap-3 mb-1">
-                <div className="mt-1 w-5 h-5 rounded bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                  <span className="text-[10px] font-bold text-blue-400">
-                    {i + 1}
+      <CardContent className="flex-1 relative flex flex-col bg-[#18181b] overflow-hidden p-0">
+        {/* Hint Carousel Wrapper */}
+        <div className="flex-1 relative overflow-hidden flex flex-col">
+          <div
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="flex-1 flex overflow-x-auto snap-x snap-mandatory custom-scrollbar-none select-none scroll-smooth"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {hintHistory.length > 0 ? (
+              hintHistory.map((h, i) => (
+                <div
+                  key={i}
+                  className="flex-none w-full h-full snap-start p-4 flex flex-col"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-4 h-4 rounded-none bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                      <span className="text-[9px] font-bold text-blue-500">
+                        {i + 1}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                      Hint Phase {i + 1}
+                    </span>
+                  </div>
+
+                  <div className="flex-1 bg-white/3 border border-white/5 rounded-none p-4 overflow-y-auto custom-scrollbar-thin">
+                    <div
+                      className="prose prose-invert prose-sm max-w-none 
+                              prose-p:text-gray-400 prose-p:leading-relaxed prose-p:text-[12px]
+                              prose-strong:text-white prose-strong:font-semibold
+                              prose-pre:bg-black prose-pre:border prose-pre:border-white/5 prose-pre:rounded-none prose-pre:p-0
+                              prose-code:text-blue-400 prose-code:bg-blue-900/10 prose-code:px-1 prose-code:py-0.5 prose-code:rounded-none prose-code:font-mono prose-code:text-[11px] prose-code:before:content-none prose-code:after:content-none
+                          "
+                    >
+                      <ReactMarkdown
+                        components={{
+                          pre: ({ children }) => (
+                            <pre className="relative p-3 overflow-x-auto custom-scrollbar-thin">
+                              {children}
+                            </pre>
+                          ),
+                          code: ({ inline, className, children, ...props }) => {
+                            return !inline ? (
+                              <code
+                                className={`${className} block text-[11px] leading-normal font-mono text-gray-400`}
+                                {...props}
+                              >
+                                {children}
+                              </code>
+                            ) : (
+                              <code className={className} {...props}>
+                                {children}
+                              </code>
+                            );
+                          },
+                        }}
+                      >
+                        {h}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : !isHintLoading ? (
+              <div className="w-full h-full flex flex-col items-center justify-center opacity-20 grayscale">
+                <Sparkles size={24} className="text-gray-500 mb-2" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  Awaiting Query
+                </p>
+              </div>
+            ) : null}
+
+            {isHintLoading && (
+              <div className="flex-none w-full h-full snap-start p-4 flex flex-col">
+                <div className="flex items-center gap-2 mb-3">
+                  <Loader2 size={10} className="text-blue-500 animate-spin" />
+                  <span className="text-[10px] font-bold text-blue-500/50 uppercase tracking-widest">
+                    Generating...
                   </span>
                 </div>
-                <div className="flex-1 bg-white/5 border border-white/5 rounded-lg p-3 group-hover:bg-white/[0.07] transition-colors">
-                  <div
-                    className="prose prose-invert prose-sm max-w-none 
-                            prose-p:text-gray-300 prose-p:leading-relaxed prose-p:text-[13px]
-                            prose-strong:text-white prose-strong:font-semibold
-                            prose-pre:bg-[#050505] prose-pre:border prose-pre:border-white/5 prose-pre:rounded-lg prose-pre:p-0
-                            prose-code:text-blue-300 prose-code:bg-blue-900/20 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-xs prose-code:before:content-none prose-code:after:content-none
-                        "
-                  >
-                    <ReactMarkdown
-                      components={{
-                        pre: ({ children }) => (
-                          <pre className="relative p-3 overflow-x-auto custom-scrollbar-thin">
-                            {children}
-                          </pre>
-                        ),
-                        code: ({
-                          node,
-                          inline,
-                          className,
-                          children,
-                          ...props
-                        }) => {
-                          const match = /language-(\w+)/.exec(className || "");
-                          return !inline ? (
-                            <code
-                              className={`${className} block text-[12px] leading-normal font-mono text-gray-300`}
-                              {...props}
-                            >
-                              {children}
-                            </code>
-                          ) : (
-                            <code className={className} {...props}>
-                              {children}
-                            </code>
-                          );
-                        },
-                      }}
-                    >
-                      {h}
-                    </ReactMarkdown>
+                <div className="flex-1 bg-white/5 border border-white/5 rounded-none p-4 animate-pulse relative">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Sparkles
+                      size={20}
+                      className="text-blue-500/20 animate-pulse"
+                    />
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
-
-          {isHintLoading && (
-            <div className="flex items-start gap-3 animate-pulse">
-              <div className="mt-1 w-5 h-5 rounded bg-blue-500/20 flex items-center justify-center animate-spin">
-                <Loader2 size={10} className="text-blue-400" />
-              </div>
-              <div className="flex-1 bg-blue-500/5 border border-blue-500/10 rounded-lg p-3 h-16" />
-            </div>
-          )}
-
-          {analysis && (
-            <div className="group animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <div className="flex items-start gap-3 mb-1">
-                <div className="mt-1 w-5 h-5 rounded bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
-                  <Sparkles size={10} className="text-amber-500" />
-                </div>
-                <div className="flex-1 bg-amber-500/5 border border-amber-500/10 rounded-lg p-4 group-hover:bg-amber-500/8 transition-colors relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-2 opacity-10">
-                    <Sparkles size={40} className="text-amber-500" />
-                  </div>
-                  <h4 className="text-[11px] font-bold text-amber-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                    <span className="w-1 h-1 bg-amber-500 rounded-full animate-pulse" />
-                    Senior Engineer Review
-                  </h4>
-                  <div
-                    className="prose prose-invert prose-sm max-w-none 
-                            prose-p:text-gray-300 prose-p:leading-relaxed prose-p:text-[13px]
-                            prose-strong:text-white prose-strong:font-semibold
-                            prose-pre:bg-[#050505] prose-pre:border prose-pre:border-white/5 prose-pre:rounded-lg prose-pre:p-0
-                            prose-code:text-amber-300 prose-code:bg-amber-900/20 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-xs prose-code:before:content-none prose-code:after:content-none
-                        "
-                  >
-                    <ReactMarkdown>{analysis}</ReactMarkdown>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {isAnalyzing && (
-            <div className="flex items-start gap-3 animate-pulse">
-              <div className="mt-1 w-5 h-5 rounded bg-amber-500/20 flex items-center justify-center animate-spin">
-                <Loader2 size={10} className="text-amber-500" />
-              </div>
-              <div className="flex-1 bg-amber-500/5 border border-amber-500/10 rounded-lg p-3 h-32" />
-            </div>
-          )}
-
-          {!isHintLoading &&
-            !isAnalyzing &&
-            hintHistory.length === 0 &&
-            !analysis && (
-              <div className="h-full flex flex-col items-center justify-center opacity-40 py-20">
-                <Sparkles size={32} className="text-blue-500 mb-4" />
-                <p className="text-xs font-medium text-gray-400">
-                  Ready to help when you need it!
-                </p>
-                <p className="text-[10px] text-gray-500 mt-1">
-                  Unlock a hint or request a code review
-                </p>
               </div>
             )}
-        </div>
+          </div>
 
-        {/* Action Bar */}
-        <div className="p-4 border-t border-white/5 bg-[#0c0c0e] space-y-3">
-          {isMaxReached ? (
-            <div>
-              <Button
-                disabled
-                className="w-full bg-red-500/10 text-red-400 border border-red-500/20 text-sm font-bold h-11 rounded-lg cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                <Sparkles size={16} />
-                All Hints Used (3/3)
-              </Button>
-            </div>
-          ) : isLocked ? (
-            <div className="space-y-2">
-              <Button
-                onClick={onPurchase}
-                disabled={
-                  isHintLoading || (userXp !== undefined && userXp < nextCost)
-                }
-                className={`w-full text-sm font-bold h-11 rounded-lg transition-all shadow-lg flex items-center justify-center gap-2 ${
-                  userXp !== undefined && userXp < nextCost
-                    ? "bg-red-500/20 border-2 border-red-500/40 text-red-300 cursor-not-allowed"
-                    : "bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-blue-900/30"
-                }`}
-              >
-                {isHintLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Sparkles size={16} className="fill-current" />
-                )}
-                Get Hint <span className="opacity-50">•</span> {nextCost} XP
-              </Button>
-              {userXp !== undefined && userXp < nextCost && (
-                <p className="text-[11px] text-red-400 text-center font-medium">
-                  ❌ Need {nextCost - userXp} more XP
-                </p>
+          {/* Carousel Pagination Dots */}
+          {(hintHistory.length > 1 ||
+            (hintHistory.length > 0 && isHintLoading)) && (
+            <div className="flex justify-center gap-1.5 pb-3">
+              {[...Array(hintHistory.length + (isHintLoading ? 1 : 0))].map(
+                (_, i) => (
+                  <div
+                    key={i}
+                    className={`w-1 h-1 transition-all duration-300 ${
+                      i === activeIndex
+                        ? "bg-blue-500 scale-125 shadow-[0_0_8px_rgba(59,130,246,0.5)]"
+                        : "bg-white/10"
+                    }`}
+                  />
+                ),
               )}
             </div>
-          ) : (
-            <Button
-              onClick={onGetHint}
-              disabled={isHintLoading || isAnalyzing}
-              className="w-full bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 text-xs font-bold h-10 rounded-lg transition-all flex items-center justify-center gap-2"
-            >
-              {isHintLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Sparkles size={14} />
-              )}
-              Receive Intelligence
-            </Button>
-          )}
-
-          {/* Always visible Deep Analysis button unless max hints used (optional choice, let's keep it always) */}
-          <Button
-            onClick={onDeepAnalysis}
-            disabled={isHintLoading || isAnalyzing}
-            className="w-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 text-xs font-bold h-10 rounded-lg transition-all flex items-center justify-center gap-2"
-          >
-            {isAnalyzing ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Sparkles size={14} className="fill-current" />
-            )}
-            {analysis ? "Re-Analyze Code" : "Request Deep Analysis"}
-          </Button>
-
-          <p className="text-[10px] text-gray-600 text-center mt-3 uppercase tracking-tighter">
-            AI Assistant Protocol v4.2 // Direct Logic Feed Only
-          </p>
-          {isLocked && !isMaxReached && (
-            <p
-              className={`text-[10px] text-center mt-1 font-medium ${penaltyColor}`}
-            >
-              {penaltyText}
-            </p>
           )}
         </div>
       </CardContent>
+
+      {/* Action Bar - Fixed at absolute bottom of Card */}
+      <div className="p-4 border-t border-white/5 bg-[#0a0a0a] space-y-2 shrink-0">
+        {isMaxReached ? (
+          <Button
+            disabled
+            className="w-full bg-red-500/5 text-red-900 border border-red-500/10 text-[10px] font-bold h-10 rounded-none cursor-not-allowed flex items-center justify-center gap-2 uppercase tracking-widest"
+          >
+            Max Hints Reached
+          </Button>
+        ) : isLocked ? (
+          <div className="space-y-2">
+            <Button
+              onClick={onPurchase}
+              disabled={
+                isHintLoading || (userXp !== undefined && userXp < nextCost)
+              }
+              className={`w-full text-[10px] font-bold h-10 rounded-none transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden uppercase tracking-widest ${
+                userXp !== undefined && userXp < nextCost
+                  ? "bg-red-500/5 border border-red-500/10 text-red-800 cursor-not-allowed"
+                  : "bg-white text-black hover:bg-gray-200 border border-white/10"
+              }`}
+            >
+              {/* Shimmer effect overlay */}
+              {userXp >= nextCost && (
+                <div className="absolute inset-0 bg-black/5 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out pointer-events-none" />
+              )}
+
+              {isHintLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Sparkles size={12} className="fill-current" />
+              )}
+              <span className="relative z-10">Get Hint</span>
+              <span className="opacity-50 text-[9px] relative z-10 font-normal ml-1">
+                ({nextCost} XP)
+              </span>
+            </Button>
+            {userXp !== undefined && userXp < nextCost && (
+              <p className="text-[9px] text-red-900 text-center font-bold uppercase tracking-tighter">
+                Insufficient XP
+              </p>
+            )}
+          </div>
+        ) : (
+          <Button
+            onClick={onGetHint}
+            disabled={isHintLoading}
+            className="w-full bg-white/5 hover:bg-white/10 text-gray-500 hover:text-white border border-white/5 text-[10px] font-bold h-10 rounded-none transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
+          >
+            {isHintLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Sparkles size={12} />
+            )}
+            Unlock Intelligence
+          </Button>
+        )}
+      </div>
     </Card>
   );
 };

@@ -30,15 +30,8 @@ const ProblemPane = ({ challenge, loading }) => {
   }
 
   return (
-    <Card className="flex-1 flex flex-col bg-[#09090b] border-none rounded-none overflow-hidden m-0">
-      {/* Header */}
-      <CardHeader className="border-b border-white/5 px-4 py-3">
-        <CardTitle className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-2">
-          Problem Description
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="flex-1 overflow-y-auto relative custom-scrollbar p-0">
+    <Card className="flex-1 flex flex-col bg-[#18181b] border-none rounded-none overflow-hidden m-0">
+      <CardContent className="flex-1 overflow-y-auto relative custom-scrollbar p-0 bg-[#18181b]">
         <div className="p-6 max-w-3xl mx-auto">
           <div
             className="prose prose-invert prose-sm max-w-none 

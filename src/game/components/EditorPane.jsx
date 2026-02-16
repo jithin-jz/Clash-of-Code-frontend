@@ -20,11 +20,8 @@ const EditorPane = ({ code, setCode, handleEditorDidMount, loading }) => {
   }
 
   return (
-    <div className="flex-1 border-r border-white/5 flex flex-col bg-[#0d0d0d] border-glass relative group m-1 mb-0 rounded-none overflow-hidden">
-      {/* Glow Effect on Hover */}
-      <div className="absolute inset-y-0 right-0 w-px bg-linear-to-b from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-
-      <div className="flex-1 pt-4 bg-black/10">
+    <div className="flex-1 flex flex-col bg-[#09090b] relative group h-full">
+      <div className="flex-1 bg-[#09090b]">
         <Editor
           height="100%"
           defaultLanguage="python"
@@ -34,9 +31,9 @@ const EditorPane = ({ code, setCode, handleEditorDidMount, loading }) => {
           onMount={handleEditorDidMount}
           options={{
             minimap: { enabled: false },
-            fontSize: 15,
-            lineHeight: 26,
-            padding: { top: 20, bottom: 20 },
+            fontSize: 14,
+            lineHeight: 22,
+            padding: { top: 16, bottom: 16 },
             scrollBeyondLastLine: false,
             fontLigatures: true,
             fontFamily: "'Fira Code', 'JetBrains Mono', Consolas, monospace",
@@ -45,6 +42,15 @@ const EditorPane = ({ code, setCode, handleEditorDidMount, loading }) => {
             cursorSmoothCaretAnimation: true,
             renderLineHighlight: "all",
             lineNumbersMinChars: 3,
+            glyphMargin: false,
+            folding: true,
+            scrollbar: {
+              vertical: "visible",
+              horizontal: "visible",
+              useShadows: false,
+              verticalScrollbarSize: 10,
+              horizontalScrollbarSize: 10,
+            },
           }}
         />
       </div>

@@ -1,18 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import {
-  Loader2,
-  Sparkles,
-  ArrowRight,
-  Home,
-  Download,
-  Trophy,
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, Sparkles, ArrowRight, Trophy } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { toast } from "sonner";
 
 import useAuthStore from "../stores/useAuthStore";
+import { motion } from "framer-motion";
 import CursorEffects from "./CursorEffects";
 import VictoryAnimation from "./VictoryAnimation";
 import CodeArenaSkeleton from "./CodeArenaSkeleton";
@@ -35,9 +28,6 @@ const CodeArena = () => {
   const [isPyodideReady, setPyodideReady] = useState(false);
   const editorRef = useRef(null);
 
-  // Tab State
-  const [activeTab, setActiveTab] = useState("task");
-
   // Initial code template
   const [code, setCode] = useState("");
   const [completionData, setCompletionData] = useState(null);
@@ -46,38 +36,6 @@ const CodeArena = () => {
   const [hint, setHint] = useState("");
   const [isHintLoading, setIsHintLoading] = useState(false);
   const [hintLevel, setHintLevel] = useState(1);
-
-  // AI Analysis State
-  const [analysis, setAnalysis] = useState("");
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-  const handleDeepAnalysis = async () => {
-    if (!challenge || !code) return;
-    setIsAnalyzing(true);
-    setAnalysis(""); // Reset previous
-    try {
-      const { challengesApi } = await import("../services/challengesApi");
-      const data = await challengesApi.aiAnalyze(challenge.slug, code);
-      setAnalysis(data.analysis);
-      setActiveTab("ai"); // Switch to AI tab to show result
-      toast.success("Code Analysis Complete!", {
-        description: "Review the deep analysis in the AI Assistant tab.",
-      });
-    } catch (err) {
-      console.error("Analysis Error:", err);
-      const errorMsg =
-        err.response?.data?.error || "AI Analysis is currently unavailable.";
-      setOutput((prev) => [
-        ...prev,
-        { type: "error", content: `🔬 AI Analyzer: ${errorMsg}` },
-      ]);
-      toast.error("Analysis Failed", {
-        description: errorMsg,
-      });
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
 
   const handleGetHint = async () => {
     if (!challenge || !code) return;
@@ -568,31 +526,29 @@ const CodeArena = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-modern text-white overflow-hidden relative">
+    <div className="h-dvh flex flex-col bg-[#09090b] text-white overflow-hidden relative font-sans selection:bg-primary/20">
       <CursorEffects effectType={user?.profile?.active_effect} />
-
-      {/* Analyzing overlay removed */}
 
       {/* Completion Modal */}
       {completionData && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
           <VictoryAnimation type={user?.profile?.active_victory} />
           <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
+            initial={{ scale: 0.98, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-[#09090b] border border-white/10 rounded-xl p-8 max-w-sm w-full flex flex-col items-center text-center shadow-2xl relative overflow-hidden"
+            className="bg-[#0c0c0e] border border-white/10 rounded-none p-8 max-w-sm w-full flex flex-col items-center text-center shadow-2xl"
           >
             <div className="relative z-10 flex flex-col items-center gap-6">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mb-2 bg-green-500/10">
+              <div className="w-16 h-16 rounded-none flex items-center justify-center mb-2 bg-green-500/10">
                 <Sparkles size={32} className="text-green-500" />
               </div>
 
               <div className="space-y-1">
-                <h2 className="text-2xl font-bold text-white">
-                  Challenge Complete!
+                <h2 className="text-xl font-bold text-white uppercase tracking-wider">
+                  Challenge Complete
                 </h2>
-                <p className="text-gray-400 text-sm">
-                  Great work! You've beaten the challenge.
+                <p className="text-gray-500 text-xs text-balance">
+                  Validation successful. You've beaten the challenge.
                 </p>
               </div>
 
@@ -600,7 +556,7 @@ const CodeArena = () => {
                 {[1, 2, 3].map((star) => (
                   <div
                     key={star}
-                    className={`w-8 h-8 flex items-center justify-center ${star <= completionData.stars ? "text-yellow-400" : "text-gray-800"}`}
+                    className={`w-6 h-6 flex items-center justify-center ${star <= completionData.stars ? "text-yellow-500" : "text-gray-800"}`}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -616,34 +572,33 @@ const CodeArena = () => {
               </div>
 
               {completionData.xp_earned > 0 && (
-                <div className="bg-yellow-500/10 text-yellow-500 px-4 py-1.5 rounded-full font-medium text-sm border border-yellow-500/20">
-                  +{completionData.xp_earned} XP
+                <div className="text-yellow-500 text-sm font-mono tracking-tighter">
+                  +{completionData.xp_earned} XP EARNED
                 </div>
               )}
 
-              <div className="flex flex-col w-full gap-3 mt-4">
+              <div className="flex flex-col w-full gap-2 mt-4">
                 {completionData.next_level_slug ? (
                   <Button
                     onClick={async () => {
-                      // Small transition delay
                       const slug = completionData.next_level_slug;
                       setCompletionData(null);
                       setTimeout(() => {
                         navigate(`/level/${slug}`);
                       }, 100);
                     }}
-                    className="w-full bg-white text-black hover:bg-gray-200"
+                    className="w-full bg-white text-black hover:bg-gray-200 h-10 rounded-none font-bold uppercase text-xs"
                   >
-                    Next Challenge <ArrowRight className="w-4 h-4 ml-2" />
+                    Next Challenge
                   </Button>
                 ) : null}
 
                 <Button
                   variant="ghost"
                   onClick={() => navigate("/")}
-                  className="w-full text-gray-400 hover:text-white"
+                  className="w-full text-gray-500 hover:text-white h-10 rounded-none font-bold uppercase text-xs"
                 >
-                  <Home className="w-4 h-4 mr-2" /> Back to Dashboard
+                  Dashboard
                 </Button>
               </div>
             </div>
@@ -651,93 +606,71 @@ const CodeArena = () => {
         </div>
       )}
 
-      <HeaderBar
-        title={challenge?.title || "Loading..."}
-        navigate={navigate}
-        isPyodideReady={isPyodideReady}
-        isRunning={isRunning}
-        runCode={runCode}
-        stopCode={stopCode}
-      />
-
-      {/* Main Content - Split Layout */}
-      <div className="flex-1 flex overflow-hidden">
-        <EditorPane
-          code={code}
-          setCode={setCode}
-          user={user}
-          handleEditorDidMount={handleEditorDidMount}
-          loading={!challenge}
+      <div className="shrink-0">
+        <HeaderBar
+          title={challenge?.title || "Loading..."}
+          navigate={navigate}
+          isPyodideReady={isPyodideReady}
+          isRunning={isRunning}
+          runCode={runCode}
+          stopCode={stopCode}
         />
+      </div>
 
-        {/* Right: Output/Task/AI */}
-        <div className="w-1/3 flex flex-col border-l border-white/5 bg-[#09090b]">
-          {/* Tab Navigation */}
-          <div className="flex border-b border-white/5 bg-[#09090b]">
-            {[
-              { id: "task", label: "Problem" },
-              { id: "ai", label: "AI Assistant" },
-              { id: "console", label: "Console" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 py-3 text-xs font-medium border-b-2 transition-colors ${
-                  activeTab === tab.id
-                    ? "border-primary text-primary bg-white/5"
-                    : "border-transparent text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+      {/* Main Content - Minimalist Boxy Layout */}
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        {/* LEFT CARD: Problem */}
+        <div className="w-full lg:w-[25%] flex flex-col bg-[#18181b] border-r border-white/5">
+          <div className="flex-1 overflow-hidden relative">
+            <ProblemPane challenge={challenge} loading={!challenge} />
+          </div>
+        </div>
+
+        {/* MIDDLE COLUMN: Editor & Console Cards */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Editor Card */}
+          <div className="flex-1 flex flex-col bg-[#09090b] overflow-hidden relative group">
+            <div className="flex-1 relative">
+              <EditorPane
+                code={code}
+                setCode={setCode}
+                user={user}
+                handleEditorDidMount={handleEditorDidMount}
+                loading={!challenge}
+              />
+            </div>
           </div>
 
-          <div className="flex-1 flex flex-col overflow-hidden relative">
-            {activeTab === "task" && (
-              <ProblemPane challenge={challenge} loading={!challenge} />
-            )}
-            {activeTab === "ai" && (
-              <NeuralLinkPane
-                onGetHint={handleGetHint}
-                onPurchase={handlePurchaseAIAssist}
-                onDeepAnalysis={handleDeepAnalysis}
-                hint={hint}
-                isHintLoading={isHintLoading}
-                hintLevel={hintLevel}
-                ai_hints_purchased={challenge?.ai_hints_purchased || 0}
-                userXp={user?.profile?.xp}
-                analysis={analysis}
-                isAnalyzing={isAnalyzing}
-              />
-            )}
-            {activeTab === "console" && (
-              <ConsolePane output={output} loading={!challenge} />
-            )}
-
-            {/* Quick Access Notification for AI Hint */}
-            {activeTab !== "ai" && hint && (
-              <button
-                onClick={() => setActiveTab("ai")}
-                className="absolute bottom-4 right-4 p-3 bg-blue-600 rounded-full shadow-lg shadow-blue-900/20 hover:scale-105 transition-transform text-white z-20"
-                title="New Hint Available"
-              >
-                <Sparkles size={18} />
-                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#09090b]" />
-              </button>
-            )}
-
-            {/* Quick Access for Console on error */}
-            {activeTab !== "console" &&
-              output.some((l) => l.type === "error") && (
-                <button
-                  onClick={() => setActiveTab("console")}
-                  className="absolute bottom-4 left-4 py-1.5 px-3 bg-red-500/10 border border-red-500/20 rounded-full text-[10px] font-medium text-red-400 hover:bg-red-500/20 transition-colors z-20 flex items-center gap-2"
-                >
-                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />{" "}
-                  Error in Console
-                </button>
+          {/* Console Card */}
+          <div className="h-[30%] flex flex-col bg-[#09090b] border-t border-white/5">
+            <div className="px-3 py-2 border-b border-white/5 bg-[#18181b] flex justify-between items-center h-8">
+              <span className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase font-sans">
+                Terminal
+              </span>
+              {output.some((l) => l.type === "error") && (
+                <span className="text-[10px] font-bold text-red-400 uppercase tracking-tighter flex items-center gap-1.5">
+                  <span className="w-1 h-1 rounded-full bg-red-400" /> Error
+                </span>
               )}
+            </div>
+            <div className="flex-1 overflow-hidden relative">
+              <ConsolePane output={output} loading={!challenge} />
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT CARD: AI Assistant */}
+        <div className="w-full lg:w-[20%] flex flex-col bg-[#18181b] border-l border-white/5">
+          <div className="flex-1 flex flex-col overflow-hidden relative">
+            <NeuralLinkPane
+              onGetHint={handleGetHint}
+              onPurchase={handlePurchaseAIAssist}
+              hint={hint}
+              isHintLoading={isHintLoading}
+              hintLevel={hintLevel}
+              ai_hints_purchased={challenge?.ai_hints_purchased || 0}
+              userXp={user?.profile?.xp}
+            />
           </div>
         </div>
       </div>

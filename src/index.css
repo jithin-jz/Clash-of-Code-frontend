@@ -1,36 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 100%;
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 45 100% 51%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 64%;
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 100%;
+    /* Zinc/Gray Theme - Better contrast and user-friendliness */
+    --background: 240 10% 4%;     /* #09090b (Zinc 950) */
+    --foreground: 0 0% 98%;       /* #fafafa (Zinc 50) */
+    --card: 240 10% 4%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 4%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 217 91% 60%;       /* Clean Blue */
+    --primary-foreground: 222 47% 11%;
+    --secondary: 240 6% 10%;      /* #18181b (Zinc 900) */
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 6% 10%;
+    --muted-foreground: 240 5% 65%; /* Zinc 400 */
+    --accent: 240 6% 15%;         /* Zinc 800 */
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 45 100% 51%;
-    --radius: 0.5rem;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 6% 10%;         /* Zinc 900 */
+    --input: 240 6% 10%;
+    --ring: 217 91% 60%;
+    --radius: 0rem;
   }
 
   /* Prevent white flash on page load */
   html,
   body,
   #root {
-    background-color: #09090b;
-    color: white;
+    background-color: #09090b; /* Zinc 950 */
+    color: #fafafa;
     min-height: 100vh;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 }
 
@@ -69,27 +72,31 @@
 }
 
 @layer utilities {
-  /* Custom Scrollbar - Slim and minimal */
+  /* Custom Scrollbar - Sleek and modern */
   .custom-scrollbar::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
   }
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+    background: rgba(255, 255, 255, 0.05);
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #27272a;
-    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.4); /* High contrast for visibility */
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #3f3f46;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid transparent;
+    background-clip: content-box;
   }
 
   /* Clean Glass - subtle and professional */
   .bg-glass {
     background: rgba(9, 9, 11, 0.7);
-    backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
   }
 
   .border-glass {
@@ -102,6 +109,22 @@
   .no-scrollbar {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
+  }
+
+  .custom-scrollbar {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; /* Explicitly allow vertical panning */
+    scrollbar-width: thin; 
+    scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
+  }
+
+  /* Force Monaco font consistency - Fixes "font changes when typing" */
+  .monaco-editor, 
+  .monaco-editor .view-line, 
+  .monaco-editor .view-lines,
+  .monaco-editor .inputarea {
+    font-family: 'Fira Code', 'JetBrains Mono', monospace !important;
+    font-variant-ligatures: contextual !important;
   }
 }
 

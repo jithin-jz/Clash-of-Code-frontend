@@ -10,8 +10,8 @@ import {
 const ConsolePane = ({ output, loading }) => {
   if (loading) {
     return (
-      <div className="flex-1 flex flex-col bg-[#0a0a0a] border-t border-white/10 animate-pulse">
-        <div className="px-4 py-2 border-b border-white/10 bg-[#1a1a1a]">
+      <div className="flex-1 flex flex-col bg-[#09090b] border-t border-white/5 animate-pulse">
+        <div className="px-4 py-2 border-b border-white/5 bg-[#18181b]">
           <div className="h-3 w-24 bg-white/10 rounded-md"></div>
         </div>
         <div className="flex-1 p-4">
@@ -21,17 +21,7 @@ const ConsolePane = ({ output, loading }) => {
     );
   }
   return (
-    <Card className="flex-1 flex flex-col bg-[#09090b] border-none rounded-none m-0">
-      <CardHeader className="flex-row border-b border-white/5 px-4 py-3 items-center justify-between space-y-0">
-        <CardTitle className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-2">
-          Console Output
-        </CardTitle>
-        <div className="flex gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-red-500/20" title="Error" />
-          <div className="w-2 h-2 rounded-full bg-blue-500/20" title="Output" />
-        </div>
-      </CardHeader>
-
+    <Card className="flex-1 flex flex-col bg-[#09090b] border-none rounded-none m-0 h-full">
       <CardContent className="flex-1 p-0 overflow-y-auto custom-scrollbar font-mono text-sm relative bg-[#09090b]">
         {output.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center text-gray-600 pointer-events-none select-none">

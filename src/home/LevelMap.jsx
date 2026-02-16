@@ -15,7 +15,7 @@ const LevelMap = ({
   // Standard Grid Layout
   return (
     <div
-      className="w-full h-screen relative overflow-y-auto bg-[#0a0a0a] flex flex-col items-center pt-28 pb-20 [&::-webkit-scrollbar]:hidden"
+      className="w-full h-screen relative overflow-y-auto bg-[#09090b] flex flex-col items-center pt-32 pb-32 custom-scrollbar"
       style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
     >
       {!user && (
@@ -31,7 +31,7 @@ const LevelMap = ({
             </h1>
 
             {/* Brief Description */}
-            <p className="text-gray-400 text-sm mb-10 max-w-sm leading-relaxed px-4 font-medium">
+            <p className="text-zinc-500 text-sm mb-10 max-w-sm leading-relaxed px-4 font-medium">
               A professional learn-by-doing platform. Build your legacy through
               hands-on challenges and master your craft one line at a time.
             </p>
@@ -39,7 +39,7 @@ const LevelMap = ({
             <div className="w-full max-w-[220px]">
               <button
                 onClick={() => navigate("/login")}
-                className="w-full py-4 px-8 bg-transparent border-2 border-[#FFD700] text-[#FFD700] font-black uppercase tracking-widest rounded-full transition-all duration-500 hover:bg-[#FFD700] hover:text-black hover:shadow-[0_0_30px_rgba(255,215,0,0.4)] active:scale-95 text-xs"
+                className="w-full py-4 px-8 bg-transparent border-2 border-[#FFD700] text-[#FFD700] font-black uppercase tracking-widest rounded-none transition-all duration-500 hover:bg-[#FFD700] hover:text-black hover:shadow-[0_0_30px_rgba(255,215,0,0.4)] active:scale-95 text-xs"
               >
                 Launch Experience
               </button>
@@ -48,7 +48,7 @@ const LevelMap = ({
 
           {/* Simple Footer - Bottom Positioned */}
           <div className="absolute bottom-10 left-0 right-0 opacity-40 pointer-events-none">
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.25em]">
+            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.25em]">
               Where practice meets mastery
             </p>
           </div>
@@ -66,9 +66,9 @@ const LevelMap = ({
 
       {/* Added left and right padding to prevent overlap with fixed UI buttons */}
       <div
-        className={`w-full max-w-[95%] px-10 transition-all duration-700 ${!user ? "blur-sm opacity-30 grayscale pointer-events-none select-none" : ""}`}
+        className={`w-full max-w-7xl px-20 transition-all duration-700 ${!user ? "blur-sm opacity-30 grayscale pointer-events-none select-none" : ""}`}
       >
-        <div className="grid grid-cols-9 gap-3 gap-y-4 justify-items-center">
+        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-9 gap-x-12 gap-y-14 justify-items-center">
           {levels.map((level, index) => {
             const isCurrentLevel =
               level.unlocked && !levels[index + 1]?.unlocked;
@@ -79,11 +79,11 @@ const LevelMap = ({
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.01 }}
-                className="relative group col-span-1"
+                className="relative group h-14 w-14"
               >
                 {/* Active Pulse */}
                 {isCurrentLevel && (
-                  <div className="absolute inset-0 bg-[#FFD700]/20 rounded-xl blur-md animate-pulse"></div>
+                  <div className="absolute -inset-2 bg-yellow-400/10 rounded-2xl blur-xl animate-pulse"></div>
                 )}
 
                 <LevelButton

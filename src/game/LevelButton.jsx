@@ -1,3 +1,4 @@
+import React from "react";
 import { motion } from "framer-motion";
 import { Star, Lock, Trophy } from "lucide-react";
 
@@ -5,67 +6,85 @@ import { Star, Lock, Trophy } from "lucide-react";
 const LevelButton = ({ level, isCurrentLevel, onClick }) => {
   const baseStyle = level.unlocked
     ? {
-        background: "linear-gradient(135deg, #1f2937 0%, #111827 100%)", // Dark Slate
-        border: "1px solid #fbbf24", // Gold Border
+        background: "linear-gradient(135deg, #18181b 0%, #09090b 100%)", // Zinc 900 -> 950
+        border: "1.5px solid #fbbf24", // Gold Border
         boxShadow:
-          "0 4px 6px rgba(0,0,0,0.5), 0 0 15px rgba(251, 191, 36, 0.1)", // Gold Glow
+          "0 4px 12px rgba(0,0,0,0.6), 0 0 15px rgba(251, 191, 36, 0.05)",
       }
     : {
-        background: "#1f2937", // Gray
-        border: "1px solid #374151",
-        boxShadow: "inset 0 2px 4px rgba(0,0,0,0.5)",
+        background: "#09090b", // Zinc 950
+        border: "1px solid #27272a", // Zinc 800
+        boxShadow: "inset 0 2px 4px rgba(0,0,0,0.3)",
       };
 
-  // Special Certificate Level Style - NOW INTEGRATED INTO STANDARD BUTTON FOR UNIFORMITY
-  // But with distinct "Premium" styling
   const isCertificate = level.order === 54;
+
+  const renderIcon = (icon, isUnlocked) => {
+    if (!icon) return null;
+    const size = isCertificate ? 32 : 28;
+
+    if (React.isValidElement(icon)) {
+      return React.cloneElement(icon, {
+        size,
+        strokeWidth: 1.5,
+        className: `transition-all duration-300 ${isUnlocked ? "text-white" : "text-zinc-600"}`,
+      });
+    }
+    return icon;
+  };
 
   return (
     <motion.button
       onClick={onClick}
       disabled={!level.unlocked}
-      className={`relative flex flex-col items-center ${level.unlocked ? "cursor-pointer" : "cursor-not-allowed"}`}
-      whileHover={level.unlocked ? { scale: 1.1, y: -4 } : {}}
-      whileTap={level.unlocked ? { scale: 0.95, y: 2 } : {}}
+      className={`relative flex flex-col items-center ${level.unlocked ? "cursor-pointer" : "cursor-not-allowed"} group`}
+      whileHover={level.unlocked ? { scale: 1.05, y: -2 } : {}}
+      whileTap={level.unlocked ? { scale: 0.95, y: 1 } : {}}
     >
       <div
-        className={`w-12 h-12 rounded-xl flex items-center justify-center relative transition-all duration-300
-                ${isCurrentLevel ? "ring-2 ring-yellow-400 ring-offset-2 ring-offset-black" : ""}
-                ${isCertificate ? "bg-linear-to-br from-yellow-600 to-yellow-900 border-2 border-[#FFD700] shadow-[0_0_15px_rgba(255,215,0,0.4)]" : ""}
-                ${level.unlocked && !isCertificate ? "hover:scale-105" : ""}
-                ${!level.unlocked ? "opacity-80 grayscale" : ""}
+        className={`w-14 h-14 rounded-xl flex items-center justify-center relative transition-all duration-300
+                ${isCurrentLevel ? "ring-2 ring-yellow-400 ring-offset-4 ring-offset-[#09090b] shadow-[0_0_20px_rgba(250,204,21,0.2)]" : ""}
+                ${isCertificate ? "bg-linear-to-br from-yellow-600 to-yellow-900 border-2 border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.3)]" : ""}
+                ${!level.unlocked ? "opacity-60 grayscale" : ""}
             `}
         style={!isCertificate ? baseStyle : {}}
       >
-        {/* Glass Gloss (Subtle) */}
-        <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent rounded-lg pointer-events-none" />
+        {/* Glass Gloss */}
+        <div className="absolute inset-0 bg-linear-to-br from-white/10 to-transparent rounded-[10px] pointer-events-none" />
 
-        {level.unlocked ? (
-          <span className="text-white drop-shadow-md scale-100">
-            {isCertificate ? (
-              <Trophy
-                size={20}
-                className="text-yellow-100"
-                fill="currentColor"
-              />
-            ) : (
-              level.icon
-            )}
-          </span>
-        ) : (
-          <span className="text-white/50">
-            {isCertificate ? <Trophy size={20} /> : <Lock size={18} />}
-          </span>
-        )}
+        <div className="relative z-10 flex items-center justify-center">
+          {level.unlocked ? (
+            <div className="drop-shadow-lg">
+              {isCertificate ? (
+                <Trophy
+                  size={24}
+                  className="text-yellow-100"
+                  fill="currentColor"
+                />
+              ) : (
+                renderIcon(level.icon, true)
+              )}
+            </div>
+          ) : (
+            <div className="opacity-40">
+              {isCertificate ? (
+                <Trophy size={22} className="text-zinc-500" />
+              ) : (
+                <Lock size={18} className="text-zinc-500" />
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Stars (Small Overlay) */}
-        {level.unlocked && (
-          <div className="absolute -bottom-1 flex gap-0.5 bg-[#1f2937]/80 rounded-full px-1 py-0.5 backdrop-blur-xs border border-white/5 shadow-sm transform scale-[0.6]">
+        {level.unlocked && !isCertificate && (
+          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 flex gap-0.5 bg-zinc-900/90 rounded-full px-1.5 py-0.5 backdrop-blur-md border border-white/10 shadow-lg transform scale-90 z-20">
             {[1, 2, 3].map((star) => (
               <Star
                 key={star}
                 size={8}
-                className={`${star <= (level.stars || 0) ? "text-yellow-400 fill-yellow-400" : "text-gray-600 fill-gray-600"}`}
+                strokeWidth={2}
+                className={`${star <= (level.stars || 0) ? "text-yellow-400 fill-yellow-400" : "text-zinc-700 fill-zinc-800"}`}
               />
             ))}
           </div>
@@ -73,9 +92,15 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
       </div>
 
       {/* Label */}
-      <div className="mt-1">
+      <div className="mt-2 transition-transform duration-300 group-hover:scale-110">
         <p
-          className={`text-[9px] font-bold font-mono ${isCertificate ? "text-[#FFD700]" : level.unlocked ? "text-yellow-400" : "text-gray-500"}`}
+          className={`text-[10px] font-black font-mono tracking-tighter ${
+            isCertificate
+              ? "text-[#FFD700]"
+              : level.unlocked
+                ? "text-yellow-500"
+                : "text-zinc-700"
+          }`}
         >
           {isCertificate ? "BADGE" : `L${level.order || level.id}`}
         </p>
