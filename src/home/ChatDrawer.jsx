@@ -64,13 +64,10 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
     let timeoutId;
 
     if (isChatOpen && user) {
-      const token = localStorage.getItem("access_token");
-      if (token) {
-        // Slight delay to ensure state is settled
-        timeoutId = setTimeout(() => {
-          connect(token);
-        }, 100);
-      }
+      // Slight delay to ensure state is settled
+      timeoutId = setTimeout(() => {
+        connect();
+      }, 100);
     }
 
     return () => {
@@ -85,10 +82,7 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
         .getState()
         .checkAuth()
         .then(() => {
-          const newToken = localStorage.getItem("access_token");
-          if (newToken) {
-            connect(newToken);
-          }
+          connect();
         });
     }
   }, [error, isChatOpen, user, connect]);

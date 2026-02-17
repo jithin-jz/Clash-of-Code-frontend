@@ -88,10 +88,6 @@ const AppContent = () => {
                   path="/auth/google/callback"
                   element={<OAuthCallback provider="google" />}
                 />
-                <Route
-                  path="/auth/discord/callback"
-                  element={<OAuthCallback provider="discord" />}
-                />
 
                 {/* Admin Dashboard - Admin Only */}
                 <Route
@@ -171,7 +167,14 @@ const AppContent = () => {
                 />
 
                 {/* Fallback */}
-                <Route path="/admin" element={<AdminDashboard />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
+                  }
+                />
 
                 {/* 404 Route */}
                 <Route path="*" element={<NotFound />} />

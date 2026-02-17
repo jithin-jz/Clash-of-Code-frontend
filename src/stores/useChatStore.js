@@ -1,6 +1,9 @@
 import { create } from "zustand";
 
-const WS_URL = import.meta.env.VITE_CHAT_URL;
+const WS_URL =
+  import.meta.env.VITE_CHAT_URL ||
+  import.meta.env.VITE_WS_URL ||
+  `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/ws/chat`;
 
 const useChatStore = create((set, get) => ({
   // State
@@ -11,7 +14,7 @@ const useChatStore = create((set, get) => ({
   error: null,
   
   // Actions
-  connect: (token) => {
+  connect: () => {
     const { socket: existingSocket } = get();
     
     // Prevent multiple connections
@@ -23,7 +26,7 @@ const useChatStore = create((set, get) => ({
       existingSocket.close();
     }
     
-    const wsUrl = `${WS_URL}/global?token=${token}`;
+    const wsUrl = `${WS_URL}/global`;
     const socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {

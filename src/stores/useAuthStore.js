@@ -19,7 +19,9 @@ const openOAuthPopup = (url, name = "OAuth Login") => {
 
 // Helper to generate random state
 const generateState = () => {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  const bytes = new Uint8Array(24);
+  window.crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 };
 
 const useAuthStore = create((set) => ({
@@ -47,17 +49,6 @@ const useAuthStore = create((set) => ({
   setUser: (user) => set({ user }),
 
   checkAuth: async () => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      set({
-        user: null,
-        isAuthenticated: false,
-        loading: false,
-        isInitialized: true,
-      });
-      return;
-    }
-
     try {
       const response = await authAPI.getCurrentUser();
       set({
@@ -68,8 +59,6 @@ const useAuthStore = create((set) => ({
         isInitialized: true,
       });
     } catch {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
       set({
         user: null,
         isAuthenticated: false,
@@ -85,7 +74,7 @@ const useAuthStore = create((set) => ({
 
     try {
       const state = generateState();
-      localStorage.setItem('oauth_state', state);
+      sessionStorage.setItem("oauth_state", state);
 
       let response;
       let popupName;
@@ -98,10 +87,6 @@ const useAuthStore = create((set) => ({
         case "google":
           response = await authAPI.getGoogleAuthUrl(state);
           popupName = "Google Login";
-          break;
-        case "discord":
-          response = await authAPI.getDiscordAuthUrl(state);
-          popupName = "Discord Login";
           break;
         default:
           throw new Error("Unknown provider");
@@ -124,13 +109,13 @@ const useAuthStore = create((set) => ({
     set({ loading: true, error: null });
 
     // Verify State
-    const savedState = localStorage.getItem('oauth_state');
-    localStorage.removeItem('oauth_state'); // Clear immediately after use
+    const savedState = sessionStorage.getItem("oauth_state");
+    sessionStorage.removeItem("oauth_state"); // Clear immediately after use
 
     if (!savedState || savedState !== returnedState) {
          set({
             loading: false,
-            error: "Security Error: State mismatch (CSFR protection). Please try again.",
+            error: "Security Error: State mismatch (CSRF protection). Please try again.",
          });
          return false;
     }
@@ -144,16 +129,11 @@ const useAuthStore = create((set) => ({
         case "google":
           response = await authAPI.googleCallback(code);
           break;
-        case "discord":
-          response = await authAPI.discordCallback(code);
-          break;
         default:
           throw new Error("Unknown provider");
       }
 
-      const { access_token, refresh_token, user } = response.data;
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("refresh_token", refresh_token);
+      const { user } = response.data;
 
       set({
         user,
@@ -186,8 +166,8 @@ const useAuthStore = create((set) => ({
       // In production, you might want to force strict equality or a whitelist
       const authorizedOrigin = new URL(import.meta.env.VITE_API_URL).origin;
       if (
-        !event.origin.startsWith(authorizedOrigin) &&
-        !event.origin.startsWith("https://souled.jithin.site")
+        event.origin !== authorizedOrigin &&
+        event.origin !== window.location.origin
       ) {
         return;
       }
@@ -227,10 +207,7 @@ const useAuthStore = create((set) => ({
     set({ isOtpLoading: true, error: null });
     try {
       const response = await authAPI.verifyOtp(email, otp);
-      const { access_token, refresh_token, user } = response.data;
-      
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("refresh_token", refresh_token);
+      const { user } = response.data;
 
       set({
         user,
@@ -255,8 +232,6 @@ const useAuthStore = create((set) => ({
     } catch {
       // Continue with logout even if API fails
     }
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
     
     // Clear caches
     useChallengesStore.getState().clearCache();
@@ -277,9 +252,6 @@ const useAuthStore = create((set) => ({
   deleteAccount: async () => {
     try {
       await authAPI.deleteAccount();
-      
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
 
       // Clear challenges cache
       useChallengesStore.getState().clearCache();

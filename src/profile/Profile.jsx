@@ -56,9 +56,8 @@ const Profile = () => {
 
   // Connect to chat for sharing functionality
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (token && !isConnected) {
-      connect(token);
+    if (!isConnected) {
+      connect();
     }
   }, [isConnected, connect]);
   const [profileUser, setProfileUser] = useState(

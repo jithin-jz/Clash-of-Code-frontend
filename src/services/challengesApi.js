@@ -49,7 +49,8 @@ export const challengesApi = {
     // Certificate APIs
     getMyCertificate: async () => {
         const response = await api.get('/certificates/my_certificate/');
-        return response.data;
+        const data = response.data;
+        return data?.certificate_id ? data : null;
     },
     verifyCertificate: async (certificateId) => {
         const response = await api.get(`/certificates/verify/${certificateId}/`);

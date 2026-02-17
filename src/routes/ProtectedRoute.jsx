@@ -1,8 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import useAuthStore from '../stores/useAuthStore';
 
-import Loader from '../common/Loader';
-
 /**
  * ProtectedRoute - Requires authentication
  * Redirects unauthenticated users to home page

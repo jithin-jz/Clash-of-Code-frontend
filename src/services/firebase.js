@@ -19,21 +19,16 @@ export const requestForToken = async () => {
     return null;
   }
 
-  console.log('Attempting to register service worker and get FCM token...');
   try {
     // Explicitly register the service worker
     const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
       scope: '/'
     });
-    console.log('Service Worker registration state:', registration.active ? 'Active' : 'Pending/Waiting');
-    console.log('Registration details:', registration);
-    
     const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
     if (!vapidKey) {
         console.error('VITE_FIREBASE_VAPID_KEY is missing from environment variables!');
         return null;
     }
-    console.log('Using VAPID key (first 10 chars):', vapidKey.substring(0, 10));
 
     const currentToken = await getToken(messaging, {
       vapidKey: vapidKey,
@@ -41,7 +36,6 @@ export const requestForToken = async () => {
     });
 
     if (currentToken) {
-      console.log('FCM Token generated successfully:', currentToken.substring(0, 10) + '...');
       return currentToken;
     } else {
       console.warn('No registration token available. Request permission to generate one.');

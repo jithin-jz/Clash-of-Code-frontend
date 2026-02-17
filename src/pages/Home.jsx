@@ -78,11 +78,13 @@ const Home = () => {
         // If eligible and has certificate, try to fetch it
         if (eligibility.has_certificate) {
           const certData = await challengesApi.getMyCertificate();
-          setUserCertificate(certData);
+          if (certData) {
+            setUserCertificate(certData);
+          }
 
           // Auto-show modal if they just earned it (check local storage to avoid annoying repeated shows)
           const shownKey = `cert_shown_${user.id}`;
-          if (!localStorage.getItem(shownKey)) {
+          if (certData && !localStorage.getItem(shownKey)) {
             setCertificateModalOpen(true);
             localStorage.setItem(shownKey, "true");
           }

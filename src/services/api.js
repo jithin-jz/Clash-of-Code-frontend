@@ -7,18 +7,10 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
-});
-
-// Add auth token to requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
 });
 
 // Queue for storing requests that failed while token was refreshing
@@ -62,8 +54,6 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
       notify.error("Your account has been blocked by an administrator.", {
         duration: 5000,
       });
@@ -76,8 +66,7 @@ api.interceptors.response.use(
         return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });
         })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
+          .then(() => {
             return api(originalRequest);
           })
           .catch((err) => {
@@ -89,29 +78,11 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem("refresh_token");
-        
-        if (!refreshToken) {
-            throw new Error("No refresh token");
-        }
-
-        const response = await axios.post(`${API_BASE_URL}/auth/refresh/`, {
-          refresh_token: refreshToken,
-        });
-
-        const { access_token } = response.data;
-        localStorage.setItem("access_token", access_token);
-
-        api.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
-        originalRequest.headers.Authorization = `Bearer ${access_token}`;
-
-        processQueue(null, access_token);
+        await api.post(`/auth/refresh/`, {});
+        processQueue(null, true);
         return api(originalRequest);
       } catch (err) {
         processQueue(err, null);
-        // Refresh failed, clear tokens
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
         window.location.href = "/login";
         return Promise.reject(err);
       } finally {
@@ -128,13 +99,10 @@ export const authAPI = {
   // Get OAuth URLs
   getGithubAuthUrl: (state) => api.get("/auth/github/", { params: { state } }),
   getGoogleAuthUrl: (state) => api.get("/auth/google/", { params: { state } }),
-  getDiscordAuthUrl: (state) =>
-    api.get("/auth/discord/", { params: { state } }),
 
   // Handle OAuth callbacks
   githubCallback: (code) => api.post("/auth/github/callback/", { code }),
   googleCallback: (code) => api.post("/auth/google/callback/", { code }),
-  discordCallback: (code) => api.post("/auth/discord/callback/", { code }),
 
   // Email OTP endpoints
   requestOtp: (email) => api.post("/auth/otp/request/", { email }),
@@ -144,8 +112,7 @@ export const authAPI = {
   getCurrentUser: () => api.get("/profiles/user/"),
   getUserProfile: (username) => api.get(`/profiles/users/${username}/`),
   logout: () => api.post("/auth/logout/"),
-  refreshToken: (refresh_token) =>
-    api.post("/auth/refresh/", { refresh_token }),
+  refreshToken: () => api.post("/auth/refresh/", {}),
   updateProfile: (data) => {
     const config = {};
     if (data instanceof FormData) {
