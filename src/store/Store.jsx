@@ -166,19 +166,32 @@ const Store = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="min-h-screen bg-[#1a1a1a] text-white overflow-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          className="relative min-h-screen bg-[#0b1119] text-white overflow-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
+          <div className="absolute inset-0 pointer-events-none bg-[#0b1119]" />
+          <div className="absolute inset-0 pointer-events-none bg-linear-to-b from-[#101928] via-[#0d141f] to-[#0a0f17]" />
+          <div
+            className="absolute inset-0 pointer-events-none opacity-[0.06]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(148,163,184,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.35) 1px, transparent 1px)",
+              backgroundSize: "52px 52px",
+            }}
+          />
+          <div className="absolute top-0 left-[8%] w-[24rem] h-[24rem] rounded-full bg-[#2563eb]/10 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-[-8rem] right-[10%] w-[20rem] h-[20rem] rounded-full bg-[#0ea5e9]/10 blur-3xl pointer-events-none" />
+
           {/* Minimal Header */}
-          <header className="sticky top-0 z-50 bg-[#262626]/95 backdrop-blur-sm border-b border-white/5">
+          <header className="sticky top-0 z-30 bg-[#0a1220]/85 backdrop-blur-xl border-b border-white/10">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
-              <div className="h-14 flex items-center justify-between">
+              <div className="h-16 flex items-center justify-between">
                 {/* Left: Back + Title */}
                 <div className="flex items-center gap-3">
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => navigate("/")}
-                    className="h-9 w-9 text-zinc-400 hover:text-white hover:bg-white/5"
+                    className="h-9 w-9 text-slate-300 hover:text-white hover:bg-white/10"
                   >
                     <ArrowLeft size={18} />
                   </Button>
@@ -190,22 +203,22 @@ const Store = () => {
                 {/* Right: XP Balance - Clickable */}
                 <button
                   onClick={() => navigate("/buy-xp")}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800/50 rounded-lg border border-white/5 hover:bg-zinc-700/50 hover:border-white/10 transition-all cursor-pointer"
+                  className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.06] rounded-lg border border-white/15 hover:bg-white/[0.12] transition-all cursor-pointer"
                 >
                   <Zap size={14} className="text-[#ffa116]" />
                   <span className="text-sm font-medium text-white">
                     {user?.profile?.xp?.toLocaleString() || 0}
                   </span>
-                  <span className="text-xs text-zinc-500">XP</span>
+                  <span className="text-xs text-slate-400">XP</span>
                 </button>
               </div>
             </div>
           </header>
 
           {/* Category Tabs */}
-          <div className="border-b border-white/5 bg-[#262626]">
+          <div className="sticky top-16 z-20 border-b border-white/10 bg-[#0a1220]/75 backdrop-blur-sm">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
-              <div className="flex items-center gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-2">
+              <div className="flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-2.5">
                 {CATEGORIES.map((cat) => {
                   const isActive = activeCategory === cat.id;
                   const Icon = cat.icon;
@@ -214,11 +227,11 @@ const Store = () => {
                       key={cat.id}
                       onClick={() => setActiveCategory(cat.id)}
                       className={`
-                        flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap
+                        flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap border
                         ${
                           isActive
-                            ? "bg-white text-black"
-                            : "text-zinc-400 hover:text-white hover:bg-white/5"
+                            ? "bg-white/[0.14] text-white border-white/25"
+                            : "text-slate-300 border-transparent hover:text-white hover:bg-white/10 hover:border-white/15"
                         }
                       `}
                     >
@@ -232,14 +245,14 @@ const Store = () => {
           </div>
 
           {/* Items Grid */}
-          <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+          <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-6 pb-10">
             {filteredItems.length === 0 ? (
-              <div className="h-64 flex flex-col items-center justify-center text-zinc-500 gap-3">
+              <div className="h-64 flex flex-col items-center justify-center text-slate-400 gap-3">
                 <Package size={32} className="opacity-30" />
                 <p className="text-sm">No items in this category</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 <AnimatePresence mode="popLayout">
                   {filteredItems.map((item) => {
                     const isActive = isItemActive(item);
@@ -257,12 +270,12 @@ const Store = () => {
                       >
                         <Card
                           className={`
-                            bg-zinc-900/50 border-white/5 hover:border-white/10 transition-all
-                            ${isActive ? "ring-1 ring-white/20" : ""}
+                            rounded-2xl overflow-hidden bg-[#0f1b2e]/75 border-[#7ea3d9]/20 hover:border-[#7ea3d9]/40 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.22)] transition-all
+                            ${isActive ? "ring-1 ring-[#7ea3d9]/40" : ""}
                           `}
                         >
                           {/* Icon/Preview - Reduced Height */}
-                          <div className="h-28 flex items-center justify-center bg-zinc-900 border-b border-white/5 relative">
+                          <div className="h-32 flex items-center justify-center bg-[#0b1526]/80 border-b border-white/10 relative">
                             {item.image ? (
                               <img
                                 src={item.image}
@@ -270,7 +283,7 @@ const Store = () => {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="text-zinc-600">
+                              <div className="text-slate-500">
                                 {renderIcon(item.icon_name)}
                               </div>
                             )}
@@ -280,7 +293,7 @@ const Store = () => {
                               {isOwned && (
                                 <Badge
                                   variant="secondary"
-                                  className="bg-zinc-800 text-zinc-300 text-[10px] px-1.5 py-0.5"
+                                  className="bg-[#162338] text-slate-200 text-[10px] px-1.5 py-0.5"
                                 >
                                   <Check size={10} className="mr-0.5" />
                                   {isActive ? "Active" : "Owned"}
@@ -291,7 +304,7 @@ const Store = () => {
                             {/* Category Badge */}
                             <Badge
                               variant="outline"
-                              className="absolute top-2 left-2 bg-black/50 border-white/10 text-zinc-400 text-[10px] px-1.5 py-0.5"
+                              className="absolute top-2 left-2 bg-black/40 border-white/20 text-slate-300 text-[10px] px-1.5 py-0.5"
                             >
                               {item.category}
                             </Badge>
@@ -302,7 +315,7 @@ const Store = () => {
                             <CardTitle className="text-xs font-medium text-white truncate">
                               {item.name}
                             </CardTitle>
-                            <CardDescription className="text-[10px] text-zinc-500 line-clamp-2 min-h-[32px] leading-tight">
+                            <CardDescription className="text-[10px] text-slate-400 line-clamp-2 min-h-[32px] leading-tight">
                               {item.description}
                             </CardDescription>
                           </CardHeader>
@@ -312,11 +325,11 @@ const Store = () => {
                               <Button
                                 variant={isActive ? "outline" : "default"}
                                 className={`
-                                  w-full h-7 text-[10px] font-medium
+                                  w-full h-8 text-xs font-medium
                                   ${
                                     isActive
-                                      ? "bg-transparent border-white/10 text-zinc-400 hover:bg-white/5"
-                                      : "bg-white text-black hover:bg-zinc-200"
+                                      ? "bg-transparent border-white/20 text-slate-300 hover:bg-white/10"
+                                      : "bg-white text-black hover:bg-slate-200"
                                   }
                                 `}
                                 onClick={() =>
@@ -330,11 +343,11 @@ const Store = () => {
                             ) : (
                               <Button
                                 className={`
-                                  w-full h-7 text-[10px] font-medium
+                                  w-full h-8 text-xs font-medium
                                   ${
                                     canAfford
-                                      ? "bg-white text-black hover:bg-zinc-200"
-                                      : "bg-zinc-800 text-zinc-500 cursor-not-allowed"
+                                      ? "bg-white text-black hover:bg-slate-200"
+                                      : "bg-[#1a2638] text-slate-500 cursor-not-allowed"
                                   }
                                 `}
                                 disabled={

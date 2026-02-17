@@ -46,26 +46,26 @@ const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
 
   return (
     <motion.div
-      className="fixed top-0 right-0 h-full z-50 w-[380px]"
+      className="fixed top-16 right-0 h-[calc(100vh-64px)] z-50 w-full sm:w-[390px]"
       initial={{ x: "100%" }}
       animate={{ x: isLeaderboardOpen ? 0 : "100%" }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <div className="w-full h-full bg-linear-to-b from-[#1a1a1a] via-[#262626] to-[#1a1a1a] backdrop-blur-3xl border-l border-[#3a3a3a] flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative">
+      <div className="w-full h-full bg-linear-to-b from-[#111d30]/95 via-[#0f1b2e]/95 to-[#0c1627]/95 backdrop-blur-3xl border-l border-white/15 flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative">
         {/* Decorative gradient orb */}
-        <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#ffa116]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 -left-10 w-32 h-32 bg-zinc-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#3b82f6]/12 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 -left-10 w-32 h-32 bg-[#00af9b]/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Header */}
-        <div className="relative h-16 border-b border-[#3a3a3a] flex items-center justify-between px-5 bg-[#262626]">
+        <div className="relative h-16 border-b border-white/10 flex items-center justify-between px-5 bg-[#111d30]/90">
           {/* Header glow line */}
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#ffa116]/30 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#7ea3d9]/30 to-transparent" />
 
           <div className="flex items-center gap-3">
             {/* Close Button */}
             <button
               onClick={() => setLeaderboardOpen(false)}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
               title="Close Leaderboard"
             >
               <X size={18} />
@@ -94,7 +94,7 @@ const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
               {[...Array(8)].map((_, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 p-3 rounded-none bg-white/2 border border-white/5"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/10"
                 >
                   <SkeletonBase className="w-8 h-8 rounded-none" />
                   <SkeletonBase className="w-9 h-9 rounded-full" />
@@ -128,18 +128,18 @@ const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
                   key={rankUser.username}
                   to={`/profile/${rankUser.username}`}
                   onClick={() => setLeaderboardOpen(false)}
-                  className={`flex items-center gap-3 p-3 rounded-none transition-all duration-200 group ${
+                  className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group ${
                     isMe
-                      ? "bg-[#ffa116]/10 border border-[#ffa116]/20 hover:bg-[#ffa116]/15"
-                      : "bg-white/2 border border-white/5 hover:bg-white/5 hover:border-white/10"
+                      ? "bg-[#ffa116]/10 border border-[#ffa116]/25 hover:bg-[#ffa116]/15"
+                      : "bg-white/[0.03] border border-white/10 hover:bg-white/[0.07] hover:border-white/20"
                   }`}
                 >
                   {/* Rank */}
                   <div
-                    className={`w-8 h-8 rounded-none flex items-center justify-center ${
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                       isTopThree
                         ? "bg-linear-to-br from-[#ffa116]/20 to-[#ffa116]/5"
-                        : "bg-white/5"
+                        : "bg-white/10"
                     }`}
                   >
                     {getRankIcon(index) || (
@@ -222,16 +222,6 @@ const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
           )}
         </div>
 
-        {/* Footer with shortcut hint */}
-        <div className="p-3 border-t border-[#3a3a3a] bg-linear-to-t from-[#1a1a1a] to-transparent">
-          <p className="text-center text-[9px] text-gray-600">
-            Press{" "}
-            <kbd className="px-1 py-0.5 bg-white/5 rounded text-gray-500 font-mono">
-              Ctrl+L
-            </kbd>{" "}
-            to toggle
-          </p>
-        </div>
       </div>
     </motion.div>
   );

@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import CursorEffects from "./CursorEffects";
 import VictoryAnimation from "./VictoryAnimation";
 import CodeArenaSkeleton from "./CodeArenaSkeleton";
+import { generateLocalCodeReview } from "../utils/localCodeReview";
 
 // Subcomponents
 import HeaderBar from "./components/HeaderBar";
@@ -36,6 +37,8 @@ const CodeArena = () => {
   const [hint, setHint] = useState("");
   const [isHintLoading, setIsHintLoading] = useState(false);
   const [hintLevel, setHintLevel] = useState(1);
+  const [review, setReview] = useState("");
+  const [isReviewLoading, setIsReviewLoading] = useState(false);
 
   const handleGetHint = async () => {
     if (!challenge || !code) return;
@@ -191,6 +194,49 @@ const CodeArena = () => {
     }
   };
 
+  const handleAnalyzeCode = async () => {
+    if (!challenge || !code?.trim()) return;
+    setIsReviewLoading(true);
+    try {
+      const { challengesApi } = await import("../services/challengesApi");
+      const data = await challengesApi.aiAnalyze(challenge.slug, code);
+      const reviewText =
+        data?.review ||
+        data?.analysis ||
+        data?.feedback ||
+        data?.result ||
+        data?.message ||
+        (typeof data === "string" ? data : "");
+
+      if (!reviewText) {
+        setReview("AI review generated, but response was empty.");
+        return;
+      }
+      setReview(reviewText);
+      toast.success("AI Review Ready");
+    } catch (err) {
+      const statusCode = err?.response?.status;
+      if (statusCode === 404) {
+        const fallbackReview = generateLocalCodeReview({ code, challenge });
+        setReview(fallbackReview);
+        toast.info("Using Local Review", {
+          description: "Backend review endpoint is unavailable.",
+        });
+      } else {
+        console.error("AI Review Error:", err);
+        const errorMsg =
+          err.response?.data?.error || "AI review is currently unavailable.";
+        toast.error("AI Review Failed", { description: errorMsg });
+        setOutput((prev) => [
+          ...prev,
+          { type: "error", content: `🤖 AI Review: ${errorMsg}` },
+        ]);
+      }
+    } finally {
+      setIsReviewLoading(false);
+    }
+  };
+
   // Fetch Challenge Data
   useEffect(() => {
     const fetchChallenge = async () => {
@@ -199,6 +245,7 @@ const CodeArena = () => {
         // Reset AI state on challenge change
         setHint("");
         setHintLevel(1);
+        setReview("");
 
         // Dynamic Import
         const { challengesApi } = await import("../services/challengesApi");
@@ -549,10 +596,19 @@ const CodeArena = () => {
   }
 
   return (
-    <div className="h-dvh flex flex-col bg-[#1a1a1a] text-white overflow-hidden relative font-sans selection:bg-primary/20">
-      <div className="absolute inset-0 pointer-events-none bg-[#1a1a1a]" />
-      <div className="absolute inset-0 pointer-events-none bg-[#262626]/50" />
-      <div className="absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-[#00af9b]/10 blur-3xl pointer-events-none" />
+    <div className="h-dvh flex flex-col bg-[#0b1119] text-white overflow-hidden relative font-sans selection:bg-primary/20">
+      <div className="absolute inset-0 pointer-events-none bg-[#0b1119]" />
+      <div className="absolute inset-0 pointer-events-none bg-linear-to-b from-[#101928] via-[#0d141f] to-[#0a0f17]" />
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.06]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(148,163,184,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.35) 1px, transparent 1px)",
+          backgroundSize: "52px 52px",
+        }}
+      />
+      <div className="absolute top-0 left-[8%] w-[26rem] h-[26rem] rounded-full bg-[#2563eb]/10 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[-8rem] right-[10%] w-[22rem] h-[22rem] rounded-full bg-[#0ea5e9]/10 blur-3xl pointer-events-none" />
       <CursorEffects effectType={user?.profile?.active_effect} />
 
       {/* Completion Modal */}
@@ -645,18 +701,18 @@ const CodeArena = () => {
       </div>
 
       {/* Main Content - Minimalist Boxy Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative z-10 p-3 gap-3">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative z-10 p-2 sm:p-3 gap-3">
         {/* LEFT CARD: Problem */}
-        <div className="w-full lg:w-[25%] flex flex-col bg-[#262626] border border-white/10 rounded-2xl shadow-xl shadow-black/25 overflow-hidden">
-          <div className="flex-1 overflow-hidden relative">
+        <div className="w-full lg:w-[24rem] min-h-0 flex flex-col bg-[#0f1827]/64 backdrop-blur-xl border border-white/12 rounded-2xl shadow-[0_22px_60px_rgba(0,0,0,0.3)] overflow-y-auto custom-scrollbar">
+          <div className="flex-1 min-h-0 relative">
             <ProblemPane challenge={challenge} loading={!challenge} />
           </div>
         </div>
 
         {/* MIDDLE COLUMN: Editor & Console Cards */}
-        <div className="flex-1 flex flex-col min-w-0 rounded-2xl border border-white/10 shadow-xl shadow-black/25 overflow-hidden">
+        <div className="flex-1 flex flex-col min-w-0 rounded-2xl border border-white/12 shadow-[0_22px_60px_rgba(0,0,0,0.3)] overflow-hidden bg-[#0f1827]/64 backdrop-blur-xl">
           {/* Editor Card */}
-          <div className="flex-1 flex flex-col bg-[#1a1a1a] overflow-hidden relative group">
+          <div className="flex-1 flex flex-col bg-[#0b1526]/85 overflow-hidden relative group">
             <div className="flex-1 relative">
               <EditorPane
                 code={code}
@@ -674,8 +730,8 @@ const CodeArena = () => {
           </div>
 
           {/* Console Card */}
-          <div className="h-[30%] flex flex-col bg-[#1a1a1a] border-t border-white/10">
-            <div className="px-3 py-2 border-b border-white/5 bg-[#262626] flex justify-between items-center h-8">
+          <div className="h-[32%] min-h-[180px] flex flex-col bg-[#0b1526]/90 border-t border-white/10">
+            <div className="px-3 py-2 border-b border-white/10 bg-[#111d30] flex justify-between items-center h-8">
               <span className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase font-sans">
                 Terminal
               </span>
@@ -692,13 +748,16 @@ const CodeArena = () => {
         </div>
 
         {/* RIGHT CARD: AI Assistant */}
-        <div className="w-full lg:w-[20%] flex flex-col bg-[#262626] border border-white/10 rounded-2xl shadow-xl shadow-black/25 overflow-hidden">
+        <div className="w-full lg:w-[22rem] flex flex-col bg-[#0f1827]/64 backdrop-blur-xl border border-white/12 rounded-2xl shadow-[0_22px_60px_rgba(0,0,0,0.3)] overflow-hidden">
           <div className="flex-1 flex flex-col overflow-hidden relative">
             <NeuralLinkPane
               onGetHint={handleGetHint}
               onPurchase={handlePurchaseAIAssist}
+              onAnalyze={handleAnalyzeCode}
               hint={hint}
+              review={review}
               isHintLoading={isHintLoading}
+              isReviewLoading={isReviewLoading}
               hintLevel={hintLevel}
               ai_hints_purchased={challenge?.ai_hints_purchased || 0}
               userXp={user?.profile?.xp}

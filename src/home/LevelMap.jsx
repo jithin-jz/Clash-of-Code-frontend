@@ -93,8 +93,8 @@ const LevelMap = ({ levels, handleLevelClick, user }) => {
               Professional Python Track
             </p>
             <h1 className="text-5xl sm:text-6xl font-black tracking-tight text-white leading-[1.05]">
-              Build Interview-Ready
-              <span className="block text-[#60a5fa]">Python Skills</span>
+              Welcome to
+              <span className="block text-[#60a5fa]">Clash of Code</span>
             </h1>
             <p className="text-slate-300 text-base mt-5 mb-10 max-w-xl mx-auto leading-relaxed">
               Structured challenge roadmap with verified progression, clean code
@@ -111,11 +111,11 @@ const LevelMap = ({ levels, handleLevelClick, user }) => {
       )}
 
       <div
-        className={`w-full h-[calc(100vh-92px)] mt-16 mb-2 px-3 sm:px-5 lg:px-6 py-3 transition-all duration-700 ${
+        className={`w-full h-[calc(100vh-64px)] mt-16 px-3 sm:px-5 lg:px-6 pt-3 pb-0 transition-all duration-700 ${
           !user ? "blur-sm opacity-25 grayscale pointer-events-none select-none" : ""
         }`}
       >
-        <div className="h-full overflow-y-auto pr-1 pb-4 space-y-4 custom-scrollbar">
+        <div className="h-full overflow-y-auto pr-1 pb-5 space-y-4 custom-scrollbar">
           <section className="w-full rounded-2xl border border-white/12 bg-linear-to-br from-white/[0.12] via-white/[0.07] to-white/[0.03] backdrop-blur-xl p-4 sm:p-5 shadow-[0_22px_60px_rgba(0,0,0,0.3)]">
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
               <div className="rounded-2xl border border-white/15 bg-[#101a29]/65 backdrop-blur-md p-4">
@@ -221,11 +221,11 @@ const LevelMap = ({ levels, handleLevelClick, user }) => {
           })}
 
           {certificateLevel && (
-            <section className="w-full rounded-2xl border border-[#f1d39b]/25 bg-[#2a2216]/62 backdrop-blur-xl p-4 sm:p-5">
+            <section className="w-full rounded-2xl border border-white/12 bg-[#0f1827]/64 backdrop-blur-xl p-4 sm:p-5">
               <h3 className="text-sm font-bold text-[#f8d08b] uppercase tracking-[0.16em] mb-3">
                 Certification
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              <div className="max-w-xl">
                 <LevelButton
                   level={certificateLevel}
                   isCurrentLevel={false}

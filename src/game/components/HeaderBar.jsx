@@ -10,19 +10,19 @@ const HeaderBar = ({
   stopCode,
 }) => {
   return (
-    <div className="h-14 bg-[#1f1f1f]/95 backdrop-blur-sm border-b border-white/10 flex items-center justify-between px-4 shrink-0 z-20 relative overflow-hidden">
+    <div className="h-14 bg-[#0a1220]/85 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-4 shrink-0 z-20 relative overflow-hidden">
       {/* Left: Navigation & Title */}
       <div className="flex items-center gap-4 relative z-10">
         <button
           type="button"
           onClick={() => navigate("/")}
-          className="h-9 w-9 rounded-xl border border-white/10 bg-white/5 text-zinc-300 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center"
+          className="h-9 w-9 rounded-xl border border-white/15 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center"
         >
           <ArrowLeft size={16} />
         </button>
         <div className="flex items-center gap-3">
           <div className="flex flex-col">
-            <h1 className="text-sm font-bold text-gray-100 uppercase tracking-wide flex items-center gap-2">
+            <h1 className="text-sm font-bold text-slate-100 uppercase tracking-wide flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#00af9b]"></span>
               {title}
             </h1>

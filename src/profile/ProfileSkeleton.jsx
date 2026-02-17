@@ -5,16 +5,16 @@ const ProfileSkeleton = () => {
   return (
     <SkeletonPage className="flex flex-col">
       {/* Header */}
-      <div className="bg-[#09090b] border-b border-white/5">
+      <div className="bg-[#0a1220]/85 backdrop-blur-xl border-b border-white/10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="h-14 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <SkeletonBase className="h-9 w-9 rounded-lg" />
+              <SkeletonBase className="h-9 w-9 rounded-xl" />
               <SkeletonBase className="h-5 w-16 rounded" />
             </div>
             <div className="flex items-center gap-2">
-              <SkeletonBase className="h-9 w-9 rounded-lg" />
-              <SkeletonBase className="h-9 w-9 rounded-lg" />
+              <SkeletonBase className="h-9 w-9 rounded-xl" />
+              <SkeletonBase className="h-9 w-9 rounded-xl" />
             </div>
           </div>
         </div>
@@ -26,14 +26,14 @@ const ProfileSkeleton = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column */}
             <div className="lg:col-span-1 space-y-4">
-              <SkeletonBase className="h-72 rounded-xl" />
+              <SkeletonBase className="h-72 rounded-2xl" />
               <SkeletonBase className="h-12 rounded-xl" />
               <SkeletonBase className="h-20 rounded-xl" />
             </div>
 
             {/* Right Column */}
             <div className="lg:col-span-2">
-              <SkeletonBase className="h-80 rounded-xl" />
+              <SkeletonBase className="h-80 rounded-2xl" />
             </div>
           </div>
         </div>

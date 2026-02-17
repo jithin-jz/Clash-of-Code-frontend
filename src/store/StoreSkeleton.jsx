@@ -5,11 +5,11 @@ const StoreSkeleton = () => {
   return (
     <SkeletonPage className="flex flex-col">
       {/* Header Skeleton */}
-      <div className="sticky top-0 z-50 bg-[#09090b]/95 backdrop-blur-sm border-b border-white/5">
+      <div className="sticky top-0 z-50 bg-[#0a1220]/85 backdrop-blur-xl border-b border-white/10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="h-14 flex items-center justify-between">
+          <div className="h-16 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <SkeletonBase className="w-9 h-9 rounded-lg" />
+              <SkeletonBase className="w-9 h-9 rounded-xl" />
               <SkeletonBase className="w-16 h-5 rounded-md" />
             </div>
             <SkeletonBase className="w-24 h-8 rounded-lg" />
@@ -18,14 +18,13 @@ const StoreSkeleton = () => {
       </div>
 
       {/* Category Tabs Skeleton */}
-      <div className="border-b border-white/5 bg-[#09090b]">
+      <div className="border-b border-white/10 bg-[#0a1220]/75 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center gap-1 py-2">
-            <SkeletonBase className="w-14 h-7 rounded-md" />
-            <SkeletonBase className="w-20 h-7 rounded-md" />
-            <SkeletonBase className="w-16 h-7 rounded-md" />
-            <SkeletonBase className="w-18 h-7 rounded-md" />
-            <SkeletonBase className="w-18 h-7 rounded-md" />
+          <div className="flex items-center gap-2 py-2.5">
+            <SkeletonBase className="w-16 h-8 rounded-full" />
+            <SkeletonBase className="w-20 h-8 rounded-full" />
+            <SkeletonBase className="w-[4.5rem] h-8 rounded-full" />
+            <SkeletonBase className="w-20 h-8 rounded-full" />
           </div>
         </div>
       </div>
@@ -36,7 +35,7 @@ const StoreSkeleton = () => {
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="rounded-xl border border-white/5 overflow-hidden bg-zinc-900/50"
+              className="rounded-2xl border border-[#7ea3d9]/20 overflow-hidden bg-[#0f1b2e]/70"
             >
               {/* Preview Area */}
               <SkeletonBase className="h-32 rounded-none" />

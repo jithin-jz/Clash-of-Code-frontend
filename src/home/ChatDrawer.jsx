@@ -99,23 +99,23 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
 
   return (
     <motion.div
-      className="fixed top-0 left-0 h-full z-40 w-[390px]"
+      className="fixed top-16 left-0 h-[calc(100vh-64px)] z-40 w-full sm:w-[390px]"
       initial={{ x: "-100%" }}
       animate={{ x: isChatOpen ? 0 : "-100%" }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <div className="w-full h-full bg-linear-to-b from-[#1f1f1f] via-[#1a1a1a] to-[#171717] backdrop-blur-3xl border-r border-[#3a3a3a] flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative">
+      <div className="w-full h-full bg-linear-to-b from-[#111d30]/95 via-[#0f1b2e]/95 to-[#0c1627]/95 backdrop-blur-3xl border-r border-white/15 flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative">
         {/* Decorative gradient orb */}
-        <div className="absolute -top-20 -left-20 w-44 h-44 bg-[#ffa116]/8 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 -right-12 w-36 h-36 bg-[#00af9b]/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-20 -left-20 w-44 h-44 bg-[#3b82f6]/12 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 -right-12 w-36 h-36 bg-[#00af9b]/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Header */}
-        <div className="relative h-14 border-b border-[#3a3a3a] flex items-center justify-between px-5 bg-linear-to-r from-[#262626] to-[#1f1f1f]">
+        <div className="relative h-14 border-b border-white/10 flex items-center justify-between px-5 bg-[#111d30]/90">
           {/* Header glow line */}
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#444444] to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#7ea3d9]/30 to-transparent" />
 
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#2d2d2d] border border-[#444444] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#162338] border border-white/15 flex items-center justify-center">
               <MessageSquare size={15} className="text-[#00af9b]" />
             </div>
             <span className="text-white font-semibold text-sm tracking-wide">
@@ -123,7 +123,7 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#2d2d2d] border border-[#444444] rounded-lg">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#162338] border border-white/15 rounded-lg">
             <div className="relative">
               <div className="w-1.5 h-1.5 bg-[#00af9b] rounded-full" />
               <div className="absolute inset-0 w-1.5 h-1.5 bg-[#00af9b] rounded-full animate-ping" />

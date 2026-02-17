@@ -91,9 +91,6 @@ const ChatInput = ({
           <Send size={16} />
         </Button>
       </div>
-
-      {/* Minimal footer spacing for cleaner layout */}
-      <div className="h-1" />
     </div>
   );
 };

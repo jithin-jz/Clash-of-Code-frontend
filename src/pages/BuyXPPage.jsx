@@ -128,18 +128,31 @@ const BuyXPPage = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="h-screen bg-[#1a1a1a] text-white flex flex-col overflow-hidden"
+          className="relative h-screen bg-[#0b1119] text-white flex flex-col overflow-hidden"
         >
+          <div className="absolute inset-0 pointer-events-none bg-[#0b1119]" />
+          <div className="absolute inset-0 pointer-events-none bg-linear-to-b from-[#101928] via-[#0d141f] to-[#0a0f17]" />
+          <div
+            className="absolute inset-0 pointer-events-none opacity-[0.06]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(148,163,184,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.35) 1px, transparent 1px)",
+              backgroundSize: "52px 52px",
+            }}
+          />
+          <div className="absolute top-0 left-[8%] w-[24rem] h-[24rem] rounded-full bg-[#2563eb]/10 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-[-8rem] right-[10%] w-[20rem] h-[20rem] rounded-full bg-[#0ea5e9]/10 blur-3xl pointer-events-none" />
+
           {/* Header */}
-          <header className="bg-[#262626] border-b border-white/5">
+          <header className="relative z-10 bg-[#0a1220]/85 backdrop-blur-xl border-b border-white/10">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
-              <div className="h-14 flex items-center justify-between">
+              <div className="h-16 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => navigate(-1)}
-                    className="h-9 w-9 text-zinc-400 hover:text-white hover:bg-white/5"
+                    className="h-9 w-9 text-slate-300 hover:text-white hover:bg-white/10"
                   >
                     <ArrowLeft size={18} />
                   </Button>
@@ -149,19 +162,19 @@ const BuyXPPage = () => {
                 </div>
 
                 {/* Current Balance */}
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800/50 rounded-lg border border-white/5">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.06] rounded-lg border border-white/15">
                   <Zap size={14} className="text-[#ffa116]" />
                   <span className="text-sm font-medium text-white">
                     {user?.profile?.xp?.toLocaleString() || 0}
                   </span>
-                  <span className="text-xs text-zinc-500">XP</span>
+                  <span className="text-xs text-slate-400">XP</span>
                 </div>
               </div>
             </div>
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 overflow-hidden px-4 sm:px-6 py-6">
+          <main className="relative z-10 flex-1 overflow-hidden px-4 sm:px-6 py-6">
             <div className="max-w-6xl mx-auto h-full">
               {/* Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 h-full content-start">
@@ -173,7 +186,7 @@ const BuyXPPage = () => {
                     <Card
                       key={pkg.amount}
                       className={`
-                        bg-zinc-900/50 border-white/5 hover:border-white/10 transition-all relative
+                        bg-[#0f1b2e]/70 border-[#7ea3d9]/20 hover:border-[#7ea3d9]/40 transition-all relative backdrop-blur-sm
                         ${pkg.popular ? "ring-1 ring-[#ffa116]/30" : ""}
                         ${pkg.bestValue ? "ring-1 ring-[#00af9b]/30" : ""}
                       `}
@@ -199,9 +212,9 @@ const BuyXPPage = () => {
                           className={`w-10 h-10 rounded-lg flex items-center justify-center mb-4 ${
                             pkg.popular
                               ? "bg-[#ffa116]/10"
-                              : pkg.bestValue
+                            : pkg.bestValue
                                 ? "bg-[#00af9b]/10"
-                                : "bg-white/5"
+                                : "bg-white/[0.06]"
                           }`}
                         >
                           <Icon
@@ -211,7 +224,7 @@ const BuyXPPage = () => {
                                 ? "text-[#ffa116]"
                                 : pkg.bestValue
                                   ? "text-[#00af9b]"
-                                  : "text-zinc-400"
+                                  : "text-slate-400"
                             }
                           />
                         </div>

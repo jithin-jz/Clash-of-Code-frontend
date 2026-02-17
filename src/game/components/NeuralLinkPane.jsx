@@ -2,11 +2,30 @@ import React, { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import { Loader2, Sparkles } from "lucide-react";
 
+const formatReviewMarkdown = (raw = "") => {
+  if (!raw) return "";
+
+  const normalized = raw
+    .replace(/\r\n/g, "\n")
+    // Convert "1) Findings" / "1. Findings" into markdown headings.
+    .replace(/^\s*\d+[\).]?\s+([A-Za-z][^\n:]*)\s*$/gm, "### $1")
+    // Convert "Findings:" style section labels into headings.
+    .replace(/^([A-Za-z][A-Za-z\s]{2,40}):\s*$/gm, "### $1")
+    // Keep spacing between sections readable.
+    .replace(/\n(### )/g, "\n\n$1")
+    .replace(/\n{3,}/g, "\n\n");
+
+  return normalized.trim();
+};
+
 const NeuralLinkPane = ({
   onGetHint,
   onPurchase,
+  onAnalyze,
   hint,
+  review,
   isHintLoading,
+  isReviewLoading,
   hintLevel,
   ai_hints_purchased,
   userXp,
@@ -52,10 +71,14 @@ const NeuralLinkPane = ({
   const nextCost = 10 * (ai_hints_purchased + 1);
   const isMaxReached = ai_hints_purchased >= 3;
   const isLocked = ai_hints_purchased < hintLevel && !isMaxReached;
+  const formattedReview = React.useMemo(
+    () => formatReviewMarkdown(review),
+    [review],
+  );
 
   return (
-    <section className="flex-1 flex flex-col bg-[#262626] overflow-hidden m-0">
-      <header className="border-b border-white/5 px-4 py-2 flex items-center justify-between bg-[#1a1a1a]">
+    <section className="flex-1 flex flex-col bg-[#0f1b2e] overflow-hidden m-0">
+      <header className="border-b border-white/10 px-4 py-2 flex items-center justify-between bg-[#111d30]">
         <div className="flex items-center gap-2">
           <Sparkles size={14} className="text-[#00af9b]" />
           <h2 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest font-sans">
@@ -74,7 +97,20 @@ const NeuralLinkPane = ({
         </div>
       </header>
 
-      <div className="flex-1 relative flex flex-col bg-[#262626] overflow-hidden p-0">
+      <div className="flex-1 relative flex flex-col bg-[#0f1b2e] overflow-hidden p-0">
+        {review ? (
+          <div className="mx-4 mt-4 mb-3 rounded-xl border border-[#7ea3d9]/25 bg-[#0a1220]/75 backdrop-blur-md p-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-[#7ea3d9] mb-2">
+              AI Review
+            </div>
+            <div className="max-h-64 min-h-[96px] overflow-y-auto custom-scrollbar-thin pr-1">
+              <div className="prose prose-invert prose-sm max-w-none prose-headings:text-slate-100 prose-h3:text-[13px] prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4 first:prose-h3:mt-0 prose-p:text-slate-300 prose-p:text-[12px] prose-p:leading-relaxed prose-ul:text-slate-300 prose-ol:text-slate-300 prose-li:text-[12px] prose-strong:text-white prose-code:text-[#00af9b] prose-code:bg-[#111d30]/70 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none">
+                <ReactMarkdown>{formattedReview}</ReactMarkdown>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         {/* Hint Carousel Wrapper */}
         <div className="flex-1 relative overflow-hidden flex flex-col">
           <div
@@ -100,13 +136,13 @@ const NeuralLinkPane = ({
                     </span>
                   </div>
 
-                  <div className="flex-1 bg-white/3 border border-white/5 rounded-none p-4 overflow-y-auto custom-scrollbar-thin">
+                  <div className="flex-1 bg-white/[0.03] border border-white/10 rounded-xl p-4 overflow-y-auto custom-scrollbar-thin">
                     <div
                       className="prose prose-invert prose-sm max-w-none 
                               prose-p:text-gray-400 prose-p:leading-relaxed prose-p:text-[12px]
                               prose-strong:text-white prose-strong:font-semibold
                               prose-pre:bg-black prose-pre:border prose-pre:border-white/5 prose-pre:rounded-none prose-pre:p-0
-                              prose-code:text-[#00af9b] prose-code:bg-[#1f1f1f]/10 prose-code:px-1 prose-code:py-0.5 prose-code:rounded-none prose-code:font-mono prose-code:text-[11px] prose-code:before:content-none prose-code:after:content-none
+                              prose-code:text-[#00af9b] prose-code:bg-[#0a1220]/60 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-[11px] prose-code:before:content-none prose-code:after:content-none
                           "
                     >
                       <ReactMarkdown
@@ -138,7 +174,7 @@ const NeuralLinkPane = ({
                   </div>
                 </div>
               ))
-            ) : !isHintLoading ? (
+            ) : !isHintLoading && !review ? (
               <div className="w-full h-full flex flex-col items-center justify-center opacity-20 grayscale">
                 <Sparkles size={24} className="text-gray-500 mb-2" />
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
@@ -155,7 +191,7 @@ const NeuralLinkPane = ({
                     Generating...
                   </span>
                 </div>
-                <div className="flex-1 bg-white/5 border border-white/5 rounded-none p-4 animate-pulse relative">
+                <div className="flex-1 bg-white/[0.05] border border-white/10 rounded-xl p-4 animate-pulse relative">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Sparkles
                       size={20}
@@ -189,15 +225,11 @@ const NeuralLinkPane = ({
       </div>
 
       {/* Action Bar - Fixed at absolute bottom of Card */}
-      <div className="p-4 border-t border-white/5 bg-[#1a1a1a] space-y-2 shrink-0">
+      <div className="p-4 border-t border-white/10 bg-[#111d30] space-y-2 shrink-0">
         {isMaxReached ? (
-          <button
-            type="button"
-            disabled
-            className="w-full bg-red-500/5 text-red-900 border border-red-500/10 text-[10px] font-bold h-10 rounded-none cursor-not-allowed flex items-center justify-center gap-2 uppercase tracking-widest"
-          >
+          <div className="w-full bg-red-500/10 text-red-300 border border-red-500/25 text-[10px] font-bold h-10 rounded-xl cursor-not-allowed flex items-center justify-center gap-2 uppercase tracking-widest">
             Max Hints Reached
-          </button>
+          </div>
         ) : isLocked ? (
           <div className="space-y-2">
             <button
@@ -208,7 +240,7 @@ const NeuralLinkPane = ({
               }
               className={`w-full text-[10px] font-bold h-10 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden uppercase tracking-widest ${
                 userXp !== undefined && userXp < nextCost
-                  ? "bg-red-500/5 border border-red-500/10 text-red-800 cursor-not-allowed"
+                  ? "bg-red-500/10 border border-red-500/25 text-red-300 cursor-not-allowed"
                   : "bg-[#ffa116] text-black hover:bg-[#ff8f00] border border-[#ffb347]/40 shadow-lg shadow-[#ffa116]/20"
               }`}
             >
@@ -248,6 +280,20 @@ const NeuralLinkPane = ({
             Unlock Intelligence
           </button>
         )}
+
+        <button
+          type="button"
+          onClick={onAnalyze}
+          disabled={isReviewLoading}
+          className="w-full bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 hover:text-white border border-white/15 text-[10px] font-bold h-10 rounded-xl transition-all flex items-center justify-center gap-2 uppercase tracking-widest disabled:opacity-60"
+        >
+          {isReviewLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Sparkles size={12} />
+          )}
+          {review ? "Re-analyze Code" : "Analyze Code"}
+        </button>
       </div>
     </section>
   );

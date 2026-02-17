@@ -1,17 +1,19 @@
 import { cn } from "../lib/utils";
 
-// Subtle pulse animation for skeleton loading effect
-export const Shimmer = () => <div className="absolute inset-0 animate-pulse" />;
+export const Shimmer = () => (
+  <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.8s_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent" />
+);
 
 export const SkeletonBase = ({ className, children, ...props }) => {
   return (
     <div
       className={cn(
-        "relative overflow-hidden bg-white/10 rounded-xl animate-pulse",
+        "relative overflow-hidden bg-white/[0.08] rounded-xl",
         className,
       )}
       {...props}
     >
+      <Shimmer />
       {children}
     </div>
   );
@@ -107,28 +109,28 @@ export const SkeletonStats = ({ className, ...props }) => (
 export const SkeletonPage = ({ children, className }) => (
   <div
     className={cn(
-      "h-screen w-full bg-[#050505] text-white overflow-hidden relative",
+      "h-screen w-full bg-[#0b1119] text-white overflow-hidden relative",
       className,
     )}
   >
-    {/* Background Texture */}
+    <div className="absolute inset-0 pointer-events-none bg-[#0b1119]" />
+    <div className="absolute inset-0 pointer-events-none bg-linear-to-b from-[#101928] via-[#0d141f] to-[#0a0f17]" />
     <div
-      className="absolute inset-0 opacity-20 pointer-events-none"
+      className="absolute inset-0 pointer-events-none opacity-[0.06]"
       style={{
         backgroundImage:
-          "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)",
-        backgroundSize: "40px 40px",
+          "linear-gradient(rgba(148,163,184,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.35) 1px, transparent 1px)",
+        backgroundSize: "52px 52px",
       }}
     />
-    <div className="absolute inset-0 bg-linear-to-b from-black/50 via-transparent to-black/80 pointer-events-none" />
+    <div className="absolute top-0 left-[8%] w-[24rem] h-[24rem] rounded-full bg-[#2563eb]/10 blur-3xl pointer-events-none" />
+    <div className="absolute bottom-[-8rem] right-[10%] w-[20rem] h-[20rem] rounded-full bg-[#0ea5e9]/10 blur-3xl pointer-events-none" />
 
     {children}
 
     <style>{`
       @keyframes shimmer {
-        100% {
-          transform: translateX(100%);
-        }
+        100% { transform: translateX(200%); }
       }
     `}</style>
   </div>

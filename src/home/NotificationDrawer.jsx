@@ -89,31 +89,31 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
 
   return (
     <motion.div
-      className="fixed top-0 right-0 h-full z-50 w-[380px]"
+      className="fixed top-16 right-0 h-[calc(100vh-64px)] z-50 w-full sm:w-[390px]"
       initial={{ x: "100%" }}
       animate={{ x: isOpen ? 0 : "100%" }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <div className="w-full h-full bg-linear-to-b from-[#0d0d0d] via-[#0a0a0a] to-[#080808] backdrop-blur-3xl border-l border-white/5 flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative">
+      <div className="w-full h-full bg-linear-to-b from-[#111d30]/95 via-[#0f1b2e]/95 to-[#0c1627]/95 backdrop-blur-3xl border-l border-white/15 flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative">
         {/* Decorative gradient orb */}
-        <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#00af9b]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-10 -left-10 w-32 h-32 bg-[#ffa116]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#3b82f6]/12 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-10 -left-10 w-32 h-32 bg-[#00af9b]/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Header */}
-        <div className="relative h-16 border-b border-white/5 flex items-center justify-between px-5 bg-linear-to-r from-[#141414] to-[#0f0f0f]">
+        <div className="relative h-16 border-b border-white/10 flex items-center justify-between px-5 bg-[#111d30]/90">
           {/* Header glow line */}
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#00af9b]/30 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#7ea3d9]/30 to-transparent" />
 
           <div className="flex items-center gap-3">
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
               title="Close Notifications"
             >
               <X size={18} />
             </button>
-            <div className="w-9 h-9 rounded-xl bg-linear-to-br from-[#00af9b]/20 to-[#00af9b]/5 border border-[#00af9b]/20 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#162338] border border-white/15 flex items-center justify-center">
               <Bell size={16} className="text-[#00af9b]" />
             </div>
             <div>
@@ -126,7 +126,7 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
                     {unreadCount} New
                   </span>
                 ) : (
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wider">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-wider">
                     All set
                   </span>
                 )}
@@ -138,7 +138,7 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
-                className="p-2 rounded-lg text-gray-400 hover:text-[#00af9b] hover:bg-[#00af9b]/10 transition-colors"
+                className="p-2 rounded-lg text-slate-400 hover:text-[#00af9b] hover:bg-[#00af9b]/10 transition-colors"
                 title="Mark all as read"
               >
                 <Check size={16} />
@@ -147,7 +147,7 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
             {notifications.length > 0 && (
               <button
                 onClick={handleClearAll}
-                className="p-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                 title="Clear all"
               >
                 <Trash2 size={16} />
@@ -163,7 +163,7 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
-                  className="flex items-start gap-3 p-3 rounded-xl bg-white/2 border border-white/5"
+                  className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/10"
                 >
                   <SkeletonBase className="w-10 h-10 rounded-full" />
                   <div className="flex-1 space-y-2">
@@ -175,13 +175,13 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
             </div>
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
-              <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-4 border border-white/5">
-                <Bell size={24} className="text-gray-600" />
+              <div className="w-14 h-14 bg-white/[0.03] rounded-2xl flex items-center justify-center mb-4 border border-white/10">
+                <Bell size={24} className="text-slate-500" />
               </div>
-              <p className="text-gray-500 text-sm font-medium">
+              <p className="text-slate-400 text-sm font-medium">
                 No notifications
               </p>
-              <p className="text-gray-600 text-xs mt-1">
+              <p className="text-slate-500 text-xs mt-1">
                 We'll let you know when something happens!
               </p>
             </div>
@@ -195,7 +195,7 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
                     ${
                       !notification.is_read
                         ? "bg-[#00af9b]/5 border-[#00af9b]/20 hover:bg-[#00af9b]/10"
-                        : "bg-white/2 border-white/5 hover:bg-white/5 hover:border-white/10"
+                        : "bg-white/[0.03] border-white/10 hover:bg-white/[0.07] hover:border-white/20"
                     }
                 `}
               >
@@ -206,7 +206,7 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
 
                 {/* Avatar */}
                 <div className="relative shrink-0">
-                  <div className="w-10 h-10 rounded-full overflow-hidden ring-1 ring-white/10 bg-zinc-800">
+                  <div className="w-10 h-10 rounded-full overflow-hidden ring-1 ring-white/15 bg-[#162338]">
                     {getImageUrl(notification.actor?.avatar_url) ? (
                       <img
                         src={getImageUrl(notification.actor.avatar_url)}
@@ -214,29 +214,29 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xs font-bold text-gray-500 bg-zinc-800">
+                      <div className="w-full h-full flex items-center justify-center text-xs font-bold text-slate-400 bg-[#162338]">
                         {notification.actor?.username?.[0]?.toUpperCase() ||
                           "?"}
                       </div>
                     )}
                   </div>
                   {/* Action Icon Badge */}
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#121212] flex items-center justify-center border border-white/10">
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#0a1220] flex items-center justify-center border border-white/15">
                     {getNotificationIcon(notification.verb)}
                   </div>
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0 pr-4">
-                  <p className="text-sm text-gray-300 leading-snug">
+                  <p className="text-sm text-slate-300 leading-snug">
                     <span
-                      className={`font-semibold ${!notification.is_read ? "text-white" : "text-gray-200"}`}
+                      className={`font-semibold ${!notification.is_read ? "text-white" : "text-slate-200"}`}
                     >
                       {notification.actor?.username}
                     </span>{" "}
-                    <span className="text-gray-400">{notification.verb}</span>
+                    <span className="text-slate-400">{notification.verb}</span>
                   </p>
-                  <p className="text-[10px] text-gray-500 mt-1 flex items-center gap-1">
+                  <p className="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
                     {formatDistanceToNow(new Date(notification.created_at), {
                       addSuffix: true,
                     })}
@@ -245,7 +245,7 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
 
                 {/* Target Preview */}
                 {notification.target_preview && (
-                  <div className="w-10 h-10 rounded-lg bg-zinc-800 overflow-hidden shrink-0 border border-white/5">
+                  <div className="w-10 h-10 rounded-lg bg-[#162338] overflow-hidden shrink-0 border border-white/10">
                     <img
                       src={getImageUrl(notification.target_preview)}
                       alt=""

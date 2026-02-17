@@ -33,11 +33,11 @@ const DayGrid = ({
                       key={day}
                       onClick={() => isClaimable ? handleCheckIn(day) : null}
                       className={cn(
-                        "relative transition-all border-2",
-                        isCompleted && "bg-linear-to-br from-green-500/20 to-[#00af9b]/20 border-green-500/30 cursor-default",
-                        isClaimable && "bg-linear-to-br from-primary/20 to-orange-500/20 border-primary/50 cursor-pointer hover:scale-105 animate-pulse",
-                        isMissed && "bg-red-500/10 border-red-500/20 opacity-70 cursor-not-allowed",
-                        !isCompleted && !isClaimable && !isMissed && "bg-[#1a1a1a] border-white/5 opacity-50 cursor-not-allowed",
+                        "relative transition-all border-2 backdrop-blur-md",
+                        isCompleted && "bg-linear-to-br from-green-500/20 to-[#00af9b]/20 border-green-400/35 cursor-default shadow-[0_8px_24px_rgba(0,0,0,0.18)]",
+                        isClaimable && "bg-linear-to-br from-primary/25 to-orange-500/20 border-primary/55 cursor-pointer hover:scale-105 animate-pulse shadow-[0_8px_24px_rgba(0,0,0,0.22)]",
+                        isMissed && "bg-red-500/12 border-red-500/25 opacity-75 cursor-not-allowed",
+                        !isCompleted && !isClaimable && !isMissed && "bg-[#162338]/70 border-white/12 opacity-60 cursor-not-allowed",
                         checkingIn && "opacity-50 cursor-not-allowed"
                       )}
                     >
@@ -50,7 +50,7 @@ const DayGrid = ({
                             isCompleted && "bg-green-500 hover:bg-green-500 text-white border-none",
                             isClaimable && "bg-primary hover:bg-primary text-black border-none",
                             isMissed && "bg-transparent text-red-500 border-red-500/30",
-                            !isCompleted && !isClaimable && !isMissed && "text-gray-500 border-white/10"
+                            !isCompleted && !isClaimable && !isMissed && "text-slate-400 border-white/15 bg-white/[0.03]"
                           )}
 
                         >

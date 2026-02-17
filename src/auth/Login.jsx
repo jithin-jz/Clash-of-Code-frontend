@@ -88,14 +88,27 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen font-sans selection:bg-[#ffa116]/30 selection:text-black flex items-center justify-center relative overflow-hidden px-4 py-10 bg-[#1a1a1a]">
-      <div className="relative z-10 w-full max-w-[440px] p-6 sm:p-8 app-surface rounded-[2rem] animate-in fade-in zoom-in-95 duration-500">
+    <div className="min-h-screen font-sans selection:bg-[#ffa116]/30 selection:text-black flex items-center justify-center relative overflow-hidden px-4 py-10 bg-[#0b1119]">
+      <div className="absolute inset-0 pointer-events-none bg-[#0b1119]" />
+      <div className="absolute inset-0 pointer-events-none bg-linear-to-b from-[#101928] via-[#0d141f] to-[#0a0f17]" />
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.06]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(148,163,184,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.35) 1px, transparent 1px)",
+          backgroundSize: "52px 52px",
+        }}
+      />
+      <div className="absolute top-0 left-[8%] w-[24rem] h-[24rem] rounded-full bg-[#2563eb]/10 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[-8rem] right-[10%] w-[20rem] h-[20rem] rounded-full bg-[#0ea5e9]/10 blur-3xl pointer-events-none" />
+
+      <div className="relative z-10 w-full max-w-[460px] p-6 sm:p-8 rounded-[2rem] border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl shadow-[0_22px_60px_rgba(0,0,0,0.35)] animate-in fade-in zoom-in-95 duration-500">
         <div className="text-center mb-6">
           <h2 className="text-3xl font-bold text-white tracking-tight">Sign In</h2>
         </div>
 
         <div className="space-y-4">
-          <div className="bg-[#1f1f1f] p-4 rounded-2xl border border-[#3a3a3a] mb-6 shadow-sm">
+          <div className="bg-[#111d30]/85 p-4 rounded-2xl border border-white/10 mb-6 shadow-sm">
             {!showOtpInput ? (
               <form onSubmit={handleSendOtp} className="space-y-3">
                 <input
@@ -103,7 +116,7 @@ const Login = () => {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-11 px-3 bg-[#262626] border border-[#3a3a3a] rounded-xl text-white text-sm focus:outline-none focus:border-[#ffa116] focus:ring-2 focus:ring-[#ffa116]/20 transition-colors"
+                  className="w-full h-11 px-3 bg-[#162338] border border-white/15 rounded-xl text-white text-sm focus:outline-none focus:border-[#ffa116] focus:ring-2 focus:ring-[#ffa116]/20 transition-colors"
                   required
                 />
                 <button
@@ -135,7 +148,7 @@ const Login = () => {
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
                   maxLength={6}
-                  className="w-full h-11 px-3 bg-[#262626] border border-[#3a3a3a] rounded-xl text-white text-center text-lg tracking-widest focus:outline-none focus:border-[#ffa116] focus:ring-2 focus:ring-[#ffa116]/20 transition-colors"
+                  className="w-full h-11 px-3 bg-[#162338] border border-white/15 rounded-xl text-white text-center text-lg tracking-widest focus:outline-none focus:border-[#ffa116] focus:ring-2 focus:ring-[#ffa116]/20 transition-colors"
                   required
                 />
                 <button
@@ -150,8 +163,8 @@ const Login = () => {
           </div>
 
           <div className="relative flex items-center justify-center my-5">
-            <div className="absolute inset-x-0 h-px bg-[#3a3a3a]"></div>
-            <span className="relative z-10 bg-[#262626] px-3 text-xs text-gray-400">
+            <div className="absolute inset-x-0 h-px bg-white/10"></div>
+            <span className="relative z-10 bg-[#0f1b2e] px-3 text-xs text-slate-400">
               Continue with
             </span>
           </div>
@@ -159,7 +172,7 @@ const Login = () => {
           <button
             onClick={() => handleOAuthClick("github")}
             disabled={loading || isOAuthLoading}
-            className="w-full h-12 flex items-center justify-center bg-[#1f1f1f] text-white rounded-2xl font-semibold border border-[#3a3a3a] hover:border-[#ffa116] active:scale-[0.98] transition-all"
+            className="w-full h-12 flex items-center justify-center bg-[#111d30]/85 text-white rounded-2xl font-semibold border border-white/15 hover:border-[#ffa116]/60 active:scale-[0.98] transition-all"
           >
             {isOAuthLoading ? "Opening..." : "GitHub"}
           </button>
@@ -167,7 +180,7 @@ const Login = () => {
           <button
             onClick={() => handleOAuthClick("google")}
             disabled={loading || isOAuthLoading}
-            className="w-full h-12 flex items-center justify-center bg-[#1f1f1f] border border-[#3a3a3a] hover:border-[#ffa116] text-white rounded-2xl font-medium active:scale-[0.98] transition-all"
+            className="w-full h-12 flex items-center justify-center bg-[#111d30]/85 border border-white/15 hover:border-[#ffa116]/60 text-white rounded-2xl font-medium active:scale-[0.98] transition-all"
           >
             {isOAuthLoading ? "Opening..." : "Google"}
           </button>

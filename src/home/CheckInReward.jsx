@@ -10,8 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../components/ui/dialog';
-import { Card, CardContent } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
 
 // Subcomponents
 import StreakStats from './components/StreakStats';
@@ -74,10 +72,10 @@ const CheckInReward = ({ isOpen, onClose, onClaim }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl bg-[#09090b] border-white/10 text-white">
+      <DialogContent className="sm:max-w-2xl bg-[#0f1b2e]/72 border border-[#7ea3d9]/25 text-white backdrop-blur-2xl shadow-[0_24px_70px_rgba(0,0,0,0.45)]">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-primary/10 border border-primary/20 rounded-xl">
+            <div className="p-3 bg-primary/10 border border-primary/25 rounded-xl backdrop-blur-md">
               <Calendar className="text-primary h-6 w-6" />
             </div>
             <div>
@@ -95,10 +93,10 @@ const CheckInReward = ({ isOpen, onClose, onClaim }) => {
           {loading ? (
             <>
                 {/* Skeleton state */}
-                <p className="text-sm text-gray-400 text-center animate-pulse bg-white/5 mx-auto rounded-md h-4 w-64 mb-4"></p>
+                <p className="text-sm text-gray-400 text-center animate-pulse bg-white/10 mx-auto rounded-md h-4 w-64 mb-4"></p>
                 <div className="grid grid-cols-7 gap-2 animate-pulse">
                      {[1, 2, 3, 4, 5, 6, 7].map(i => (
-                         <div key={i} className="bg-[#1a1a1a] border border-white/5 h-20 rounded-xl"></div>
+                         <div key={i} className="bg-[#162338]/70 border border-white/15 h-20 rounded-xl backdrop-blur-md"></div>
                      ))}
                 </div>
             </>

@@ -3,13 +3,13 @@ import { SkeletonBase, SkeletonPage } from "../common/SkeletonPrimitives";
 
 const BuyXPSkeleton = () => {
   return (
-    <SkeletonPage className="flex flex-col bg-[#09090b]">
+    <SkeletonPage className="flex flex-col">
       {/* Header */}
-      <div className="bg-[#09090b] border-b border-white/5">
+      <div className="bg-[#0a1220]/85 backdrop-blur-xl border-b border-white/10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="h-14 flex items-center justify-between">
+          <div className="h-16 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <SkeletonBase className="h-9 w-9 rounded-lg" />
+              <SkeletonBase className="h-9 w-9 rounded-xl" />
               <SkeletonBase className="h-4 w-20 rounded" />
             </div>
             <SkeletonBase className="h-8 w-16 rounded-lg opacity-50" />
@@ -23,7 +23,7 @@ const BuyXPSkeleton = () => {
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="bg-zinc-900/50 border border-white/5 rounded-xl p-5 flex flex-col gap-4"
+              className="bg-[#0f1b2e]/70 border border-[#7ea3d9]/20 rounded-2xl p-5 flex flex-col gap-4"
             >
               {/* Icon */}
               <SkeletonBase className="w-10 h-10 rounded-lg" />

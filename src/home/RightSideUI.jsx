@@ -4,15 +4,23 @@ import { Star, User, LogOut, Calendar, Trophy, Bell, Play, ShoppingBag, MessageS
 import { motion, AnimatePresence } from "framer-motion";
 import useNotificationStore from "../stores/useNotificationStore";
 
-const NavAction = ({ onClick, title, icon, label, className = "", badge = null }) => (
+const NavAction = ({
+  onClick,
+  title,
+  icon,
+  label,
+  className = "",
+  badge = null,
+  showLabel = false,
+}) => (
   <button
     type="button"
     onClick={onClick}
     title={title}
-    className={`group relative h-10 px-3 rounded-full border border-white/20 bg-white/[0.04] hover:bg-white/10 hover:border-white/40 transition-all duration-200 inline-flex items-center gap-2 text-slate-200 shrink-0 ${className}`}
+    className={`group relative h-10 rounded-full border border-white/20 bg-white/[0.04] hover:bg-white/10 hover:border-white/40 transition-all duration-200 inline-flex items-center text-slate-200 shrink-0 ${showLabel ? "px-3 gap-2" : "w-10 justify-center"} ${className}`}
   >
     <span className="inline-flex items-center justify-center">{icon}</span>
-    <span className="text-xs font-semibold tracking-wide">{label}</span>
+    {showLabel ? <span className="text-xs font-semibold tracking-wide">{label}</span> : null}
     {badge}
   </button>
 );
@@ -65,9 +73,9 @@ const RightSideUI = ({
       <motion.nav
         initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="pointer-events-auto h-16 w-full border-b border-white/10 bg-[#0a1220]/82 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.35)] px-3 sm:px-6 lg:px-8 flex items-center gap-3"
+        className="pointer-events-auto h-16 w-full border-b border-white/10 bg-[#0a1220]/82 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.35)] px-3 sm:px-6 lg:px-8 grid grid-cols-[1fr_auto_1fr] items-center gap-2"
       >
-        <div className="flex items-center gap-2 min-w-0 overflow-x-auto no-scrollbar flex-1 pr-2">
+        <div className="flex items-center gap-2 min-w-0 overflow-x-auto no-scrollbar justify-self-start">
           <NavAction
             onClick={() => navigate(user ? "/profile" : "/login")}
             title={user ? "Profile" : "Login"}
@@ -86,29 +94,32 @@ const RightSideUI = ({
             className={user ? "border-[#7ea3d9]/50" : ""}
           />
 
-          <button
-            type="button"
-            onClick={() => navigate("/shop")}
-            title="XP"
-            className="h-10 px-3 rounded-full border border-white/20 bg-white/[0.06] hover:bg-white/[0.12] transition-colors inline-flex items-center gap-2 shrink-0"
-          >
-            <Star size={12} className="text-[#f59e0b]" fill="currentColor" />
-            <span className="text-xs font-semibold tracking-wide text-slate-200">XP</span>
-            <p className="text-white font-extrabold text-sm leading-none min-w-[48px] text-right">
-              {xp.toLocaleString()}
-            </p>
-          </button>
-
           {user ? (
             <button
               type="button"
               onClick={handleLogout}
-              className="h-10 px-3 rounded-full border border-rose-400/35 text-rose-200 hover:text-white hover:bg-rose-500/20 transition-colors text-xs font-semibold inline-flex items-center gap-1.5 shrink-0"
+              title="Logout"
+              className="h-10 w-10 rounded-full border border-rose-400/35 text-rose-200 hover:text-white hover:bg-rose-500/20 transition-colors inline-flex items-center justify-center shrink-0"
             >
               <LogOut size={13} />
-              Logout
             </button>
-          ) : (
+          ) : null}
+
+          <button
+            type="button"
+            onClick={() => navigate("/shop")}
+            title="XP"
+            className="h-10 px-2.5 rounded-full border border-white/20 bg-white/[0.06] hover:bg-white/[0.12] transition-colors inline-flex items-center gap-1.5 shrink-0"
+          >
+            <span className="h-7 w-7 rounded-full border border-white/15 bg-white/[0.04] inline-flex items-center justify-center">
+              <Star size={14} className="text-[#f59e0b]" fill="currentColor" />
+            </span>
+            <p className="text-white font-extrabold text-sm leading-none min-w-[44px] text-right">
+              {xp.toLocaleString()}
+            </p>
+          </button>
+
+          {!user ? (
             <button
               type="button"
               onClick={() => navigate("/login")}
@@ -116,7 +127,7 @@ const RightSideUI = ({
             >
               Login
             </button>
-          )}
+          ) : null}
 
           <NavAction
             onClick={() => navigate("/store")}
@@ -132,7 +143,15 @@ const RightSideUI = ({
             icon={<MessageSquare size={15} className="text-[#00af9b]" />}
             className={isChatOpen ? "border-[#00af9b]/60 bg-[#00af9b]/15" : ""}
           />
+        </div>
 
+        <div className="px-2 sm:px-4">
+          <h1 className="text-sm sm:text-base font-bold tracking-[0.18em] text-slate-100 whitespace-nowrap">
+            Clash of Code
+          </h1>
+        </div>
+
+        <div className="flex items-center gap-2 min-w-0 overflow-x-auto no-scrollbar justify-self-end">
           <NavAction
             onClick={() => setLeaderboardOpen((prev) => !prev)}
             title="Ranks"
@@ -190,23 +209,24 @@ const RightSideUI = ({
               ) : null
             }
           />
-        </div>
 
-        <NavAction
-          onClick={() => {
-            if (!user) {
-              navigate("/login");
-              return;
-            }
-            if (currentLevel?.slug) {
-              navigate(`/level/${currentLevel.slug}`);
-            }
-          }}
-          title="Play"
-          label="Play"
-          icon={<Play size={15} fill="currentColor" className="text-white ml-0.5" />}
-          className="border-[#ef4444]/70 bg-[#ef4444] hover:bg-[#dc2626] hover:border-[#ef4444]"
-        />
+          <NavAction
+            onClick={() => {
+              if (!user) {
+                navigate("/login");
+                return;
+              }
+              if (currentLevel?.slug) {
+                navigate(`/level/${currentLevel.slug}`);
+              }
+            }}
+            title="Play"
+            label="Play"
+            icon={<Play size={15} fill="currentColor" className="text-white ml-0.5" />}
+            showLabel
+            className="border-[#ef4444]/70 bg-[#ef4444] hover:bg-[#dc2626] hover:border-[#ef4444]"
+          />
+        </div>
       </motion.nav>
     </div>
   );
