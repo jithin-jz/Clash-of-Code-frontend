@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { checkInApi } from '../services/checkInApi';
-import useUserStore from '../stores/useUserStore';
+import { checkInApi } from '../../services/checkInApi';
+import useUserStore from '../../stores/useUserStore';
 import { Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -9,13 +9,13 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '../components/ui/dialog';
+} from '../../components/ui/dialog';
 
 // Subcomponents
-import StreakStats from './components/StreakStats';
-import DayGrid from './components/DayGrid';
+import StreakStats from '../components/StreakStats';
+import DayGrid from '../components/DayGrid';
 
-const CheckInReward = ({ isOpen, onClose, onClaim }) => {
+const DailyCheckInModal = ({ isOpen, onClose, onClaim }) => {
   const [checkInStatus, setCheckInStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [checkingIn, setCheckingIn] = useState(false);
@@ -122,4 +122,4 @@ const CheckInReward = ({ isOpen, onClose, onClaim }) => {
   );
 };
 
-export default CheckInReward;
+export default DailyCheckInModal;

@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import useChatStore from "../stores/useChatStore";
-import useAuthStore from "../stores/useAuthStore";
+import useChatStore from "../../stores/useChatStore";
+import useAuthStore from "../../stores/useAuthStore";
 import { MessageSquare, Users } from "lucide-react";
 import { motion } from "framer-motion";
 
 // Subcomponents
-import ChatInput from "./components/ChatInput";
-import MessageList from "./components/MessageList";
+import ChatInput from "../components/ChatInput";
+import MessageList from "../components/MessageList";
 
 const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
   // ... refs and state ...

@@ -1,7 +1,7 @@
 import { ShoppingBag, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const ShopButton = () => {
+const ShopNavButton = () => {
   const navigate = useNavigate();
   return (
     <div className="fixed left-6 bottom-6 z-30">
@@ -28,4 +28,4 @@ const ShopButton = () => {
   );
 };
 
-export default ShopButton;
+export default ShopNavButton;

@@ -23,7 +23,7 @@ import {
 } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
-import BuyXPSkeleton from "./BuyXPSkeleton";
+import BuyXpPageSkeleton from "./BuyXpPageSkeleton";
 
 const XP_PACKAGES = [
   { amount: 49, xp: 50, label: "Mini", icon: Zap },
@@ -36,7 +36,7 @@ const XP_PACKAGES = [
   { amount: 1999, xp: 2500, label: "Champion", icon: Crown },
 ];
 
-const BuyXPPage = () => {
+const BuyXpPage = () => {
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(null);
   const navigate = useNavigate();
@@ -120,7 +120,7 @@ const BuyXPPage = () => {
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-50 overflow-hidden"
         >
-          <BuyXPSkeleton />
+          <BuyXpPageSkeleton />
         </motion.div>
       ) : (
         <motion.div
@@ -289,4 +289,4 @@ const BuyXPPage = () => {
   );
 };
 
-export default BuyXPPage;
+export default BuyXpPage;

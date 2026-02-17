@@ -8,8 +8,8 @@ import {
   Target,
   Sparkles,
 } from "lucide-react";
-import LevelButton from "../game/LevelButton";
-import { getTrackMeta } from "../utils/challengeMeta";
+import LevelButton from "../../game/LevelButton";
+import { getTrackMeta } from "../../utils/challengeMeta";
 
 const TRACK_ORDER = [
   "Python Basics",
@@ -20,7 +20,7 @@ const TRACK_ORDER = [
   "OOP Mastery",
 ];
 
-const LevelMap = ({ levels, handleLevelClick, user }) => {
+const ChallengeMap = ({ levels, handleLevelClick, user }) => {
   const navigate = useNavigate();
 
   const {
@@ -240,4 +240,4 @@ const LevelMap = ({ levels, handleLevelClick, user }) => {
   );
 };
 
-export default LevelMap;
+export default ChallengeMap;

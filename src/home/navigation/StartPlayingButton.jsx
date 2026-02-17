@@ -3,7 +3,7 @@ import { Play, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-const PlayButton = ({ levels, user, className }) => {
+const StartPlayingButton = ({ levels, user, className }) => {
   const navigate = useNavigate();
 
   // Priority 1: First unlocked but not completed level (Current Grind)
@@ -54,4 +54,4 @@ const PlayButton = ({ levels, user, className }) => {
   );
 };
 
-export default PlayButton;
+export default StartPlayingButton;

@@ -7,7 +7,7 @@ import useAuthStore from "../stores/useAuthStore";
 import { motion } from "framer-motion";
 import CursorEffects from "./CursorEffects";
 import VictoryAnimation from "./VictoryAnimation";
-import CodeArenaSkeleton from "./CodeArenaSkeleton";
+import ChallengeWorkspaceSkeleton from "./ChallengeWorkspaceSkeleton";
 import { generateLocalCodeReview } from "../utils/localCodeReview";
 
 // Subcomponents
@@ -15,9 +15,9 @@ import HeaderBar from "./components/HeaderBar";
 import EditorPane from "./components/EditorPane";
 import ProblemPane from "./components/ProblemPane";
 import ConsolePane from "./components/ConsolePane";
-import NeuralLinkPane from "./components/NeuralLinkPane";
+import AIAssistantPane from "./components/AIAssistantPane";
 
-const CodeArena = () => {
+const ChallengeWorkspace = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [challenge, setChallenge] = useState(null);
@@ -592,7 +592,7 @@ const CodeArena = () => {
 
   // Show skeleton while loading challenge data
   if (isLoadingChallenge) {
-    return <CodeArenaSkeleton />;
+    return <ChallengeWorkspaceSkeleton />;
   }
 
   return (
@@ -750,7 +750,7 @@ const CodeArena = () => {
         {/* RIGHT CARD: AI Assistant */}
         <div className="w-full lg:w-[22rem] flex flex-col bg-[#0f1827]/64 backdrop-blur-xl border border-white/12 rounded-2xl shadow-[0_22px_60px_rgba(0,0,0,0.3)] overflow-hidden">
           <div className="flex-1 flex flex-col overflow-hidden relative">
-            <NeuralLinkPane
+            <AIAssistantPane
               onGetHint={handleGetHint}
               onPurchase={handlePurchaseAIAssist}
               onAnalyze={handleAnalyzeCode}
@@ -768,4 +768,4 @@ const CodeArena = () => {
     </div>
   );
 };
-export default CodeArena;
+export default ChallengeWorkspace;

@@ -18,7 +18,7 @@ const formatReviewMarkdown = (raw = "") => {
   return normalized.trim();
 };
 
-const NeuralLinkPane = ({
+const AIAssistantPane = ({
   onGetHint,
   onPurchase,
   onAnalyze,
@@ -299,4 +299,4 @@ const NeuralLinkPane = ({
   );
 };
 
-export default memo(NeuralLinkPane);
+export default memo(AIAssistantPane);

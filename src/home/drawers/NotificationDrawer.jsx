@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
-import { SkeletonBase } from "../common/SkeletonPrimitives";
-import useNotificationStore from "../stores/useNotificationStore";
-import useAuthStore from "../stores/useAuthStore";
+import { SkeletonBase } from "../../common/SkeletonPrimitives";
+import useNotificationStore from "../../stores/useNotificationStore";
+import useAuthStore from "../../stores/useAuthStore";
 
 const NotificationDrawer = ({ isOpen, onClose }) => {
   const navigate = useNavigate();

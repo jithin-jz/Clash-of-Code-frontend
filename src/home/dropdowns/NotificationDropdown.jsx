@@ -5,14 +5,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
-import { Button } from "../components/ui/button";
+} from "../../components/ui/dropdown-menu";
+import { Button } from "../../components/ui/button";
 import { Bell, Check } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { cn } from "../lib/utils";
-import useNotificationStore from "../stores/useNotificationStore";
-import useAuthStore from "../stores/useAuthStore";
+import { cn } from "../../lib/utils";
+import useNotificationStore from "../../stores/useNotificationStore";
+import useAuthStore from "../../stores/useAuthStore";
 
 const NotificationDropdown = ({ className }) => {
   const navigate = useNavigate();

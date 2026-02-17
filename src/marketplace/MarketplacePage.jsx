@@ -23,10 +23,10 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import useAuthStore from "../stores/useAuthStore";
-import useStoreStore from "../stores/useStoreStore";
+import useMarketplaceStore from "../stores/useMarketplaceStore";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import StoreSkeleton from "./StoreSkeleton";
+import MarketplacePageSkeleton from "./MarketplacePageSkeleton";
 
 const CATEGORIES = [
   { id: "THEME", label: "Themes", icon: Palette },
@@ -35,7 +35,7 @@ const CATEGORIES = [
   { id: "VICTORY", label: "Victory", icon: PartyPopper },
 ];
 
-const Store = () => {
+const MarketplacePage = () => {
   const navigate = useNavigate();
   const { user, checkAuth, setUser } = useAuthStore();
   const {
@@ -48,7 +48,7 @@ const Store = () => {
     purchaseItem,
     equipItem,
     unequipCategory,
-  } = useStoreStore();
+  } = useMarketplaceStore();
   const [activeCategory, setActiveCategory] = useState("THEME");
 
   useEffect(() => {
@@ -158,7 +158,7 @@ const Store = () => {
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-50 overflow-hidden"
         >
-          <StoreSkeleton />
+          <MarketplacePageSkeleton />
         </motion.div>
       ) : (
         <motion.div
@@ -387,4 +387,4 @@ const Store = () => {
   );
 };
 
-export default Store;
+export default MarketplacePage;

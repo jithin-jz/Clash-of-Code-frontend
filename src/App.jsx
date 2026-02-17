@@ -23,14 +23,14 @@ const Home = lazy(() => import("./pages/Home"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 const AdminDashboard = lazy(() => import("./admin/Dashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const BuyXPPage = lazy(() => import("./pages/BuyXPPage"));
-const Game = lazy(() => import("./pages/Game"));
+const BuyXpPage = lazy(() => import("./pages/BuyXpPage"));
+const GameRedirectPage = lazy(() => import("./pages/GameRedirectPage"));
 const CertificateVerification = lazy(
   () => import("./pages/CertificateVerification"),
 );
 
-const CodeArena = lazy(() => import("./game/CodeArena"));
-const Store = lazy(() => import("./store/Store"));
+const ChallengeWorkspace = lazy(() => import("./game/ChallengeWorkspace"));
+const MarketplacePage = lazy(() => import("./marketplace/MarketplacePage"));
 
 import useNotificationStore from "./stores/useNotificationStore";
 
@@ -123,7 +123,7 @@ const AppContent = () => {
                   path="/level/:id"
                   element={
                     <ProtectedRoute>
-                      <CodeArena />
+                      <ChallengeWorkspace />
                     </ProtectedRoute>
                   }
                 />
@@ -131,7 +131,7 @@ const AppContent = () => {
                   path="/shop"
                   element={
                     <ProtectedRoute>
-                      <BuyXPPage />
+                      <BuyXpPage />
                     </ProtectedRoute>
                   }
                 />
@@ -140,7 +140,7 @@ const AppContent = () => {
                   path="/buy-xp"
                   element={
                     <ProtectedRoute>
-                      <BuyXPPage />
+                      <BuyXpPage />
                     </ProtectedRoute>
                   }
                 />
@@ -149,7 +149,7 @@ const AppContent = () => {
                   path="/game"
                   element={
                     <ProtectedRoute>
-                      <Game />
+                      <GameRedirectPage />
                     </ProtectedRoute>
                   }
                 />
@@ -158,7 +158,7 @@ const AppContent = () => {
                   path="/store"
                   element={
                     <ProtectedRoute>
-                      <Store />
+                      <MarketplacePage />
                     </ProtectedRoute>
                   }
                 />

@@ -1,7 +1,7 @@
 import React from "react";
 import { SkeletonBase, SkeletonPage } from "../common/SkeletonPrimitives";
 
-const BuyXPSkeleton = () => {
+const BuyXpPageSkeleton = () => {
   return (
     <SkeletonPage className="flex flex-col">
       {/* Header */}
@@ -50,4 +50,4 @@ const BuyXPSkeleton = () => {
   );
 };
 
-export default BuyXPSkeleton;
+export default BuyXpPageSkeleton;

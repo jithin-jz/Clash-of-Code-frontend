@@ -7,13 +7,14 @@ import useChallengesStore from "../stores/useChallengesStore";
 // Components
 import HomeSkeleton from "./HomeSkeleton";
 import LevelModal from "../game/LevelModal";
-import ChatDrawer from "../home/ChatDrawer";
-import LeaderboardDrawer from "../home/LeaderboardDrawer";
-import RightSideUI from "../home/RightSideUI";
-import NotificationDrawer from "../home/NotificationDrawer";
-
-import LevelMap from "../home/LevelMap";
-import CheckInReward from "../home/CheckInReward";
+import {
+  ChatDrawer,
+  LeaderboardDrawer,
+  HomeTopNav,
+  NotificationDrawer,
+  ChallengeMap,
+  DailyCheckInModal,
+} from "../home";
 import { checkInApi } from "../services/checkInApi";
 import { challengesApi } from "../services/challengesApi";
 import CertificateModal from "../components/CertificateModal";
@@ -37,7 +38,6 @@ const Home = () => {
   const [isChatOpen, setChatOpen] = useState(false);
   const [isLeaderboardOpen, setLeaderboardOpen] = useState(false);
   const [isNotificationOpen, setNotificationOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [hasUnclaimedReward, setHasUnclaimedReward] = useState(false);
   const [certificateModalOpen, setCertificateModalOpen] = useState(false);
@@ -262,14 +262,12 @@ const Home = () => {
               isOpen={isNotificationOpen}
               onClose={() => setNotificationOpen(false)}
             />
-            <RightSideUI
+            <HomeTopNav
               user={user}
               levels={levels}
               handleLogout={handleLogout}
               setChatOpen={setChatOpen}
               isChatOpen={isChatOpen}
-              settingsOpen={settingsOpen}
-              setSettingsOpen={setSettingsOpen}
               checkInOpen={checkInOpen}
               setCheckInOpen={setCheckInOpen}
               setLeaderboardOpen={setLeaderboardOpen}
@@ -277,13 +275,13 @@ const Home = () => {
               hasUnclaimedReward={hasUnclaimedReward}
               userCertificate={userCertificate}
             />
-            <CheckInReward
+            <DailyCheckInModal
               isOpen={checkInOpen}
               onClose={() => setCheckInOpen(false)}
               onClaim={() => setHasUnclaimedReward(false)}
             />
 
-            <LevelMap
+            <ChallengeMap
               user={user}
               levels={levels}
               handleLevelClick={handleLevelClick}

@@ -3,7 +3,7 @@ import { storeAPI } from "../services/api";
 
 const CACHE_DURATION_MS = 5 * 60 * 1000;
 
-const useStoreStore = create((set, get) => ({
+const useMarketplaceStore = create((set, get) => ({
   items: [],
   isLoading: false,
   isMutating: false,
@@ -100,4 +100,4 @@ const useStoreStore = create((set, get) => ({
     }),
 }));
 
-export default useStoreStore;
+export default useMarketplaceStore;

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { User, Shield, ChevronRight } from "lucide-react";
 
-const ProfilePanel = ({ user }) => {
+const ProfileMenuButton = ({ user }) => {
   return (
     <motion.div
       className="fixed left-6 top-5 z-30"
@@ -56,4 +56,4 @@ const ProfilePanel = ({ user }) => {
   );
 };
 
-export default ProfilePanel;
+export default ProfileMenuButton;

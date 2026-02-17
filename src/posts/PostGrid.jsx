@@ -21,7 +21,11 @@ const PostGrid = ({ username, refreshTrigger }) => {
   const [loading, setLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState(null);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [editCaption, setEditCaption] = useState("");
 
   const { user: currentUser } = useAuthStore();
@@ -52,9 +56,13 @@ const PostGrid = ({ username, refreshTrigger }) => {
         newParams.delete("post");
         setSearchParams(newParams);
       }
+      setIsOptionsOpen(false);
+      setIsDeleteConfirmOpen(false);
+      setPendingDeleteId(null);
+      setIsEditing(false);
       setEditCaption("");
     }
-  }, [selectedPost]);
+  }, [selectedPost, searchParams, setSearchParams]);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -108,20 +116,31 @@ const PostGrid = ({ username, refreshTrigger }) => {
     }
   };
 
-  const handleDelete = async (postId) => {
-    if (!confirm("Are you sure you want to delete this post?")) return;
-
+  const confirmDelete = async (postId) => {
+    if (!postId) return;
+    setIsDeleting(true);
     try {
       await postsAPI.deletePost(postId);
       setPosts((prev) => prev.filter((p) => p.id !== postId));
+      setIsDeleteConfirmOpen(false);
+      setPendingDeleteId(null);
       setSelectedPost(null);
       notify.success("Post deleted");
     } catch (error) {
-      notify.error("Failed to delete post");
+      notify.error(error?.response?.data?.detail || "Failed to delete post");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
+  const handleDelete = (postId) => {
+    setPendingDeleteId(postId);
+    setIsDeleteConfirmOpen(true);
+  };
+
   const handleUpdate = async () => {
+    if (!selectedPost?.id) return;
+    setIsUpdating(true);
     try {
       await postsAPI.updatePost(selectedPost.id, { caption: editCaption });
 
@@ -135,7 +154,9 @@ const PostGrid = ({ username, refreshTrigger }) => {
       setIsEditing(false);
       notify.success("Post updated");
     } catch (error) {
-      notify.error("Failed to update post");
+      notify.error(error?.response?.data?.detail || "Failed to update post");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -278,11 +299,14 @@ const PostGrid = ({ username, refreshTrigger }) => {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => setIsEditing(false)}
+                            onClick={() => {
+                              setEditCaption(selectedPost.caption || "");
+                              setIsEditing(false);
+                            }}
                           >
                             Cancel
                           </Button>
-                          <Button size="sm" onClick={handleUpdate}>
+                          <Button size="sm" onClick={handleUpdate} disabled={isUpdating}>
                             Save
                           </Button>
                         </div>
@@ -361,6 +385,40 @@ const PostGrid = ({ username, refreshTrigger }) => {
             >
               Cancel
             </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <DialogContent
+          showClose={false}
+          className="bg-zinc-900 border border-white/10 text-white sm:max-w-[420px] rounded-xl"
+        >
+          <div className="space-y-4">
+            <h3 className="text-base font-semibold">Delete Post</h3>
+            <p className="text-sm text-zinc-400">
+              Are you sure you want to delete this post? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setIsDeleteConfirmOpen(false);
+                  setPendingDeleteId(null);
+                }}
+                disabled={isDeleting}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => confirmDelete(pendingDeleteId)}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

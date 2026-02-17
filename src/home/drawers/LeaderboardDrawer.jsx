@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Trophy, Crown, Medal, Users, X, Zap } from "lucide-react";
 import { motion } from "framer-motion";
-import { SkeletonBase } from "../common/SkeletonPrimitives";
-import api from "../services/api";
-import useAuthStore from "../stores/useAuthStore";
+import { SkeletonBase } from "../../common/SkeletonPrimitives";
+import api from "../../services/api";
+import useAuthStore from "../../stores/useAuthStore";
 
 const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
   const [users, setUsers] = useState([]);

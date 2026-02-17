@@ -1,7 +1,7 @@
 import React from "react";
 import { SkeletonBase, SkeletonPage, SkeletonCode } from "../common/SkeletonPrimitives";
 
-const CodeArenaSkeleton = () => {
+const ChallengeWorkspaceSkeleton = () => {
   return (
     <SkeletonPage className="flex flex-col">
       <div className="relative z-10 h-14 bg-[#0a1220]/85 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-4">
@@ -50,4 +50,4 @@ const CodeArenaSkeleton = () => {
   );
 };
 
-export default CodeArenaSkeleton;
+export default ChallengeWorkspaceSkeleton;

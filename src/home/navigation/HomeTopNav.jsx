@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Star, User, LogOut, Calendar, Trophy, Bell, Play, ShoppingBag, MessageSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import useNotificationStore from "../stores/useNotificationStore";
+import useNotificationStore from "../../stores/useNotificationStore";
 
 const NavAction = ({
   onClick,
@@ -25,7 +25,7 @@ const NavAction = ({
   </button>
 );
 
-const RightSideUI = ({
+const HomeTopNav = ({
   user,
   levels,
   handleLogout,
@@ -232,4 +232,4 @@ const RightSideUI = ({
   );
 };
 
-export default RightSideUI;
+export default HomeTopNav;
