@@ -81,11 +81,6 @@ const LevelMap = ({
                 transition={{ delay: index * 0.01 }}
                 className="relative group h-10 w-10"
               >
-                {/* Active Pulse */}
-                {isCurrentLevel && (
-                  <div className="absolute -inset-2 bg-[#ffa116]/25 rounded-2xl blur-xl animate-pulse"></div>
-                )}
-
                 <LevelButton
                   level={level}
                   isCurrentLevel={isCurrentLevel}

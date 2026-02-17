@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Loader2, Sparkles, ArrowRight, Trophy } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "../components/ui/button";
 import { toast } from "sonner";
 
 import useAuthStore from "../stores/useAuthStore";
@@ -550,7 +549,10 @@ const CodeArena = () => {
   }
 
   return (
-    <div className="h-dvh flex flex-col bg-[#09090b] text-white overflow-hidden relative font-sans selection:bg-primary/20">
+    <div className="h-dvh flex flex-col bg-[#1a1a1a] text-white overflow-hidden relative font-sans selection:bg-primary/20">
+      <div className="absolute inset-0 pointer-events-none bg-[#1a1a1a]" />
+      <div className="absolute inset-0 pointer-events-none bg-[#262626]/50" />
+      <div className="absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-[#00af9b]/10 blur-3xl pointer-events-none" />
       <CursorEffects effectType={user?.profile?.active_effect} />
 
       {/* Completion Modal */}
@@ -603,7 +605,8 @@ const CodeArena = () => {
 
               <div className="flex flex-col w-full gap-2 mt-4">
                 {completionData.next_level_slug ? (
-                  <Button
+                  <button
+                    type="button"
                     onClick={async () => {
                       const slug = completionData.next_level_slug;
                       setCompletionData(null);
@@ -611,26 +614,26 @@ const CodeArena = () => {
                         navigate(`/level/${slug}`);
                       }, 100);
                     }}
-                    className="w-full bg-white text-black hover:bg-gray-200 h-10 rounded-none font-bold uppercase text-xs"
+                    className="w-full h-10 rounded-xl bg-[#ffa116] text-black hover:bg-[#ff8f00] font-bold uppercase text-xs transition-colors"
                   >
                     Next Challenge
-                  </Button>
+                  </button>
                 ) : null}
 
-                <Button
-                  variant="ghost"
+                <button
+                  type="button"
                   onClick={() => navigate("/")}
-                  className="w-full text-gray-500 hover:text-white h-10 rounded-none font-bold uppercase text-xs"
+                  className="w-full h-10 rounded-xl border border-white/10 bg-white/5 text-gray-300 hover:text-white hover:bg-white/10 font-bold uppercase text-xs transition-colors"
                 >
                   Dashboard
-                </Button>
+                </button>
               </div>
             </div>
           </motion.div>
         </div>
       )}
 
-      <div className="shrink-0">
+      <div className="shrink-0 relative z-10">
         <HeaderBar
           title={challenge?.title || "Loading..."}
           navigate={navigate}
@@ -642,18 +645,18 @@ const CodeArena = () => {
       </div>
 
       {/* Main Content - Minimalist Boxy Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative z-10 p-3 gap-3">
         {/* LEFT CARD: Problem */}
-        <div className="w-full lg:w-[25%] flex flex-col bg-[#18181b] border-r border-white/5">
+        <div className="w-full lg:w-[25%] flex flex-col bg-[#262626] border border-white/10 rounded-2xl shadow-xl shadow-black/25 overflow-hidden">
           <div className="flex-1 overflow-hidden relative">
             <ProblemPane challenge={challenge} loading={!challenge} />
           </div>
         </div>
 
         {/* MIDDLE COLUMN: Editor & Console Cards */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 rounded-2xl border border-white/10 shadow-xl shadow-black/25 overflow-hidden">
           {/* Editor Card */}
-          <div className="flex-1 flex flex-col bg-[#09090b] overflow-hidden relative group">
+          <div className="flex-1 flex flex-col bg-[#1a1a1a] overflow-hidden relative group">
             <div className="flex-1 relative">
               <EditorPane
                 code={code}
@@ -671,8 +674,8 @@ const CodeArena = () => {
           </div>
 
           {/* Console Card */}
-          <div className="h-[30%] flex flex-col bg-[#09090b] border-t border-white/5">
-            <div className="px-3 py-2 border-b border-white/5 bg-[#18181b] flex justify-between items-center h-8">
+          <div className="h-[30%] flex flex-col bg-[#1a1a1a] border-t border-white/10">
+            <div className="px-3 py-2 border-b border-white/5 bg-[#262626] flex justify-between items-center h-8">
               <span className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase font-sans">
                 Terminal
               </span>
@@ -689,7 +692,7 @@ const CodeArena = () => {
         </div>
 
         {/* RIGHT CARD: AI Assistant */}
-        <div className="w-full lg:w-[20%] flex flex-col bg-[#18181b] border-l border-white/5">
+        <div className="w-full lg:w-[20%] flex flex-col bg-[#262626] border border-white/10 rounded-2xl shadow-xl shadow-black/25 overflow-hidden">
           <div className="flex-1 flex flex-col overflow-hidden relative">
             <NeuralLinkPane
               onGetHint={handleGetHint}

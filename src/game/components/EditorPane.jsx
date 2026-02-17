@@ -26,8 +26,8 @@ const EditorPane = ({
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-[#09090b] relative group h-full">
-      <div className="flex-1 bg-[#09090b]">
+    <div className="flex-1 flex flex-col bg-[#1a1a1a] relative group h-full">
+      <div className="flex-1 bg-[#1a1a1a]">
         <Editor
           height="100%"
           defaultLanguage="python"

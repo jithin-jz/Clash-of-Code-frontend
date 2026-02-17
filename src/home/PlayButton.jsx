@@ -35,13 +35,10 @@ const PlayButton = ({ levels, user, className }) => {
         }}
         className="group relative"
       >
-        {/* Glow Effect */}
-        <div className="absolute inset-0 bg-[#ffa116] rounded-full blur-2xl opacity-20 group-hover:opacity-35 transition-opacity duration-500"></div>
-
         {/* Button Content */}
-        <div className="relative bg-[#262626] border border-[#3a3a3a] group-hover:border-[#ffa116] rounded-full p-2 flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-xl">
-          <div className="w-12 h-12 bg-gradient-to-br from-[#ffb84d] via-[#ffa116] to-[#d97706] rounded-full flex items-center justify-center text-black shadow-lg">
-            <Play size={24} fill="currentColor" className="ml-1" />
+        <div className="relative bg-[#262626] border border-[#3a3a3a] group-hover:border-[#ffa116] rounded-full p-2 flex items-center justify-center transition-all hover:scale-105 active:scale-95">
+          <div className="w-14 h-14 bg-gradient-to-br from-[#ffb84d] via-[#ffa116] to-[#d97706] rounded-full flex items-center justify-center text-black">
+            <Play size={28} fill="currentColor" className="ml-1" />
           </div>
         </div>
       </button>

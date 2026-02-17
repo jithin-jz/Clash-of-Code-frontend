@@ -1,13 +1,6 @@
 import React, { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import { Loader2, Sparkles } from "lucide-react";
-import { Button } from "../../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
 
 const NeuralLinkPane = ({
   onGetHint,
@@ -61,13 +54,13 @@ const NeuralLinkPane = ({
   const isLocked = ai_hints_purchased < hintLevel && !isMaxReached;
 
   return (
-    <Card className="flex-1 flex flex-col bg-[#18181b] border-none rounded-none overflow-hidden m-0">
-      <CardHeader className="border-b border-white/5 px-4 py-2 flex flex-row items-center justify-between space-y-0 bg-[#09090b]">
+    <section className="flex-1 flex flex-col bg-[#262626] overflow-hidden m-0">
+      <header className="border-b border-white/5 px-4 py-2 flex items-center justify-between bg-[#1a1a1a]">
         <div className="flex items-center gap-2">
           <Sparkles size={14} className="text-[#00af9b]" />
-          <CardTitle className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest font-sans">
+          <h2 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest font-sans">
             Assistant
-          </CardTitle>
+          </h2>
         </div>
         <div className="flex items-center gap-3">
           {userXp !== undefined && (
@@ -79,9 +72,9 @@ const NeuralLinkPane = ({
             </div>
           )}
         </div>
-      </CardHeader>
+      </header>
 
-      <CardContent className="flex-1 relative flex flex-col bg-[#18181b] overflow-hidden p-0">
+      <div className="flex-1 relative flex flex-col bg-[#262626] overflow-hidden p-0">
         {/* Hint Carousel Wrapper */}
         <div className="flex-1 relative overflow-hidden flex flex-col">
           <div
@@ -193,28 +186,30 @@ const NeuralLinkPane = ({
             </div>
           )}
         </div>
-      </CardContent>
+      </div>
 
       {/* Action Bar - Fixed at absolute bottom of Card */}
-      <div className="p-4 border-t border-white/5 bg-[#0a0a0a] space-y-2 shrink-0">
+      <div className="p-4 border-t border-white/5 bg-[#1a1a1a] space-y-2 shrink-0">
         {isMaxReached ? (
-          <Button
+          <button
+            type="button"
             disabled
             className="w-full bg-red-500/5 text-red-900 border border-red-500/10 text-[10px] font-bold h-10 rounded-none cursor-not-allowed flex items-center justify-center gap-2 uppercase tracking-widest"
           >
             Max Hints Reached
-          </Button>
+          </button>
         ) : isLocked ? (
           <div className="space-y-2">
-            <Button
+            <button
+              type="button"
               onClick={onPurchase}
               disabled={
                 isHintLoading || (userXp !== undefined && userXp < nextCost)
               }
-              className={`w-full text-[10px] font-bold h-10 rounded-none transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden uppercase tracking-widest ${
+              className={`w-full text-[10px] font-bold h-10 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden uppercase tracking-widest ${
                 userXp !== undefined && userXp < nextCost
                   ? "bg-red-500/5 border border-red-500/10 text-red-800 cursor-not-allowed"
-                  : "bg-white text-black hover:bg-gray-200 border border-white/10"
+                  : "bg-[#ffa116] text-black hover:bg-[#ff8f00] border border-[#ffb347]/40 shadow-lg shadow-[#ffa116]/20"
               }`}
             >
               {/* Shimmer effect overlay */}
@@ -231,7 +226,7 @@ const NeuralLinkPane = ({
               <span className="opacity-50 text-[9px] relative z-10 font-normal ml-1">
                 ({nextCost} XP)
               </span>
-            </Button>
+            </button>
             {userXp !== undefined && userXp < nextCost && (
               <p className="text-[9px] text-red-900 text-center font-bold uppercase tracking-tighter">
                 Insufficient XP
@@ -239,10 +234,11 @@ const NeuralLinkPane = ({
             )}
           </div>
         ) : (
-          <Button
+          <button
+            type="button"
             onClick={onGetHint}
             disabled={isHintLoading}
-            className="w-full bg-white/5 hover:bg-white/10 text-gray-500 hover:text-white border border-white/5 text-[10px] font-bold h-10 rounded-none transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
+            className="w-full bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 text-[10px] font-bold h-10 rounded-xl transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
           >
             {isHintLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -250,10 +246,10 @@ const NeuralLinkPane = ({
               <Sparkles size={12} />
             )}
             Unlock Intelligence
-          </Button>
+          </button>
         )}
       </div>
-    </Card>
+    </section>
   );
 };
 

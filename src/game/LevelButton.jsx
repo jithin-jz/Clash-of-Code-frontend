@@ -8,12 +8,12 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
     ? {
         background: "linear-gradient(160deg, #334155, #2b3542)",
         border: "1.5px solid #7c8fa8",
-        boxShadow: "0 10px 18px rgba(0, 0, 0, 0.35)",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.18)",
       }
     : {
         background: "#27303b",
         border: "1px solid #394656",
-        boxShadow: "inset 0 1px 2px rgba(0,0,0,0.3)",
+        boxShadow: "none",
       };
 
   const isCertificate = level.order === 54;
@@ -42,8 +42,8 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
     >
       <div
         className={`w-10 h-10 rounded-xl flex items-center justify-center relative transition-all duration-300
-                ${isCurrentLevel ? "ring-2 ring-[#ffa116] ring-offset-4 ring-offset-[#1a1a1a] shadow-[0_0_20px_rgba(255,161,22,0.35)]" : ""}
-                ${isCertificate ? "bg-gradient-to-br from-[#ffb84d] via-[#ffa116] to-[#d97706] border-2 border-[#fef3c7] shadow-[0_0_20px_rgba(255,161,22,0.35)]" : ""}
+                ${isCurrentLevel ? "ring-2 ring-[#ffa116] ring-offset-2 ring-offset-[#1a1a1a]" : ""}
+                ${isCertificate ? "bg-gradient-to-br from-[#ffb84d] via-[#ffa116] to-[#d97706] border-2 border-[#fef3c7]" : ""}
                 ${!level.unlocked ? "opacity-60 grayscale" : ""}
             `}
         style={!isCertificate ? baseStyle : {}}
@@ -53,7 +53,7 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
 
         <div className="relative z-10 flex items-center justify-center">
           {level.unlocked ? (
-            <div className="drop-shadow-lg">
+            <div>
               {isCertificate ? (
                 <Trophy
                   size={18}
@@ -77,7 +77,7 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
 
         {/* Stars (Small Overlay) */}
         {level.unlocked && !isCertificate && (
-          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 flex gap-0.5 bg-[#262626] rounded-full px-1.5 py-0.5 backdrop-blur-md border border-[#3a3a3a] shadow-lg transform scale-90 z-20">
+          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 flex gap-0.5 bg-[#262626] rounded-full px-1.5 py-0.5 backdrop-blur-md border border-[#3a3a3a] transform scale-90 z-20">
             {[1, 2, 3].map((star) => (
               <Star
                 key={star}
@@ -97,7 +97,7 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
             isCertificate
               ? "text-[#ffa116]"
               : level.unlocked
-                ? "text-white shadow-sm"
+                ? "text-white"
                 : "text-slate-400"
           }`}
         >
