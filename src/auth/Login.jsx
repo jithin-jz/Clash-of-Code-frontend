@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import useAuthStore from "../stores/useAuthStore";
 import { toast } from "sonner";
 
@@ -20,17 +20,18 @@ const Login = () => {
     verifyOtp,
     handleOAuthMessage,
   } = useAuthStore();
-  const [nowMs, setNowMs] = useState(Date.now());
+  const [otpCooldownSeconds, setOtpCooldownSeconds] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => setNowMs(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
+    const updateCooldown = () => {
+      const remaining = Math.max(0, Math.ceil((otpCooldownUntil - Date.now()) / 1000));
+      setOtpCooldownSeconds(remaining);
+    };
 
-  const otpCooldownSeconds = useMemo(
-    () => Math.max(0, Math.ceil((otpCooldownUntil - nowMs) / 1000)),
-    [otpCooldownUntil, nowMs],
-  );
+    updateCooldown();
+    const id = setInterval(updateCooldown, 1000);
+    return () => clearInterval(id);
+  }, [otpCooldownUntil]);
 
   useEffect(() => {
     const handleMessage = (event) => handleOAuthMessage(event);
@@ -53,15 +54,16 @@ const Login = () => {
       });
     }
 
-    const success = await requestOtp(email);
+    const success = await requestOtp(email.trim());
     if (success) {
       setShowOtpInput(true);
       toast.success("OTP Sent", {
         description: "Please check your inbox for the verification code.",
       });
     } else {
+      const latestError = useAuthStore.getState().error;
       toast.error("Failed to send OTP", {
-        description: error || "Please check your connection and try again.",
+        description: latestError || error || "Please check your connection and try again.",
       });
     }
   };
@@ -74,15 +76,17 @@ const Login = () => {
       });
     }
 
-    const success = await verifyOtp(email, otp);
+    const success = await verifyOtp(email.trim(), otp.trim());
     if (success) {
       toast.success("Welcome Back!", {
         description: "You have been successfully logged in.",
       });
       // Navigation handled by router based on auth state
     } else {
+      const latestError = useAuthStore.getState().error;
       toast.error("Invalid OTP", {
-        description: error || "The code you entered is incorrect. Please try again.",
+        description:
+          latestError || error || "The code you entered is incorrect. Please try again.",
       });
     }
   };
@@ -136,7 +140,10 @@ const Login = () => {
                 <div className="flex justify-between items-center">
                   <button
                     type="button"
-                    onClick={() => setShowOtpInput(false)}
+                    onClick={() => {
+                      setOtp("");
+                      setShowOtpInput(false);
+                    }}
                     className="text-xs text-[#ffa116] hover:underline"
                   >
                     Change Email
