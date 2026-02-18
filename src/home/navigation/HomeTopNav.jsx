@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Star, User, LogOut, Calendar, Trophy, Bell, Play, ShoppingBag, MessageSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -73,6 +73,17 @@ const HomeTopNav = ({
     .pop();
   const currentLevel = activeLevel || latestLevel || levels?.[0];
   const xp = user?.profile?.xp || 0;
+  const challengeLevels = useMemo(
+    () =>
+      (levels || []).filter(
+        (l) => l.slug !== "certificate" && l.type !== "CERTIFICATE",
+      ),
+    [levels],
+  );
+  const solvedCount = challengeLevels.filter((l) => l.completed).length;
+  const completionPercent = challengeLevels.length
+    ? Math.round((solvedCount / challengeLevels.length) * 100)
+    : 0;
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
@@ -125,6 +136,21 @@ const HomeTopNav = ({
             </p>
           </button>
 
+          {user && challengeLevels.length > 0 ? (
+            <div className="h-10 px-3 rounded-full border border-white/20 bg-white/[0.05] inline-flex items-center gap-2 shrink-0">
+              <span className="text-[10px] uppercase tracking-[0.14em] font-semibold text-slate-400">
+                Progress
+              </span>
+              <span className="text-xs font-bold text-white">
+                {solvedCount}/{challengeLevels.length}
+              </span>
+              <span className="h-1 w-1 rounded-full bg-white/35" />
+              <span className="text-xs font-bold text-slate-200">
+                {completionPercent}%
+              </span>
+            </div>
+          ) : null}
+
           {!user ? (
             <button
               type="button"
@@ -134,7 +160,15 @@ const HomeTopNav = ({
               Login
             </button>
           ) : null}
+        </div>
 
+        <div className="px-2 sm:px-4">
+          <h1 className="text-sm sm:text-base font-bold tracking-[0.18em] text-slate-100 whitespace-nowrap">
+            CLASH OF CODE
+          </h1>
+        </div>
+
+        <div className="flex items-center gap-2 min-w-0 overflow-x-auto no-scrollbar justify-self-end">
           <NavAction
             onClick={() => navigate("/store")}
             title="Store"
@@ -149,15 +183,7 @@ const HomeTopNav = ({
             icon={<MessageSquare size={15} className="text-[#00af9b]" />}
             className={isChatOpen ? "border-[#00af9b]/60 bg-[#00af9b]/15" : ""}
           />
-        </div>
 
-        <div className="px-2 sm:px-4">
-          <h1 className="text-sm sm:text-base font-bold tracking-[0.18em] text-slate-100 whitespace-nowrap">
-            Clash of Code
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-2 min-w-0 overflow-x-auto no-scrollbar justify-self-end">
           <NavAction
             onClick={() => setLeaderboardOpen((prev) => !prev)}
             title="Ranks"

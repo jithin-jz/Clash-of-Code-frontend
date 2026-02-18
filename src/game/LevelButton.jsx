@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Lock, Star, Trophy } from "lucide-react";
 import { getDifficultyMeta } from "../utils/challengeMeta";
 
-const LevelButton = ({ level, isCurrentLevel, onClick }) => {
+const LevelButton = ({ level, isCurrentLevel, onClick, motionIndex = 0 }) => {
   const isCertificate = level.type === "CERTIFICATE" || level.slug === "certificate";
   const difficulty = getDifficultyMeta(level.order);
 
@@ -19,11 +19,26 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
       disabled={!level.unlocked}
       className={`w-full text-left rounded-xl border p-3 sm:p-3.5 min-h-[160px] transition-all duration-200 ${statusTone} ${
         level.unlocked
-          ? "cursor-pointer hover:border-[#4b6386] hover:bg-[#152137]"
+          ? "cursor-pointer hover:border-[#4b6386] hover:bg-[#152137] hover:shadow-[0_14px_32px_rgba(2,8,22,0.45)]"
           : "cursor-not-allowed opacity-80"
       } group`}
-      whileHover={level.unlocked ? { y: -2 } : {}}
-      whileTap={level.unlocked ? { scale: 0.995 } : {}}
+      initial={{ opacity: 0, y: 10, scale: 0.985 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{
+        duration: 0.42,
+        ease: [0.22, 1, 0.36, 1],
+        delay: Math.min(motionIndex * 0.045, 0.28),
+      }}
+      whileHover={
+        level.unlocked
+          ? {
+              y: -4,
+              scale: 1.01,
+              transition: { type: "spring", stiffness: 260, damping: 20 },
+            }
+          : {}
+      }
+      whileTap={level.unlocked ? { scale: 0.992 } : {}}
     >
       <div className="flex items-start justify-between gap-2.5">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -77,7 +92,7 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
               size={17}
               className={
                 level.unlocked
-                  ? "text-slate-300 group-hover:text-white"
+                  ? "text-slate-300 group-hover:text-white group-hover:translate-x-0.5 transition-transform duration-200"
                   : "text-slate-600"
               }
             />

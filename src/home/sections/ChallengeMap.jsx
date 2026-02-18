@@ -1,13 +1,7 @@
 import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import {
-  CheckCircle2,
-  Lock,
-  BarChart3,
-  Target,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, Crown, Lock, Sparkles } from "lucide-react";
 import LevelButton from "../../game/LevelButton";
 import { getTrackMeta } from "../../utils/challengeMeta";
 
@@ -24,15 +18,12 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
   const navigate = useNavigate();
 
   const {
-    challengeLevels,
     certificateLevel,
-    solvedCount,
-    unlockedCount,
+    completedChallenges,
+    totalChallenges,
+    certificateProgressPercent,
     grouped,
-    totalStars,
-    maxStars,
     trackProgress,
-    completionPercent,
   } = useMemo(() => {
     const sorted = [...levels].sort((a, b) => (a.order || 0) - (b.order || 0));
     const cert =
@@ -48,7 +39,6 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
       groupsMap[track].push(level);
     });
 
-    const stars = normal.reduce((sum, level) => sum + (level.stars || 0), 0);
     const progress = {};
 
     Object.entries(groupsMap).forEach(([trackName, trackLevels]) => {
@@ -61,58 +51,19 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
           : 0,
       };
     });
-
-    const completion = normal.length
-      ? Math.round((normal.filter((l) => l.completed).length / normal.length) * 100)
-      : 0;
+    const completed = normal.filter((l) => l.completed).length;
 
     return {
-      challengeLevels: normal,
       certificateLevel: cert,
-      solvedCount: normal.filter((l) => l.completed).length,
-      unlockedCount: normal.filter((l) => l.unlocked).length,
+      completedChallenges: completed,
+      totalChallenges: normal.length,
+      certificateProgressPercent: normal.length
+        ? Math.round((completed / normal.length) * 100)
+        : 0,
       grouped: groupsMap,
-      totalStars: stars,
-      maxStars: normal.length * 3,
       trackProgress: progress,
-      completionPercent: completion,
     };
   }, [levels]);
-
-  const statsCards = [
-    {
-      key: "solved",
-      label: "Solved",
-      icon: CheckCircle2,
-      value: solvedCount,
-      suffix: `/${challengeLevels.length}`,
-      helper: "Challenges cleared",
-    },
-    {
-      key: "unlocked",
-      label: "Unlocked",
-      icon: Lock,
-      value: unlockedCount,
-      suffix: `/${challengeLevels.length}`,
-      helper: "Ready to play",
-    },
-    {
-      key: "star-score",
-      label: "Star Score",
-      icon: Target,
-      value: totalStars,
-      suffix: `/${maxStars}`,
-      helper: "Total stars earned",
-    },
-    {
-      key: "completed",
-      label: "Completed",
-      icon: BarChart3,
-      value: completionPercent,
-      suffix: "%",
-      helper: "Overall progress",
-    },
-  ];
 
   return (
     <div
@@ -126,23 +77,23 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className="pointer-events-auto max-w-2xl"
           >
-            <p className="inline-flex items-center gap-2 rounded-full border border-[#2a3648] bg-[#121b2a]/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400 mb-5">
-              <Sparkles size={12} className="text-[#60a5fa]" />
-              Professional Python Track
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.04] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-300 mb-5">
+              <Sparkles size={12} className="text-sky-300" />
+              Structured Python Track
             </p>
             <h1 className="text-5xl sm:text-6xl font-black tracking-tight text-white leading-[1.05]">
-              Welcome to
-              <span className="block text-[#60a5fa]">Clash of Code</span>
+              Build Strong
+              <span className="block text-[#93c5fd]">Python Skills</span>
             </h1>
             <p className="text-slate-300 text-base mt-5 mb-10 max-w-xl mx-auto leading-relaxed">
-              Structured challenge roadmap with verified progression, clean code
-              practice, and milestone-based learning.
+              Practice with focused coding challenges, track measurable progress,
+              and reach certification with a clear learning path.
             </p>
             <button
               onClick={() => navigate("/login")}
-              className="h-12 px-8 rounded-xl bg-[#ef4444] hover:bg-[#dc2626] text-white font-bold text-sm tracking-wide transition-colors"
+              className="h-12 px-8 rounded-xl border border-white/15 bg-white text-[#0f172a] hover:bg-slate-100 font-bold text-sm tracking-wide transition-colors"
             >
-              Login To Start Solving
+              Sign In to Continue
             </button>
           </motion.div>
         </div>
@@ -154,44 +105,6 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
         }`}
       >
         <div className="h-full overflow-y-auto pr-1 pb-5 space-y-4 custom-scrollbar">
-          <section className="w-full rounded-3xl border border-white/14 bg-linear-to-br from-white/[0.14] via-white/[0.08] to-white/[0.03] backdrop-blur-xl p-3 sm:p-4 shadow-[0_24px_65px_rgba(0,0,0,0.34)]">
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-              {statsCards.map((card) => {
-                const Icon = card.icon;
-
-                return (
-                  <div
-                    key={card.key}
-                    className="relative overflow-hidden rounded-2xl border border-white/15 bg-[#101a29]/65 p-4 backdrop-blur-md"
-                  >
-                    <div className="absolute -top-6 -right-6 h-20 w-20 rounded-full bg-white/8 blur-2xl pointer-events-none" />
-                    <div className="relative z-10">
-                      <div className="flex items-center gap-2.5">
-                        <span
-                          className="h-8 w-8 rounded-lg border border-white/20 bg-white/[0.04] inline-flex items-center justify-center text-slate-300"
-                        >
-                          <Icon size={15} />
-                        </span>
-                        <span className="text-[11px] uppercase tracking-[0.18em] font-extrabold text-white/85">
-                          {card.label}
-                        </span>
-                      </div>
-                      <div className="mt-2.5 flex items-end gap-1.5">
-                        <span className="text-4xl font-black text-white leading-none">
-                          {card.value}
-                        </span>
-                        <span className="text-[1.38rem] font-bold text-white/42 leading-none">
-                          {card.suffix}
-                        </span>
-                      </div>
-                      <p className="mt-1.5 text-xs text-white/65">{card.helper}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
           {TRACK_ORDER.map((track) => {
             const trackLevels = grouped[track] || [];
             if (!trackLevels.length) return null;
@@ -225,6 +138,7 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
                         key={level.id}
                         level={level}
                         isCurrentLevel={isCurrentLevel}
+                        motionIndex={index}
                         onClick={() => handleLevelClick(level)}
                       />
                     );
@@ -236,15 +150,87 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
 
           {certificateLevel && (
             <section className="w-full rounded-2xl border border-white/12 bg-[#0f1827]/64 backdrop-blur-xl p-4 sm:p-5">
-              <h3 className="text-sm font-bold text-[#f8d08b] uppercase tracking-[0.16em] mb-3">
-                Certification
-              </h3>
-              <div className="max-w-xl">
-                <LevelButton
-                  level={certificateLevel}
-                  isCurrentLevel={false}
+              <div>
+                <div className="flex items-center justify-between mb-3.5">
+                  <h3 className="text-sm font-black text-[#f8d08b] uppercase tracking-[0.16em]">
+                    Certification
+                  </h3>
+                  <span className="inline-flex items-center rounded-full border border-[#f8d08b]/35 bg-[#f8d08b]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#f8d08b]">
+                    Final Milestone
+                  </span>
+                </div>
+
+                <button
+                  type="button"
                   onClick={() => handleLevelClick(certificateLevel)}
-                />
+                  className={`w-full rounded-2xl border text-left p-4 sm:p-5 transition-all duration-300 ${
+                    certificateLevel.unlocked
+                      ? "cursor-pointer border-[#f8d08b]/45 bg-[#120e06]/68 hover:border-[#f8d08b]/70 hover:bg-[#161108]/82"
+                      : "cursor-not-allowed border-[#6b5b38]/40 bg-[#120e06]/56"
+                  }`}
+                >
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex items-start gap-3.5 min-w-0">
+                      <div className="h-12 w-12 shrink-0 rounded-xl border border-[#f8d08b]/45 bg-linear-to-br from-[#facc15] to-[#f59e0b] inline-flex items-center justify-center text-[#1c1406] shadow-[0_10px_24px_rgba(250,204,21,0.25)]">
+                        {certificateLevel.unlocked ? (
+                          <Crown size={20} />
+                        ) : (
+                          <Lock size={18} />
+                        )}
+                      </div>
+
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#f8d08b]/80">
+                          Professional Badge
+                        </p>
+                        <h4 className="text-xl font-black text-[#fff8e8] leading-tight">
+                          Python Mastery Certificate
+                        </h4>
+                        <p className="mt-1 text-sm text-[#e8d2a0]">
+                          {certificateLevel.unlocked
+                            ? "Unlocked. Open your certificate and share your achievement."
+                            : certificateLevel.unlock_message ||
+                              "Unlock after completing all levels."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 shrink-0">
+                      <span
+                        className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] border ${
+                          certificateLevel.unlocked
+                            ? "border-[#f8d08b]/55 bg-[#f8d08b]/14 text-[#ffe8b5]"
+                            : "border-[#6b5b38]/55 bg-[#46361b]/35 text-[#c8b080]"
+                        }`}
+                      >
+                        {certificateLevel.unlocked ? "Unlocked" : "Locked"}
+                      </span>
+                      <ArrowRight
+                        size={18}
+                        className={
+                          certificateLevel.unlocked
+                            ? "text-[#f8d08b]"
+                            : "text-[#7a6640]"
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between text-xs font-semibold text-[#e6cf99]">
+                      <span>
+                        {completedChallenges}/{totalChallenges} levels complete
+                      </span>
+                      <span>{certificateProgressPercent}%</span>
+                    </div>
+                    <div className="mt-2 h-2.5 overflow-hidden rounded-full border border-[#6f5829]/45 bg-[#2a210f]/72">
+                      <div
+                        className="h-full rounded-full bg-linear-to-r from-[#facc15] via-[#f59e0b] to-[#fde68a]"
+                        style={{ width: `${certificateProgressPercent}%` }}
+                      />
+                    </div>
+                  </div>
+                </button>
               </div>
             </section>
           )}
