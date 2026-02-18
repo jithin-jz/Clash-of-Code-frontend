@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import * as htmlToImage from "html-to-image";
 import { toast } from "sonner";
 import CertificateTemplate from "./CertificateTemplate";
@@ -39,14 +39,14 @@ const CertificateModal = ({ isOpen, onClose, certificate, isLoading = false }) =
   if (isLoading) {
     return (
       <AnimatePresence>
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={onClose}
         >
-          <motion.div
+          <Motion.div
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -55,8 +55,8 @@ const CertificateModal = ({ isOpen, onClose, certificate, isLoading = false }) =
             onClick={(e) => e.stopPropagation()}
           >
             <p className="text-sm text-zinc-300">Loading certificate...</p>
-          </motion.div>
-        </motion.div>
+          </Motion.div>
+        </Motion.div>
       </AnimatePresence>
     );
   }
@@ -64,14 +64,14 @@ const CertificateModal = ({ isOpen, onClose, certificate, isLoading = false }) =
   if (!certificate) {
     return (
       <AnimatePresence>
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={onClose}
         >
-          <motion.div
+          <Motion.div
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -90,8 +90,8 @@ const CertificateModal = ({ isOpen, onClose, certificate, isLoading = false }) =
                 Close
               </button>
             </div>
-          </motion.div>
-        </motion.div>
+          </Motion.div>
+        </Motion.div>
       </AnimatePresence>
     );
   }
@@ -126,14 +126,14 @@ const CertificateModal = ({ isOpen, onClose, certificate, isLoading = false }) =
       )}
 
       {isOpen && (
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={onClose}
         >
-          <motion.div
+          <Motion.div
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -272,9 +272,6 @@ const CertificateModal = ({ isOpen, onClose, certificate, isLoading = false }) =
                     disabled={downloading}
                     className="flex-1 bg-white text-black font-bold text-sm rounded-xl hover:bg-slate-200 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-white/5"
                   >
-                    {downloading ? (
-                      <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                    ) : null}
                     {downloading ? "Generating..." : "Download"}
                   </button>
 
@@ -311,8 +308,8 @@ const CertificateModal = ({ isOpen, onClose, certificate, isLoading = false }) =
                 </div>
               </div>
             </div>
-          </motion.div>
-        </motion.div>
+          </Motion.div>
+        </Motion.div>
       )}
     </AnimatePresence>
   );

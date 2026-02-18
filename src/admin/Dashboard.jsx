@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useAuthStore from "../stores/useAuthStore";
 import { authAPI } from "../services/api";
 import { notify } from "../services/notification";
-import Loader from "../common/Loader";
+import { AdminPageSkeleton } from "./AdminSkeletons";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 
@@ -29,6 +29,7 @@ import AdminBroadcast from "./AdminBroadcast";
 import AdminAuditLogs from "./AdminAuditLogs";
 
 import AdminStore from "./AdminStore";
+import AppBackdrop from "../components/AppBackdrop";
 
 const normalizeText = (value) => String(value || "").toLowerCase();
 
@@ -251,28 +252,30 @@ const AdminDashboard = () => {
     navigate("/login");
   };
 
-  if (loading) return <Loader isLoading={true} />;
+  if (loading) return <AdminPageSkeleton />;
   if (!user?.is_staff && !user?.is_superuser) return null;
 
   return (
-    <div className="flex h-screen bg-zinc-950 overflow-hidden font-sans antialiased text-zinc-200">
-      <AdminSidebar
-        user={user}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        handleLogout={handleLogout}
-      />
+    <div className="relative h-screen overflow-hidden font-sans antialiased text-slate-200 bg-[#0b1119]">
+      <AppBackdrop />
+      <div className="relative z-10 flex h-full">
+        <AdminSidebar
+          user={user}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          handleLogout={handleLogout}
+        />
 
-      <main className="flex-1 overflow-y-auto bg-zinc-950">
-        <div className="p-8 max-w-7xl mx-auto space-y-6">
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-8 max-w-7xl mx-auto space-y-6">
           {activeTab === "users" && (
             <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
               <div className="space-y-6">
                 <div className="grid grid-cols-1 gap-6">
-                  <div className="p-6 rounded-xl bg-zinc-900 border border-zinc-800 shadow-sm flex flex-col justify-between group/card">
+                  <div className="p-6 rounded-xl bg-[#0f1b2e]/70 border border-[#7ea3d9]/20 backdrop-blur-xl shadow-sm flex flex-col justify-between group/card">
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-sm font-semibold text-white">
+                        <h3 className="text-sm font-semibold text-slate-100">
                           System Health
                         </h3>
                         <Badge
@@ -283,60 +286,60 @@ const AdminDashboard = () => {
                         </Badge>
                       </div>
                       <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 mt-6">
-                        <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 text-center">
-                          <p className="text-[9px] uppercase font-semibold text-zinc-500 mb-1">
+                        <div className="p-3 rounded-lg bg-[#0a1220]/65 border border-white/10 text-center">
+                          <p className="text-[9px] uppercase font-semibold text-slate-500 mb-1">
                             Users
                           </p>
-                          <p className="text-xl font-bold text-white tracking-tight">
+                          <p className="text-xl font-bold text-slate-100 tracking-tight">
                             {integrity?.users || 0}
                           </p>
                         </div>
-                        <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 text-center">
-                          <p className="text-[9px] uppercase font-semibold text-zinc-500 mb-1">
+                        <div className="p-3 rounded-lg bg-[#0a1220]/65 border border-white/10 text-center">
+                          <p className="text-[9px] uppercase font-semibold text-slate-500 mb-1">
                             Sessions
                           </p>
-                          <p className="text-xl font-bold text-white tracking-tight">
+                          <p className="text-xl font-bold text-slate-100 tracking-tight">
                             {rawStats.active_sessions || 0}
                           </p>
                         </div>
-                        <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 text-center">
-                          <p className="text-[9px] uppercase font-semibold text-zinc-500 mb-1">
+                        <div className="p-3 rounded-lg bg-[#0a1220]/65 border border-white/10 text-center">
+                          <p className="text-[9px] uppercase font-semibold text-slate-500 mb-1">
                             Challenges
                           </p>
-                          <p className="text-xl font-bold text-white tracking-tight">
+                          <p className="text-xl font-bold text-slate-100 tracking-tight">
                             {integrity?.challenges || 0}
                           </p>
                         </div>
-                        <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 text-center">
-                          <p className="text-[9px] uppercase font-semibold text-zinc-500 mb-1">
+                        <div className="p-3 rounded-lg bg-[#0a1220]/65 border border-white/10 text-center">
+                          <p className="text-[9px] uppercase font-semibold text-slate-500 mb-1">
                             Inventory
                           </p>
-                          <p className="text-xl font-bold text-white tracking-tight">
+                          <p className="text-xl font-bold text-slate-100 tracking-tight">
                             {integrity?.store_items || 0}
                           </p>
                         </div>
-                        <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 text-center">
-                          <p className="text-[9px] uppercase font-semibold text-zinc-500 mb-1">
+                        <div className="p-3 rounded-lg bg-[#0a1220]/65 border border-white/10 text-center">
+                          <p className="text-[9px] uppercase font-semibold text-slate-500 mb-1">
                             Audit Logs
                           </p>
-                          <p className="text-xl font-bold text-white tracking-tight">
+                          <p className="text-xl font-bold text-slate-100 tracking-tight">
                             {integrity?.audit_logs || 0}
                           </p>
                         </div>
-                        <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 text-center">
-                          <p className="text-[9px] uppercase font-semibold text-zinc-500 mb-1">
+                        <div className="p-3 rounded-lg bg-[#0a1220]/65 border border-white/10 text-center">
+                          <p className="text-[9px] uppercase font-semibold text-slate-500 mb-1">
                             XP Spent
                           </p>
-                          <p className="text-xl font-bold text-white tracking-tight">
+                          <p className="text-xl font-bold text-slate-100 tracking-tight">
                             {rawStats.total_gems || 0}
                           </p>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between mt-6 pt-4 border-t border-zinc-800">
+                    <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/10">
                       <div className="flex items-center gap-2">
                         <Shield className="text-[#00af9b]" size={12} />
-                        <span className="text-[9px] font-medium text-zinc-500 uppercase tracking-wider">
+                        <span className="text-[9px] font-medium text-slate-500 uppercase tracking-wider">
                           Real-time synchronization active
                         </span>
                       </div>
@@ -344,7 +347,7 @@ const AdminDashboard = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => setActiveTab("audit")}
-                        className="text-zinc-500 hover:text-white text-[9px] h-7 px-3 font-medium uppercase tracking-wider rounded-md hover:bg-zinc-800"
+                        className="text-slate-500 hover:text-white text-[9px] h-7 px-3 font-medium uppercase tracking-wider rounded-md hover:bg-white/10"
                       >
                         View Logs
                       </Button>
@@ -396,8 +399,9 @@ const AdminDashboard = () => {
               <AdminAuditLogs />
             </div>
           )}
+          </div>
+        </main>
         </div>
-      </main>
     </div>
   );
 };

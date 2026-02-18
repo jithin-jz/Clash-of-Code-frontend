@@ -5,7 +5,6 @@ import useAuthStore from "../stores/useAuthStore";
 import useUserStore from "../stores/useUserStore";
 import { toast } from "sonner";
 import {
-  Loader2,
   Zap,
   ArrowLeft,
   Check,
@@ -14,7 +13,7 @@ import {
   Flame,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion as Motion } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -112,7 +111,7 @@ const BuyXpPage = () => {
   return (
     <AnimatePresence mode="wait">
       {loading ? (
-        <motion.div
+        <Motion.div
           key="skeleton"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -121,9 +120,9 @@ const BuyXpPage = () => {
           className="fixed inset-0 z-50 overflow-hidden"
         >
           <BuyXpPageSkeleton />
-        </motion.div>
+        </Motion.div>
       ) : (
-        <motion.div
+        <Motion.div
           key="content"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -271,7 +270,9 @@ const BuyXpPage = () => {
                           `}
                         >
                           {isPurchasing ? (
-                            <Loader2 className="animate-spin w-4 h-4" />
+                            <span className="text-xs font-semibold">
+                              Processing...
+                            </span>
                           ) : (
                             <span>₹{pkg.amount}</span>
                           )}
@@ -283,7 +284,7 @@ const BuyXpPage = () => {
               </div>
             </div>
           </main>
-        </motion.div>
+        </Motion.div>
       )}
     </AnimatePresence>
   );

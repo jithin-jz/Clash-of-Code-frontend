@@ -8,7 +8,7 @@ import {
   DialogFooter,
 } from "../components/ui/dialog";
 import { Button } from "../components/ui/button";
-import { ImagePlus, X, Loader2, ArrowLeft } from "lucide-react";
+import { ImagePlus, X, ArrowLeft } from "lucide-react";
 import { notify } from "../services/notification";
 import { postsAPI } from "../services/api";
 
@@ -236,11 +236,7 @@ const CreatePostDialog = ({ open, onOpenChange, onPostCreated }) => {
                   disabled={loading}
                   className="bg-[#00af9b] hover:bg-[#008f7a] text-white font-semibold px-8"
                 >
-                  {loading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    "Share"
-                  )}
+                  {loading ? "Sharing..." : "Share"}
                 </Button>
               </div>
             </div>

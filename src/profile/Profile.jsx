@@ -15,7 +15,6 @@ import {
   Copy,
   Check,
   UserPlus,
-  Loader2,
   LogOut,
   Settings,
   Gift,
@@ -35,6 +34,7 @@ import {
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import { SkeletonBase } from "../common/SkeletonPrimitives";
 import {
   Dialog,
   DialogContent,
@@ -431,7 +431,7 @@ const Profile = () => {
                           className="absolute bottom-0 right-0 w-8 h-8 bg-[#162338] border border-white/15 rounded-full flex items-center justify-center text-slate-300 hover:text-white transition-colors cursor-pointer"
                         >
                           {uploadingAvatar ? (
-                            <Loader2 size={14} className="animate-spin" />
+                            <SkeletonBase className="w-3.5 h-3.5 rounded-full bg-white/20" />
                           ) : (
                             <Camera size={14} />
                           )}
@@ -561,11 +561,7 @@ const Profile = () => {
                             disabled={isRedeeming || !referralCodeInput}
                             className="bg-[#162338] text-white hover:bg-[#1b2a40] shrink-0"
                           >
-                            {isRedeeming ? (
-                              <Loader2 size={12} className="animate-spin" />
-                            ) : (
-                              "Go"
-                            )}
+                            {isRedeeming ? "..." : "Go"}
                           </Button>
                         </form>
                       </div>
@@ -627,11 +623,7 @@ const Profile = () => {
                         onClick={() => bannerInputRef.current?.click()}
                         className="text-xs text-slate-300 hover:text-white"
                       >
-                        {uploadingBanner ? (
-                          <Loader2 size={12} className="animate-spin" />
-                        ) : (
-                          "Change"
-                        )}
+                        {uploadingBanner ? "Saving..." : "Change"}
                       </Button>
                       <input
                         type="file"
@@ -785,8 +777,19 @@ const Profile = () => {
           </DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto">
             {listLoading ? (
-              <div className="p-8 text-center">
-                <Loader2 className="w-6 h-6 animate-spin text-zinc-500 mx-auto" />
+              <div className="p-4 space-y-3">
+                {[...Array(4)].map((_, idx) => (
+                  <div key={idx} className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 flex-1">
+                      <SkeletonBase className="w-9 h-9 rounded-full" />
+                      <div className="space-y-2 w-full">
+                        <SkeletonBase className="h-3 w-24 rounded" />
+                        <SkeletonBase className="h-2.5 w-16 rounded" />
+                      </div>
+                    </div>
+                    <SkeletonBase className="h-8 w-16 rounded-md" />
+                  </div>
+                ))}
               </div>
             ) : userList.length === 0 ? (
               <div className="p-8 text-center text-zinc-500 text-sm">

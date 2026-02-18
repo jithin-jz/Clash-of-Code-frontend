@@ -748,7 +748,7 @@ const ChallengeWorkspace = () => {
         </div>
 
         {/* RIGHT CARD: AI Assistant */}
-        <div className="w-full lg:w-[22rem] flex flex-col bg-[#0f1827]/64 backdrop-blur-xl border border-white/12 rounded-2xl shadow-[0_22px_60px_rgba(0,0,0,0.3)] overflow-hidden">
+        <div className="w-full lg:w-[24rem] xl:w-[26rem] flex flex-col bg-[#0f1827]/64 backdrop-blur-xl border border-white/12 rounded-2xl shadow-[0_22px_60px_rgba(0,0,0,0.3)] overflow-hidden">
           <div className="flex-1 flex flex-col overflow-hidden relative">
             <AIAssistantPane
               onGetHint={handleGetHint}

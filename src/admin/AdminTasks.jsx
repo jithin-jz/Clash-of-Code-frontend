@@ -6,7 +6,6 @@ import {
   X,
   RefreshCw,
   Layers,
-  Loader2,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -21,6 +20,7 @@ import {
 import Editor from "@monaco-editor/react";
 import { challengesApi } from "../services/challengesApi";
 import { notify } from "../services/notification";
+import { AdminTableLoadingRow } from "./AdminSkeletons";
 
 const AdminTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -115,16 +115,16 @@ const AdminTasks = () => {
     };
 
     return (
-      <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+      <div className="bg-[#0f1b2e]/70 rounded-xl p-6 border border-[#7ea3d9]/20 backdrop-blur-xl">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-white">
+          <h2 className="text-xl font-semibold text-slate-100">
             {task ? "Edit Challenge" : "New Challenge"}
           </h2>
           <Button
             variant="ghost"
             size="sm"
             onClick={onCancel}
-            className="h-8 w-8 p-0 text-zinc-500 hover:text-white"
+            className="h-8 w-8 p-0 text-slate-400 hover:text-white hover:bg-white/10"
           >
             <X size={18} />
           </Button>
@@ -133,23 +133,23 @@ const AdminTasks = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-500">Title</label>
+              <label className="text-xs font-medium text-slate-500">Title</label>
               <input
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-sm focus:border-zinc-700 outline-none text-white placeholder-zinc-700"
+                className="w-full bg-[#162338]/50 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white placeholder-slate-600"
                 placeholder="FizzBuzz"
                 required
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-500">Slug</label>
+              <label className="text-xs font-medium text-slate-500">Slug</label>
               <input
                 name="slug"
                 value={formData.slug}
                 onChange={handleChange}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-sm focus:border-zinc-700 outline-none text-white font-mono placeholder-zinc-700"
+                className="w-full bg-[#162338]/50 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white font-mono placeholder-slate-600"
                 placeholder="fizz-buzz"
                 required
               />
@@ -157,31 +157,31 @@ const AdminTasks = () => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-zinc-500">
+            <label className="text-xs font-medium text-slate-500">
               Description (Markdown)
             </label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full h-32 bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-sm focus:border-zinc-700 outline-none text-white font-mono placeholder-zinc-700 resize-none"
+              className="w-full h-32 bg-[#162338]/50 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white font-mono placeholder-slate-600 resize-none"
               required
             />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-500">Order</label>
+              <label className="text-xs font-medium text-slate-500">Order</label>
               <input
                 type="number"
                 name="order"
                 value={formData.order}
                 onChange={handleChange}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-sm focus:border-zinc-700 outline-none text-white"
+                className="w-full bg-[#162338]/50 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-500">
+              <label className="text-xs font-medium text-slate-500">
                 XP Reward
               </label>
               <input
@@ -189,11 +189,11 @@ const AdminTasks = () => {
                 name="xp_reward"
                 value={formData.xp_reward}
                 onChange={handleChange}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-sm focus:border-zinc-700 outline-none text-white"
+                className="w-full bg-[#162338]/50 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-500">
+              <label className="text-xs font-medium text-slate-500">
                 Time Limit (s)
               </label>
               <input
@@ -201,17 +201,17 @@ const AdminTasks = () => {
                 name="time_limit"
                 value={formData.time_limit}
                 onChange={handleChange}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-sm focus:border-zinc-700 outline-none text-white"
+                className="w-full bg-[#162338]/50 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 h-[300px]">
             <div className="flex flex-col space-y-1.5">
-              <label className="text-xs font-medium text-zinc-500">
+              <label className="text-xs font-medium text-slate-500">
                 Initial Code
               </label>
-              <div className="flex-1 border border-zinc-800 rounded-md overflow-hidden bg-zinc-950">
+              <div className="flex-1 border border-white/10 rounded-md overflow-hidden bg-[#0a1220]">
                 <Editor
                   height="100%"
                   defaultLanguage="python"
@@ -224,16 +224,16 @@ const AdminTasks = () => {
                     minimap: { enabled: false },
                     fontSize: 12,
                     padding: { top: 10 },
-                    background: "#09090b",
+                    background: "#0a1220",
                   }}
                 />
               </div>
             </div>
             <div className="flex flex-col space-y-1.5">
-              <label className="text-xs font-medium text-zinc-500">
+              <label className="text-xs font-medium text-slate-500">
                 Validation Code
               </label>
-              <div className="flex-1 border border-zinc-800 rounded-md overflow-hidden bg-zinc-950">
+              <div className="flex-1 border border-white/10 rounded-md overflow-hidden bg-[#0a1220]">
                 <Editor
                   height="100%"
                   defaultLanguage="python"
@@ -246,19 +246,19 @@ const AdminTasks = () => {
                     minimap: { enabled: false },
                     fontSize: 12,
                     padding: { top: 10 },
-                    background: "#09090b",
+                    background: "#0a1220",
                   }}
                 />
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4 border-t border-zinc-800">
+          <div className="flex justify-end gap-2 pt-4 border-t border-white/10">
             <Button
               type="button"
               variant="ghost"
               onClick={onCancel}
-              className="text-zinc-500 hover:text-white px-4 h-9"
+              className="text-slate-400 hover:text-white hover:bg-white/10 px-4 h-9"
             >
               Cancel
             </Button>
@@ -279,7 +279,7 @@ const AdminTasks = () => {
       {!editingTask ? (
         <>
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white tracking-tight">
+            <h2 className="text-xl font-semibold text-slate-100 tracking-tight">
               Challenge Management
             </h2>
             <div className="flex items-center gap-2">
@@ -288,12 +288,12 @@ const AdminTasks = () => {
                 size="sm"
                 onClick={fetchTasks}
                 disabled={isLoading}
-                className="h-8 gap-2 bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors rounded-md"
+                className="h-8 gap-2 bg-[#162338]/50 border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-colors rounded-md"
               >
-                <RefreshCw
-                  className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`}
-                />
-                <span className="text-xs font-medium">Refresh</span>
+                <RefreshCw className="h-3.5 w-3.5" />
+                <span className="text-xs font-medium">
+                  {isLoading ? "Refreshing..." : "Refresh"}
+                </span>
               </Button>
               <Button
                 size="sm"
@@ -306,44 +306,35 @@ const AdminTasks = () => {
             </div>
           </div>
 
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden">
+          <div className="rounded-lg border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="border-zinc-800 hover:bg-transparent bg-zinc-900/50">
-                  <TableHead className="w-[80px] text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3">
+                <TableRow className="border-white/10 hover:bg-transparent bg-[#111d30]/85">
+                  <TableHead className="w-[80px] text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
                     #
                   </TableHead>
-                  <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3">
+                  <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
                     Challenge
                   </TableHead>
-                  <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3">
+                  <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
                     XP Reward
                   </TableHead>
-                  <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3">
+                  <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
                     Time Limit
                   </TableHead>
-                  <TableHead className="text-right text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3">
+                  <TableHead className="text-right text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
                     Actions
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <Loader2 className="h-6 w-6 animate-spin text-zinc-700" />
-                        <span className="text-xs font-medium text-zinc-600 uppercase tracking-widest">
-                          Loading...
-                        </span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                  <AdminTableLoadingRow colSpan={5} rows={6} />
                 ) : tasks.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={5}
-                      className="h-24 text-center text-zinc-500 text-sm italic"
+                      className="h-24 text-center text-slate-500 text-sm italic"
                     >
                       No challenges found.
                     </TableCell>
@@ -352,30 +343,30 @@ const AdminTasks = () => {
                   paginatedTasks.map((task) => (
                     <TableRow
                       key={task.id}
-                      className="border-zinc-800 hover:bg-zinc-900/40 transition-colors group"
+                      className="border-white/10 hover:bg-white/5 transition-colors group"
                     >
                       <TableCell className="py-3">
-                        <span className="text-xs font-mono text-zinc-600">
+                        <span className="text-xs font-mono text-slate-500">
                           {task.order.toString().padStart(2, "0")}
                         </span>
                       </TableCell>
                       <TableCell className="py-3">
                         <div className="flex flex-col">
-                          <span className="text-sm font-medium text-white tracking-tight flex items-center gap-2">
+                          <span className="text-sm font-medium text-slate-100 tracking-tight flex items-center gap-2">
                             {task.title}
                           </span>
-                          <span className="text-[11px] text-zinc-500 font-mono">
+                          <span className="text-[11px] text-slate-500 font-mono">
                             /{task.slug}
                           </span>
                         </div>
                       </TableCell>
                       <TableCell className="py-3 font-mono text-xs">
-                        <span className="text-zinc-400">
+                        <span className="text-slate-300">
                           {task.xp_reward} XP
                         </span>
                       </TableCell>
                       <TableCell className="py-3">
-                        <span className="text-zinc-500 text-xs">
+                        <span className="text-slate-500 text-xs">
                           {task.time_limit}s
                         </span>
                       </TableCell>
@@ -385,7 +376,7 @@ const AdminTasks = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => setEditingTask(task)}
-                            className="h-8 w-8 p-0 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded-md"
+                            className="h-8 w-8 p-0 text-slate-400 hover:text-white hover:bg-white/10 rounded-md"
                           >
                             <Edit className="h-3.5 w-3.5" />
                           </Button>
@@ -393,7 +384,7 @@ const AdminTasks = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(task.slug)}
-                            className="h-8 w-8 p-0 text-zinc-500 hover:text-red-500 hover:bg-red-500/5 rounded-md"
+                            className="h-8 w-8 p-0 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-md"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
@@ -406,7 +397,7 @@ const AdminTasks = () => {
             </Table>
           </div>
           {!isLoading && (
-            <div className="flex items-center justify-between text-xs text-zinc-500">
+            <div className="flex items-center justify-between text-xs text-slate-500">
               <div className="flex items-center gap-2">
                 <span>
                   Showing {totalCount === 0 ? 0 : (page - 1) * pageSize + 1}-
@@ -418,7 +409,7 @@ const AdminTasks = () => {
                     setPageSize(Number(e.target.value));
                     setPage(1);
                   }}
-                  className="h-7 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs px-2"
+                  className="h-7 rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
                 >
                   <option value="10">10 / page</option>
                   <option value="25">25 / page</option>
@@ -429,19 +420,19 @@ const AdminTasks = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  className="h-7 px-2 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
                   Prev
                 </Button>
-                <span className="text-zinc-400">
+                <span className="text-slate-400">
                   Page {page} / {totalPages}
                 </span>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  className="h-7 px-2 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 >

@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowLeft, Play, Loader2 } from "lucide-react";
+import { ArrowLeft, Play } from "lucide-react";
 
 const HeaderBar = ({
   title,
@@ -51,7 +51,7 @@ const HeaderBar = ({
             onClick={stopCode}
             className="h-10 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold uppercase tracking-wide rounded-xl transition-all flex items-center"
           >
-            <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
+            <span className="w-1.5 h-1.5 rounded-full bg-red-400 mr-2 animate-pulse" />
             Stop
           </button>
         ) : (

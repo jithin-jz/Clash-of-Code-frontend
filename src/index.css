@@ -112,6 +112,47 @@
     scrollbar-width: none;
   }
 
+  .custom-scrollbar-thin {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(148, 163, 184, 0.55) rgba(15, 23, 42, 0.35) !important;
+  }
+
+  .custom-scrollbar-thin::-webkit-scrollbar {
+    width: 8px !important;
+    height: 8px !important;
+    display: block !important;
+  }
+
+  .custom-scrollbar-thin::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.35) !important;
+    border-radius: 9999px;
+  }
+
+  .custom-scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.55) !important;
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background-clip: padding-box;
+  }
+
+  .custom-scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.75) !important;
+    background-clip: padding-box;
+  }
+
+  .custom-scrollbar-none {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+  }
+
+  .custom-scrollbar-none::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
+
   .app-surface {
     background: #262626;
     border: 1px solid #3a3a3a;

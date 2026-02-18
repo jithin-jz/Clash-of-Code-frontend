@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useAuthStore from "../stores/useAuthStore";
+import { SkeletonBase, SkeletonPage } from "../common/SkeletonPrimitives";
 
 const OAuthCallback = ({ provider }) => {
   const [searchParams] = useSearchParams();
@@ -132,22 +133,14 @@ const OAuthCallback = ({ provider }) => {
 
   if (loading || isProcessing) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#1f1f1f]/20 via-[#0a0a0a] to-[#0a0a0a]">
-        <div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-500">
-          <div className="relative">
-            <div className="absolute inset-0 bg-[#ff8f00] blur-xl opacity-20 animate-pulse" />
-            <div className="w-16 h-16 rounded-2xl bg-[#1a1a1a] border border-white/10 flex items-center justify-center relative z-10">
-              <div className="w-8 h-8 border-2 border-[#ff8f00] border-t-transparent rounded-full animate-spin" />
-            </div>
-          </div>
-          <div className="text-center space-y-2">
-            <h2 className="text-xl font-bold text-white">Verifying Access</h2>
-            <p className="text-sm text-gray-400">
-              Securely connecting to Clash of Code...
-            </p>
-          </div>
+      <SkeletonPage className="flex items-center justify-center px-4">
+        <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-[#0f1b2e]/70 p-6 space-y-4">
+          <SkeletonBase className="h-6 w-48 rounded-md mx-auto" />
+          <SkeletonBase className="h-4 w-64 rounded mx-auto" />
+          <SkeletonBase className="h-11 w-full rounded-xl" />
+          <SkeletonBase className="h-11 w-full rounded-xl" />
         </div>
-      </div>
+      </SkeletonPage>
     );
   }
 

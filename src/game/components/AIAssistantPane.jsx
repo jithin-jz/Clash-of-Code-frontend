@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import ReactMarkdown from "react-markdown";
-import { Loader2, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 const formatReviewMarkdown = (raw = "") => {
   if (!raw) return "";
@@ -8,7 +8,7 @@ const formatReviewMarkdown = (raw = "") => {
   const normalized = raw
     .replace(/\r\n/g, "\n")
     // Convert "1) Findings" / "1. Findings" into markdown headings.
-    .replace(/^\s*\d+[\).]?\s+([A-Za-z][^\n:]*)\s*$/gm, "### $1")
+    .replace(/^\s*\d+[).]?\s+([A-Za-z][^\n:]*)\s*$/gm, "### $1")
     // Convert "Findings:" style section labels into headings.
     .replace(/^([A-Za-z][A-Za-z\s]{2,40}):\s*$/gm, "### $1")
     // Keep spacing between sections readable.
@@ -77,7 +77,7 @@ const AIAssistantPane = ({
   );
 
   return (
-    <section className="flex-1 flex flex-col bg-[#0f1b2e] overflow-hidden m-0">
+    <section className="flex-1 min-h-0 flex flex-col bg-[#0f1b2e] overflow-hidden m-0">
       <header className="border-b border-white/10 px-4 py-2 flex items-center justify-between bg-[#111d30]">
         <div className="flex items-center gap-2">
           <Sparkles size={14} className="text-[#00af9b]" />
@@ -97,130 +97,132 @@ const AIAssistantPane = ({
         </div>
       </header>
 
-      <div className="flex-1 relative flex flex-col bg-[#0f1b2e] overflow-hidden p-0">
-        {review ? (
-          <div className="mx-4 mt-4 mb-3 rounded-xl border border-[#7ea3d9]/25 bg-[#0a1220]/75 backdrop-blur-md p-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-[#7ea3d9] mb-2">
-              AI Review
-            </div>
-            <div className="max-h-64 min-h-[96px] overflow-y-auto custom-scrollbar-thin pr-1">
-              <div className="prose prose-invert prose-sm max-w-none prose-headings:text-slate-100 prose-h3:text-[13px] prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4 first:prose-h3:mt-0 prose-p:text-slate-300 prose-p:text-[12px] prose-p:leading-relaxed prose-ul:text-slate-300 prose-ol:text-slate-300 prose-li:text-[12px] prose-strong:text-white prose-code:text-[#00af9b] prose-code:bg-[#111d30]/70 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none">
-                <ReactMarkdown>{formattedReview}</ReactMarkdown>
+      <div className="flex-1 min-h-0 relative bg-[#0f1b2e] overflow-y-auto custom-scrollbar-thin">
+        <div className="min-h-full flex flex-col">
+          {review ? (
+            <div className="mx-4 mt-4 mb-3 rounded-xl border border-[#7ea3d9]/25 bg-[#0a1220]/75 backdrop-blur-md p-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)] flex flex-col">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-[#7ea3d9] mb-2">
+                AI Review
+              </div>
+              <div className="max-h-[50vh] min-h-[180px] overflow-y-auto custom-scrollbar-thin pr-2">
+                <div className="prose prose-invert prose-sm max-w-none prose-headings:text-slate-100 prose-h3:text-[13px] prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4 first:prose-h3:mt-0 prose-p:text-slate-300 prose-p:text-[12px] prose-p:leading-relaxed prose-ul:text-slate-300 prose-ol:text-slate-300 prose-li:text-[12px] prose-strong:text-white prose-code:text-[#00af9b] prose-code:bg-[#111d30]/70 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none">
+                  <ReactMarkdown>{formattedReview}</ReactMarkdown>
+                </div>
               </div>
             </div>
-          </div>
-        ) : null}
+          ) : null}
 
-        {/* Hint Carousel Wrapper */}
-        <div className="flex-1 relative overflow-hidden flex flex-col">
-          <div
-            ref={scrollRef}
-            onScroll={handleScroll}
-            className="flex-1 flex overflow-x-auto snap-x snap-mandatory custom-scrollbar-none select-none scroll-smooth"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {hintHistory.length > 0 ? (
-              hintHistory.map((h, i) => (
-                <div
-                  key={i}
-                  className="flex-none w-full h-full snap-start p-4 flex flex-col"
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-4 h-4 rounded-none bg-[#00af9b]/10 flex items-center justify-center border border-[#00af9b]/20">
-                      <span className="text-[9px] font-bold text-[#00af9b]">
-                        {i + 1}
+          {/* Hint Carousel Wrapper */}
+          <div className="flex-1 min-h-[340px] relative overflow-hidden flex flex-col">
+            <div
+              ref={scrollRef}
+              onScroll={handleScroll}
+              className="flex-1 min-h-[300px] flex overflow-x-auto snap-x snap-mandatory custom-scrollbar-none select-none scroll-smooth"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {hintHistory.length > 0 ? (
+                hintHistory.map((h, i) => (
+                  <div
+                    key={i}
+                    className="flex-none w-full h-full min-h-0 snap-start p-4 flex flex-col"
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-4 h-4 rounded-none bg-[#00af9b]/10 flex items-center justify-center border border-[#00af9b]/20">
+                        <span className="text-[9px] font-bold text-[#00af9b]">
+                          {i + 1}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                        Hint Phase {i + 1}
                       </span>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                      Hint Phase {i + 1}
-                    </span>
-                  </div>
 
-                  <div className="flex-1 bg-white/[0.03] border border-white/10 rounded-xl p-4 overflow-y-auto custom-scrollbar-thin">
-                    <div
-                      className="prose prose-invert prose-sm max-w-none 
+                    <div className="flex-1 min-h-0 bg-white/[0.03] border border-white/10 rounded-xl p-4 overflow-y-auto custom-scrollbar-thin">
+                      <div
+                        className="prose prose-invert prose-sm max-w-none 
                               prose-p:text-gray-400 prose-p:leading-relaxed prose-p:text-[12px]
                               prose-strong:text-white prose-strong:font-semibold
                               prose-pre:bg-black prose-pre:border prose-pre:border-white/5 prose-pre:rounded-none prose-pre:p-0
                               prose-code:text-[#00af9b] prose-code:bg-[#0a1220]/60 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-[11px] prose-code:before:content-none prose-code:after:content-none
                           "
-                    >
-                      <ReactMarkdown
-                        components={{
-                          pre: ({ children }) => (
-                            <pre className="relative p-3 overflow-x-auto custom-scrollbar-thin">
-                              {children}
-                            </pre>
-                          ),
-                          code: ({ inline, className, children, ...props }) => {
-                            return !inline ? (
-                              <code
-                                className={`${className} block text-[11px] leading-normal font-mono text-gray-400`}
-                                {...props}
-                              >
-                                {children}
-                              </code>
-                            ) : (
-                              <code className={className} {...props}>
-                                {children}
-                              </code>
-                            );
-                          },
-                        }}
                       >
-                        {h}
-                      </ReactMarkdown>
+                        <ReactMarkdown
+                          components={{
+                            pre: ({ children }) => (
+                              <pre className="relative p-3 overflow-x-auto custom-scrollbar-thin">
+                                {children}
+                              </pre>
+                            ),
+                            code: ({ inline, className, children, ...props }) => {
+                              return !inline ? (
+                                <code
+                                  className={`${className} block text-[11px] leading-normal font-mono text-gray-400`}
+                                  {...props}
+                                >
+                                  {children}
+                                </code>
+                              ) : (
+                                <code className={className} {...props}>
+                                  {children}
+                                </code>
+                              );
+                            },
+                          }}
+                        >
+                          {h}
+                        </ReactMarkdown>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : !isHintLoading && !review ? (
+                <div className="w-full h-full flex flex-col items-center justify-center opacity-20 grayscale">
+                  <Sparkles size={24} className="text-gray-500 mb-2" />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    Awaiting Query
+                  </p>
+                </div>
+              ) : null}
+
+              {isHintLoading && (
+                <div className="flex-none w-full h-full min-h-0 snap-start p-4 flex flex-col">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-2 h-2 rounded-full bg-[#00af9b] animate-pulse" />
+                    <span className="text-[10px] font-bold text-[#00af9b]/50 uppercase tracking-widest">
+                      Generating...
+                    </span>
+                  </div>
+                  <div className="flex-1 bg-white/[0.05] border border-white/10 rounded-xl p-4 animate-pulse relative">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Sparkles
+                        size={20}
+                        className="text-[#00af9b]/20 animate-pulse"
+                      />
                     </div>
                   </div>
                 </div>
-              ))
-            ) : !isHintLoading && !review ? (
-              <div className="w-full h-full flex flex-col items-center justify-center opacity-20 grayscale">
-                <Sparkles size={24} className="text-gray-500 mb-2" />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                  Awaiting Query
-                </p>
-              </div>
-            ) : null}
+              )}
+            </div>
 
-            {isHintLoading && (
-              <div className="flex-none w-full h-full snap-start p-4 flex flex-col">
-                <div className="flex items-center gap-2 mb-3">
-                  <Loader2 size={10} className="text-[#00af9b] animate-spin" />
-                  <span className="text-[10px] font-bold text-[#00af9b]/50 uppercase tracking-widest">
-                    Generating...
-                  </span>
-                </div>
-                <div className="flex-1 bg-white/[0.05] border border-white/10 rounded-xl p-4 animate-pulse relative">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Sparkles
-                      size={20}
-                      className="text-[#00af9b]/20 animate-pulse"
+            {/* Carousel Pagination Dots */}
+            {(hintHistory.length > 1 ||
+              (hintHistory.length > 0 && isHintLoading)) && (
+              <div className="flex justify-center gap-1.5 pb-3">
+                {[...Array(hintHistory.length + (isHintLoading ? 1 : 0))].map(
+                  (_, i) => (
+                    <div
+                      key={i}
+                      className={`w-1 h-1 transition-all duration-300 ${
+                        i === activeIndex
+                          ? "bg-[#00af9b] scale-125 shadow-[0_0_8px_rgba(59,130,246,0.5)]"
+                          : "bg-white/10"
+                      }`}
                     />
-                  </div>
-                </div>
+                  ),
+                )}
               </div>
             )}
           </div>
-
-          {/* Carousel Pagination Dots */}
-          {(hintHistory.length > 1 ||
-            (hintHistory.length > 0 && isHintLoading)) && (
-            <div className="flex justify-center gap-1.5 pb-3">
-              {[...Array(hintHistory.length + (isHintLoading ? 1 : 0))].map(
-                (_, i) => (
-                  <div
-                    key={i}
-                    className={`w-1 h-1 transition-all duration-300 ${
-                      i === activeIndex
-                        ? "bg-[#00af9b] scale-125 shadow-[0_0_8px_rgba(59,130,246,0.5)]"
-                        : "bg-white/10"
-                    }`}
-                  />
-                ),
-              )}
-            </div>
-          )}
         </div>
       </div>
 
@@ -250,7 +252,7 @@ const AIAssistantPane = ({
               )}
 
               {isHintLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="w-3 h-3 rounded-full bg-black/50 animate-pulse" />
               ) : (
                 <Sparkles size={12} className="fill-current" />
               )}
@@ -273,7 +275,7 @@ const AIAssistantPane = ({
             className="w-full bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 text-[10px] font-bold h-10 rounded-xl transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
           >
             {isHintLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="w-3 h-3 rounded-full bg-white/70 animate-pulse" />
             ) : (
               <Sparkles size={12} />
             )}
@@ -288,7 +290,7 @@ const AIAssistantPane = ({
           className="w-full bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 hover:text-white border border-white/15 text-[10px] font-bold h-10 rounded-xl transition-all flex items-center justify-center gap-2 uppercase tracking-widest disabled:opacity-60"
         >
           {isReviewLoading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <span className="w-3 h-3 rounded-full bg-white/70 animate-pulse" />
           ) : (
             <Sparkles size={12} />
           )}

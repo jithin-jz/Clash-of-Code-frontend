@@ -8,10 +8,11 @@ import {
   TableRow,
 } from "../components/ui/table";
 import { Badge } from "../components/ui/badge";
-import { Loader2, DollarSign, BarChart3, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { authAPI } from "../services/api";
 import { notify } from "../services/notification";
 import { Button } from "../components/ui/button";
+import { AdminTableLoadingRow } from "./AdminSkeletons";
 
 const StoreAnalytics = () => {
   const [data, setData] = useState({ items: [], total_xp_spent: 0 });
@@ -51,106 +52,97 @@ const StoreAnalytics = () => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-950/50 space-y-2">
-          <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+        <div className="p-6 rounded-xl border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl space-y-2">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
             Total Revenue
           </p>
           <div className="flex items-baseline gap-1">
-            <h3 className="text-3xl font-semibold text-white tracking-tight">
+            <h3 className="text-3xl font-semibold text-slate-100 tracking-tight">
               {data.total_xp_spent.toLocaleString()}
             </h3>
-            <span className="text-sm font-medium text-zinc-600">XP</span>
+            <span className="text-sm font-medium text-slate-500">XP</span>
           </div>
-          <p className="text-[11px] text-zinc-500">
+          <p className="text-[11px] text-slate-500">
             Total aggregate expenditure across all users.
           </p>
         </div>
 
-        <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-950/50 space-y-2">
-          <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+        <div className="p-6 rounded-xl border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl space-y-2">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
             Catalog Size
           </p>
           <div className="flex items-baseline gap-1">
-            <h3 className="text-3xl font-semibold text-white tracking-tight">
+            <h3 className="text-3xl font-semibold text-slate-100 tracking-tight">
               {data.items.length}
             </h3>
-            <span className="text-sm font-medium text-zinc-600">Items</span>
+            <span className="text-sm font-medium text-slate-500">Items</span>
           </div>
-          <p className="text-[11px] text-zinc-500">
+          <p className="text-[11px] text-slate-500">
             Active items currently available in the store.
           </p>
         </div>
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-white tracking-tight">
+        <h2 className="text-lg font-semibold text-slate-100 tracking-tight">
           Item Performance
         </h2>
 
-        <div className="rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden">
+        <div className="rounded-lg border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="border-zinc-800 hover:bg-transparent bg-zinc-900/50">
-                <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3 px-6">
+              <TableRow className="border-white/10 hover:bg-transparent bg-[#111d30]/85">
+                <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3 px-6">
                   Item
                 </TableHead>
-                <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3">
+                <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
                   Category
                 </TableHead>
-                <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3">
+                <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
                   Price
                 </TableHead>
-                <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3">
+                <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
                   Sales
                 </TableHead>
-                <TableHead className="text-right text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3 px-6">
+                <TableHead className="text-right text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3 px-6">
                   Revenue
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-32 text-center">
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <Loader2 className="h-6 w-6 animate-spin text-zinc-700" />
-                      <span className="text-xs font-medium text-zinc-600 uppercase tracking-widest">
-                        Loading...
-                      </span>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                <AdminTableLoadingRow colSpan={5} rows={6} />
               ) : (
                 paginatedItems.map((item, idx) => (
                   <TableRow
                     key={`${item.name}-${idx}`}
-                    className="border-zinc-800 hover:bg-zinc-900/40 transition-colors group"
+                    className="border-white/10 hover:bg-white/5 transition-colors group"
                   >
-                    <TableCell className="py-3 px-6">
-                      <span className="text-sm font-medium text-white tracking-tight">
+                  <TableCell className="py-3 px-6">
+                      <span className="text-sm font-medium text-slate-100 tracking-tight">
                         {item.name}
                       </span>
                     </TableCell>
                     <TableCell className="py-3">
                       <Badge
                         variant="outline"
-                        className="bg-zinc-900 border-zinc-800 text-[9px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md text-zinc-400"
+                        className="bg-[#162338]/60 border-white/10 text-[9px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md text-slate-300"
                       >
                         {item.category}
                       </Badge>
                     </TableCell>
-                    <TableCell className="py-3 font-mono text-xs text-zinc-400">
+                    <TableCell className="py-3 font-mono text-xs text-slate-300">
                       {item.cost} XP
                     </TableCell>
                     <TableCell className="py-3">
-                      <div className="flex items-center gap-1.5 font-mono text-xs text-zinc-300">
-                        <ShoppingCart size={12} className="text-zinc-600" />
+                      <div className="flex items-center gap-1.5 font-mono text-xs text-slate-300">
+                        <ShoppingCart size={12} className="text-slate-500" />
                         {item.sales}
                       </div>
                     </TableCell>
                     <TableCell className="text-right py-3 px-6">
                       <div className="flex flex-col items-end">
-                        <span className="text-sm font-medium text-white tracking-tight">
+                        <span className="text-sm font-medium text-slate-100 tracking-tight">
                           {item.revenue.toLocaleString()} XP
                         </span>
                       </div>
@@ -162,7 +154,7 @@ const StoreAnalytics = () => {
           </Table>
         </div>
         {!loading && (
-          <div className="flex items-center justify-between text-xs text-zinc-500">
+          <div className="flex items-center justify-between text-xs text-slate-500">
             <div className="flex items-center gap-2">
               <span>
                 Showing {totalCount === 0 ? 0 : (page - 1) * pageSize + 1}-
@@ -174,7 +166,7 @@ const StoreAnalytics = () => {
                   setPageSize(Number(e.target.value));
                   setPage(1);
                 }}
-                className="h-7 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs px-2"
+                className="h-7 rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
               >
                 <option value="10">10 / page</option>
                 <option value="25">25 / page</option>
@@ -185,19 +177,19 @@ const StoreAnalytics = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                className="h-7 px-2 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
               >
                 Prev
               </Button>
-              <span className="text-zinc-400">
+              <span className="text-slate-400">
                 Page {page} / {totalPages}
               </span>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                className="h-7 px-2 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               >

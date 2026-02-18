@@ -19,13 +19,13 @@ import {
   DialogFooter,
 } from "../components/ui/dialog";
 import {
-  Loader2,
   Plus,
   Pencil,
   Trash2,
   Image as ImageIcon,
 } from "lucide-react";
 import { notify } from "../services/notification";
+import { AdminTableLoadingRow } from "./AdminSkeletons";
 
 // We need to add admin methods to storeAPI or create new ones.
 // Assuming storeAPI has standard CRUD or we use a new adminStoreAPI.
@@ -168,7 +168,7 @@ const AdminStore = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-white tracking-tight">
+        <h2 className="text-xl font-semibold text-slate-100 tracking-tight">
           Store Management
         </h2>
         <Button
@@ -180,47 +180,38 @@ const AdminStore = () => {
         </Button>
       </div>
 
-      <div className="rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden">
+      <div className="rounded-lg border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="border-zinc-800 hover:bg-transparent bg-zinc-900/50">
-              <TableHead className="w-[80px] text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3 px-6">
+            <TableRow className="border-white/10 hover:bg-transparent bg-[#111d30]/85">
+              <TableHead className="w-[80px] text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3 px-6">
                 Icon
               </TableHead>
-              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3">
+              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
                 Item Details
               </TableHead>
-              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3">
+              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
                 Category
               </TableHead>
-              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3">
+              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
                 Price
               </TableHead>
-              <TableHead className="text-right text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3 px-6">
+              <TableHead className="text-right text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3 px-6">
                 Actions
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center">
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    <Loader2 className="h-6 w-6 animate-spin text-zinc-700" />
-                    <span className="text-xs font-medium text-zinc-600 uppercase tracking-widest">
-                      Loading...
-                    </span>
-                  </div>
-                </TableCell>
-              </TableRow>
+              <AdminTableLoadingRow colSpan={5} rows={6} />
             ) : (
               paginatedItems.map((item) => (
                 <TableRow
                   key={item.id}
-                  className="border-zinc-800 hover:bg-zinc-900/40 transition-colors group"
+                  className="border-white/10 hover:bg-white/5 transition-colors group"
                 >
                   <TableCell className="py-3 px-6">
-                    <div className="w-10 h-10 bg-zinc-900 rounded-lg border border-zinc-800 flex items-center justify-center overflow-hidden">
+                    <div className="w-10 h-10 bg-[#162338] rounded-lg border border-white/10 flex items-center justify-center overflow-hidden">
                       {item.image ? (
                         <img
                           src={item.image}
@@ -228,16 +219,16 @@ const AdminStore = () => {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <ImageIcon size={18} className="text-zinc-700" />
+                        <ImageIcon size={18} className="text-slate-600" />
                       )}
                     </div>
                   </TableCell>
                   <TableCell className="py-3">
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium text-white tracking-tight">
+                      <span className="text-sm font-medium text-slate-100 tracking-tight">
                         {item.name}
                       </span>
-                      <span className="text-[11px] text-zinc-500 line-clamp-1">
+                      <span className="text-[11px] text-slate-500 line-clamp-1">
                         {item.description}
                       </span>
                     </div>
@@ -245,12 +236,12 @@ const AdminStore = () => {
                   <TableCell className="py-3">
                     <Badge
                       variant="outline"
-                      className="bg-zinc-900 border-zinc-800 text-[9px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md text-zinc-400"
+                      className="bg-[#162338]/60 border-white/10 text-[9px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md text-slate-300"
                     >
                       {item.category}
                     </Badge>
                   </TableCell>
-                  <TableCell className="py-3 font-mono text-xs text-zinc-400">
+                  <TableCell className="py-3 font-mono text-xs text-slate-300">
                     {item.cost} XP
                   </TableCell>
                   <TableCell className="text-right py-3 px-6">
@@ -259,7 +250,7 @@ const AdminStore = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleOpenDialog(item)}
-                        className="h-8 w-8 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded-md"
+                        className="h-8 w-8 text-slate-400 hover:text-white hover:bg-white/10 rounded-md"
                       >
                         <Pencil size={16} />
                       </Button>
@@ -267,7 +258,7 @@ const AdminStore = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDelete(item.id)}
-                        className="h-8 w-8 text-zinc-500 hover:text-red-500 hover:bg-red-500/5 rounded-md"
+                        className="h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-md"
                       >
                         <Trash2 size={16} />
                       </Button>
@@ -280,7 +271,7 @@ const AdminStore = () => {
         </Table>
       </div>
       {!loading && (
-        <div className="flex items-center justify-between text-xs text-zinc-500">
+        <div className="flex items-center justify-between text-xs text-slate-500">
           <div className="flex items-center gap-2">
             <span>
               Showing {totalCount === 0 ? 0 : (page - 1) * pageSize + 1}-
@@ -292,7 +283,7 @@ const AdminStore = () => {
                 setPageSize(Number(e.target.value));
                 setPage(1);
               }}
-              className="h-7 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs px-2"
+              className="h-7 rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
             >
               <option value="10">10 / page</option>
               <option value="25">25 / page</option>
@@ -303,19 +294,19 @@ const AdminStore = () => {
             <Button
               variant="outline"
               size="sm"
-              className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              className="h-7 px-2 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
               Prev
             </Button>
-            <span className="text-zinc-400">
+            <span className="text-slate-400">
               Page {page} / {totalPages}
             </span>
             <Button
               variant="outline"
               size="sm"
-              className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              className="h-7 px-2 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
               disabled={page >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             >
@@ -327,16 +318,16 @@ const AdminStore = () => {
 
       {/* Edit/Create Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-zinc-950 border-zinc-800 text-white max-w-md">
+        <DialogContent className="bg-[#0f1b2e] border-white/15 text-white max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold">
+            <DialogTitle className="text-lg font-semibold text-slate-100">
               {currentItem ? "Edit Item" : "New Item"}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 pt-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-500">
+                <label className="text-xs font-medium text-slate-500">
                   Name
                 </label>
                 <Input
@@ -344,12 +335,12 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="bg-zinc-900 border-zinc-800 h-9 text-sm"
+                  className="bg-[#162338]/50 border-white/10 h-9 text-sm"
                   required
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-500">
+                <label className="text-xs font-medium text-slate-500">
                   Category
                 </label>
                 <select
@@ -357,7 +348,7 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  className="w-full h-9 px-3 rounded-md bg-zinc-900 border border-zinc-800 text-sm text-white focus:outline-none focus:ring-1 focus:ring-zinc-700"
+                  className="w-full h-9 px-3 rounded-md bg-[#162338]/50 border border-white/10 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/20"
                 >
                   <option value="THEME">Theme</option>
                   <option value="FONT">Font</option>
@@ -368,7 +359,7 @@ const AdminStore = () => {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-500">
+              <label className="text-xs font-medium text-slate-500">
                 Description
               </label>
               <Textarea
@@ -376,13 +367,13 @@ const AdminStore = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="bg-zinc-900 border-zinc-800 h-20 text-sm resize-none"
+                className="bg-[#162338]/50 border-white/10 h-20 text-sm resize-none"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-500">
+                <label className="text-xs font-medium text-slate-500">
                   Cost (XP)
                 </label>
                 <Input
@@ -391,12 +382,12 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, cost: parseInt(e.target.value) })
                   }
-                  className="bg-zinc-900 border-zinc-800 h-9 text-sm"
+                  className="bg-[#162338]/50 border-white/10 h-9 text-sm"
                   required
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-500">
+                <label className="text-xs font-medium text-slate-500">
                   Icon Name
                 </label>
                 <Input
@@ -404,14 +395,14 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, icon_name: e.target.value })
                   }
-                  className="bg-zinc-900 border-zinc-800 h-9 text-sm"
+                  className="bg-[#162338]/50 border-white/10 h-9 text-sm"
                   placeholder="e.g. Palette"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-500">
+              <label className="text-xs font-medium text-slate-500">
                 Configuration (JSON)
               </label>
               <Textarea
@@ -419,13 +410,13 @@ const AdminStore = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, item_data: e.target.value })
                 }
-                className="bg-zinc-900 border-zinc-800 h-24 font-mono text-[10px] resize-none"
+                className="bg-[#162338]/50 border-white/10 h-24 font-mono text-[10px] resize-none"
                 placeholder='{"theme_key": "dracula"}'
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-500">
+              <label className="text-xs font-medium text-slate-500">
                 Asset URL
               </label>
               <div className="flex gap-2">
@@ -434,7 +425,7 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, image: e.target.value })
                   }
-                  className="bg-zinc-900 border-zinc-800 h-9 text-sm flex-1"
+                  className="bg-[#162338]/50 border-white/10 h-9 text-sm flex-1"
                   placeholder="/assets/item.png"
                 />
                 <Input
@@ -467,7 +458,7 @@ const AdminStore = () => {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-9 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white"
+                  className="h-9 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
                   onClick={() =>
                     document.getElementById("image-upload").click()
                   }
@@ -482,7 +473,7 @@ const AdminStore = () => {
                 type="button"
                 variant="ghost"
                 onClick={() => setIsDialogOpen(false)}
-                className="text-zinc-500 hover:text-white h-9"
+                className="text-slate-400 hover:text-white hover:bg-white/10 h-9"
               >
                 Cancel
               </Button>
@@ -491,8 +482,7 @@ const AdminStore = () => {
                 disabled={saving}
                 className="bg-white text-black hover:bg-zinc-200 h-9 font-medium px-6"
               >
-                {saving && <Loader2 className="animate-spin mr-2 h-4 w-4" />}
-                Save Asset
+                {saving ? "Saving..." : "Save Asset"}
               </Button>
             </DialogFooter>
           </form>

@@ -89,10 +89,7 @@ const IdentityCard = ({
           <div className="w-32 h-32 rounded-3xl border-2 border-white/10 p-1 bg-[#1a1a1a] relative overflow-hidden">
             {uploadingAvatar && (
               <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-2xl">
-                <div className="relative w-6 h-6">
-                  <div className="absolute inset-0 border-2 border-white/10 rounded-full"></div>
-                  <div className="absolute inset-0 border-2 border-t-white rounded-full animate-spin"></div>
-                </div>
+                <div className="w-6 h-6 rounded-full bg-white/25 animate-pulse" />
               </div>
             )}
             <img

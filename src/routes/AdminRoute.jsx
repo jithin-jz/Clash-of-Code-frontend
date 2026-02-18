@@ -1,7 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import useAuthStore from '../stores/useAuthStore';
-
-import Loader from '../common/Loader';
+import { AdminPageSkeleton } from "../admin/AdminSkeletons";
 
 /**
  * AdminRoute - For admin-only pages
@@ -11,7 +10,7 @@ const AdminRoute = ({ children }) => {
     const { isAuthenticated, user, loading } = useAuthStore();
 
     if (loading) {
-        return <Loader isLoading={true} />;
+        return <AdminPageSkeleton />;
     }
 
     if (!isAuthenticated) {

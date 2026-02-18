@@ -2,7 +2,6 @@ import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
-  Loader2,
   Lock,
   Check,
   Sparkles,
@@ -25,7 +24,7 @@ import {
 import useAuthStore from "../stores/useAuthStore";
 import useMarketplaceStore from "../stores/useMarketplaceStore";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import MarketplacePageSkeleton from "./MarketplacePageSkeleton";
 
 const CATEGORIES = [
@@ -150,7 +149,7 @@ const MarketplacePage = () => {
   return (
     <AnimatePresence mode="wait">
       {isLoading && items.length === 0 ? (
-        <motion.div
+        <Motion.div
           key="skeleton"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -159,9 +158,9 @@ const MarketplacePage = () => {
           className="fixed inset-0 z-50 overflow-hidden"
         >
           <MarketplacePageSkeleton />
-        </motion.div>
+        </Motion.div>
       ) : (
-        <motion.div
+        <Motion.div
           key="content"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -260,7 +259,7 @@ const MarketplacePage = () => {
                     const isOwned = item.is_owned;
 
                     return (
-                      <motion.div
+                      <Motion.div
                         key={item.id}
                         layout
                         initial={{ opacity: 0, scale: 0.95 }}
@@ -359,7 +358,9 @@ const MarketplacePage = () => {
                               >
                                 {isMutating &&
                                 activeMutationItemId === item.id ? (
-                                  <Loader2 className="animate-spin w-3 h-3" />
+                                  <span className="text-[10px] font-semibold">
+                                    Processing...
+                                  </span>
                                 ) : (
                                   <span className="flex items-center gap-1">
                                     {canAfford ? (
@@ -374,14 +375,14 @@ const MarketplacePage = () => {
                             )}
                           </CardContent>
                         </Card>
-                      </motion.div>
+                      </Motion.div>
                     );
                   })}
                 </AnimatePresence>
               </div>
             )}
           </main>
-        </motion.div>
+        </Motion.div>
       )}
     </AnimatePresence>
   );

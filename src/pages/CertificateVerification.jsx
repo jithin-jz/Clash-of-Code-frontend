@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { challengesApi } from "../services/challengesApi";
 import CertificateTemplate from "../components/CertificateTemplate";
+import { SkeletonBase, SkeletonPage } from "../common/SkeletonPrimitives";
 
 const CertificateVerification = () => {
   const { certificateId } = useParams();
@@ -9,14 +10,13 @@ const CertificateVerification = () => {
   const [certificate, setCertificate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const certificateRef = useRef(null);
 
   useEffect(() => {
     const verifyCertificate = async () => {
       try {
         const data = await challengesApi.verifyCertificate(certificateId);
         setCertificate(data);
-      } catch (err) {
+      } catch {
         setError("Certificate not found or invalid");
       } finally {
         setLoading(false);
@@ -28,12 +28,20 @@ const CertificateVerification = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-950">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#ffa116] mx-auto"></div>
-          <p className="mt-4 text-zinc-400 font-mono text-sm">Verifying...</p>
+      <SkeletonPage className="flex items-center justify-center px-4">
+        <div className="relative z-10 max-w-5xl w-full space-y-6">
+          <div className="space-y-3 text-center">
+            <SkeletonBase className="h-4 w-40 mx-auto rounded-full" />
+            <SkeletonBase className="h-8 w-72 mx-auto rounded-lg" />
+            <SkeletonBase className="h-4 w-64 mx-auto rounded-md" />
+          </div>
+          <SkeletonBase className="h-[360px] w-full rounded-2xl" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <SkeletonBase className="h-48 rounded-xl" />
+            <SkeletonBase className="h-48 rounded-xl" />
+          </div>
         </div>
-      </div>
+      </SkeletonPage>
     );
   }
 

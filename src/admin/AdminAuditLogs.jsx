@@ -10,10 +10,11 @@ import {
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
-import { Loader2, History, User as UserIcon, Settings } from "lucide-react";
+import { RefreshCw, User as UserIcon } from "lucide-react";
 import { authAPI } from "../services/api";
 import { notify } from "../services/notification";
 import { formatDistanceToNow } from "date-fns";
+import { AdminTableLoadingRow } from "./AdminSkeletons";
 
 const sortLogs = (rows, ordering) => {
   const items = [...rows];
@@ -108,7 +109,7 @@ const AdminAuditLogs = () => {
         return (
           <Badge
             variant="outline"
-            className="bg-zinc-900 border-zinc-800 text-zinc-400 text-[9px] uppercase tracking-wider"
+            className="bg-[#162338]/60 border-white/10 text-slate-300 text-[9px] uppercase tracking-wider"
           >
             Moderation
           </Badge>
@@ -126,7 +127,7 @@ const AdminAuditLogs = () => {
         return (
           <Badge
             variant="outline"
-            className="bg-zinc-900 border-zinc-800 text-zinc-400 text-[9px] uppercase tracking-wider"
+            className="bg-[#162338]/60 border-white/10 text-slate-300 text-[9px] uppercase tracking-wider"
           >
             Broadcast
           </Badge>
@@ -135,7 +136,7 @@ const AdminAuditLogs = () => {
         return (
           <Badge
             variant="outline"
-            className="bg-zinc-800 border-zinc-700 text-zinc-400 text-[9px] uppercase tracking-wider"
+            className="bg-[#162338]/60 border-white/10 text-slate-400 text-[9px] uppercase tracking-wider"
           >
             System
           </Badge>
@@ -169,7 +170,7 @@ const AdminAuditLogs = () => {
     <div className="space-y-4">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-white tracking-tight">
+          <h2 className="text-xl font-semibold text-slate-100 tracking-tight">
             Audit Logs
           </h2>
           <Button
@@ -177,12 +178,12 @@ const AdminAuditLogs = () => {
             size="sm"
             onClick={() => fetchLogs(query)}
             disabled={loading}
-            className="h-8 gap-2 bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors rounded-md"
+            className="h-8 gap-2 bg-[#162338]/50 border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-colors rounded-md"
           >
-            <Loader2
-              className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`}
-            />
-            <span className="text-xs font-medium">Refresh</span>
+            <RefreshCw className="h-3.5 w-3.5" />
+            <span className="text-xs font-medium">
+              {loading ? "Refreshing..." : "Refresh"}
+            </span>
           </Button>
         </div>
 
@@ -191,12 +192,12 @@ const AdminAuditLogs = () => {
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Search action/admin/target/request id..."
-            className="h-8 w-full sm:w-80 bg-zinc-900 border-zinc-800 text-zinc-200 placeholder:text-zinc-600"
+            className="h-8 w-full sm:w-80 bg-[#162338]/50 border-white/10 text-slate-200 placeholder:text-slate-500"
           />
           <select
             value={query.action || ""}
             onChange={(e) => fetchLogs({ action: e.target.value, page: 1 })}
-            className="h-8 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs px-2"
+            className="h-8 rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
           >
             <option value="">All Actions</option>
             <option value="TOGGLE_USER_BLOCK">Toggle User Block</option>
@@ -206,7 +207,7 @@ const AdminAuditLogs = () => {
           <select
             value={query.ordering || "-timestamp"}
             onChange={(e) => fetchLogs({ ordering: e.target.value, page: 1 })}
-            className="h-8 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs px-2"
+            className="h-8 rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
           >
             <option value="-timestamp">Newest</option>
             <option value="timestamp">Oldest</option>
@@ -218,7 +219,7 @@ const AdminAuditLogs = () => {
             onChange={(e) =>
               fetchLogs({ page_size: Number(e.target.value), page: 1 })
             }
-            className="h-8 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs px-2"
+            className="h-8 rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
           >
             <option value="10">10 / page</option>
             <option value="25">25 / page</option>
@@ -228,44 +229,35 @@ const AdminAuditLogs = () => {
         </div>
       </div>
 
-      <div className="rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden">
+      <div className="rounded-lg border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="border-zinc-800 hover:bg-transparent bg-zinc-900/50">
-              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3 px-6">
+            <TableRow className="border-white/10 hover:bg-transparent bg-[#111d30]/85">
+              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3 px-6">
                 Admin
               </TableHead>
-              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3">
+              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
                 Action
               </TableHead>
-              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3">
+              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
                 Subject
               </TableHead>
-              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3 w-1/3">
+              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3 w-1/3">
                 Details
               </TableHead>
-              <TableHead className="text-right text-[10px] font-medium uppercase tracking-wider text-zinc-500 py-3 px-6">
+              <TableHead className="text-right text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3 px-6">
                 Timestamp
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center">
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    <Loader2 className="h-6 w-6 animate-spin text-zinc-700" />
-                    <span className="text-xs font-medium text-zinc-600 uppercase tracking-widest">
-                      Loading...
-                    </span>
-                  </div>
-                </TableCell>
-              </TableRow>
+              <AdminTableLoadingRow colSpan={5} rows={8} />
             ) : logs.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={5}
-                  className="h-32 text-center text-zinc-600 text-xs italic"
+                  className="h-32 text-center text-slate-500 text-xs italic"
                 >
                   No logs recorded.
                 </TableCell>
@@ -277,14 +269,14 @@ const AdminAuditLogs = () => {
                     log.request_id ||
                     `${log.timestamp}-${log.admin}-${log.action}-${log.target}-${idx}`
                   }
-                  className="border-zinc-800 hover:bg-zinc-900/40 transition-colors group"
+                  className="border-white/10 hover:bg-white/5 transition-colors group"
                 >
                   <TableCell className="py-3 px-6">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-md bg-zinc-900 border border-zinc-800 flex items-center justify-center text-[10px] font-bold text-zinc-500">
+                      <div className="w-6 h-6 rounded-md bg-[#162338] border border-white/10 flex items-center justify-center text-[10px] font-bold text-slate-500">
                         {log.admin[0].toUpperCase()}
                       </div>
-                      <span className="text-sm font-medium text-white tracking-tight">
+                      <span className="text-sm font-medium text-slate-100 tracking-tight">
                         {log.admin}
                       </span>
                     </div>
@@ -292,23 +284,23 @@ const AdminAuditLogs = () => {
                   <TableCell className="py-3">
                     {getActionBadge(log.action)}
                   </TableCell>
-                  <TableCell className="py-3 text-zinc-300">
+                  <TableCell className="py-3 text-slate-300">
                     <div className="flex items-center gap-1.5 text-[11px] font-medium">
-                      <UserIcon size={12} className="text-zinc-600" />
+                      <UserIcon size={12} className="text-slate-500" />
                       {log.target}
                     </div>
                   </TableCell>
-                  <TableCell className="py-3 text-[10px] font-mono text-zinc-500 group-hover:text-zinc-400 transition-all truncate max-w-xs">
+                  <TableCell className="py-3 text-[10px] font-mono text-slate-500 group-hover:text-slate-300 transition-all truncate max-w-xs">
                     {renderDetails(log.details)}
                   </TableCell>
                   <TableCell className="text-right py-3 px-6">
                     <div className="flex flex-col items-end">
-                      <span className="text-[11px] font-medium text-zinc-300">
+                      <span className="text-[11px] font-medium text-slate-300">
                         {formatDistanceToNow(new Date(log.timestamp), {
                           addSuffix: true,
                         })}
                       </span>
-                      <span className="text-[9px] text-zinc-600 font-mono uppercase">
+                      <span className="text-[9px] text-slate-600 font-mono uppercase">
                         {new Date(log.timestamp).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -322,7 +314,7 @@ const AdminAuditLogs = () => {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between text-xs text-zinc-500">
+      <div className="flex items-center justify-between text-xs text-slate-500">
         <span>
           Showing {start}-{end} of {count}
         </span>
@@ -330,19 +322,19 @@ const AdminAuditLogs = () => {
           <Button
             variant="outline"
             size="sm"
-            className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+            className="h-7 px-2 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
             disabled={page <= 1 || loading}
             onClick={() => fetchLogs({ page: page - 1 })}
           >
             Prev
           </Button>
-          <span className="text-zinc-400">
+          <span className="text-slate-400">
             Page {page} / {Math.max(totalPages, 1)}
           </span>
           <Button
             variant="outline"
             size="sm"
-            className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+            className="h-7 px-2 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
             disabled={page >= totalPages || loading}
             onClick={() => fetchLogs({ page: page + 1 })}
           >
@@ -352,7 +344,7 @@ const AdminAuditLogs = () => {
       </div>
       <div className="flex items-center gap-2 px-1">
         <div className="w-1 h-1 rounded-full bg-[#00af9b]/30" />
-        <p className="text-[9px] text-zinc-600 font-medium uppercase tracking-wider">
+        <p className="text-[9px] text-slate-600 font-medium uppercase tracking-wider">
           Audit records are immutable.
         </p>
       </div>
