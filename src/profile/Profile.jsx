@@ -839,8 +839,9 @@ const Profile = () => {
         onOpenChange={(open) => !open && setListType(null)}
       >
         <DialogContent
+          hideOverlay
           showClose={false}
-                    className="bg-[#0f1b2e] border border-white/15 max-w-sm rounded-xl p-0"
+          className="bg-[#0f1b2e] border border-white/15 max-w-sm rounded-xl p-0"
         >
           <DialogHeader className="p-4 border-b border-white/5">
             <DialogTitle className="text-white text-sm font-medium">
