@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { authAPI } from "../services/api";
 import useChallengesStore from "./useChallengesStore";
+import useNotificationStore from "./useNotificationStore";
 import { notify } from "../services/notification";
 
 // Helper function to open OAuth in a popup window
@@ -338,7 +339,6 @@ const useAuthStore = create((set, get) => ({
     
     // Clear caches
     useChallengesStore.getState().clearCache();
-    const useNotificationStore = (await import("./useNotificationStore")).default;
     useNotificationStore.getState().clearCache();
 
     set({

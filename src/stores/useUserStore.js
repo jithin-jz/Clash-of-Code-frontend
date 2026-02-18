@@ -53,8 +53,15 @@ const useUserStore = create((set, get) => ({
       // Update Auth Store with new user data
       useAuthStore.getState().setUser(response.data);
       
-      // Force Chat Reconnection with new token (for instant update)
-      useChatStore.getState().disconnect();
+      // Force Chat reconnection with fresh auth cookies so identity changes reflect immediately.
+      const chatState = useChatStore.getState();
+      const wasConnected = chatState.isConnected;
+      chatState.disconnect();
+      if (wasConnected) {
+        setTimeout(() => {
+          useChatStore.getState().connect();
+        }, 150);
+      }
       
       set({ loading: false });
       return response.data;

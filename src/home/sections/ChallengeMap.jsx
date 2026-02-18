@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight, Crown, Lock } from "lucide-react";
 import LevelButton from "../../game/LevelButton";
 import { getTrackMeta } from "../../utils/challengeMeta";
+import SiteFooter from "./SiteFooter";
 
 const TRACK_ORDER = [
   "Python Basics",
@@ -113,7 +114,7 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
           !user ? "blur-sm opacity-20 grayscale pointer-events-none select-none" : ""
         }`}
       >
-        <div className="h-full overflow-y-auto space-y-6">
+        <div className="h-full overflow-y-auto space-y-6 pb-8">
 
           {/* TRACK SECTIONS */}
           {TRACK_ORDER.map((track) => {
@@ -167,7 +168,7 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
 
           {/* CERTIFICATE */}
           {certificateLevel && (
-            <section className="rounded-xl border border-yellow-500/10 bg-[#111827]/80 p-6">
+            <section className="rounded-xl border border-yellow-500/10 bg-[#111827]/80 p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[11px] tracking-[0.25em] uppercase text-yellow-400 font-semibold">
                   Certification
@@ -236,6 +237,8 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
               </button>
             </section>
           )}
+
+          <SiteFooter />
         </div>
       </div>
     </div>

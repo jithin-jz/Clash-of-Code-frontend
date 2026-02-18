@@ -70,6 +70,8 @@ const Profile = () => {
 
   const [editForm, setEditForm] = useState({
     username: "",
+    first_name: "",
+    last_name: "",
     bio: "",
   });
 
@@ -158,6 +160,8 @@ const Profile = () => {
       setProfileUser(currentUser);
       setEditForm({
         username: currentUser?.username || "",
+        first_name: currentUser?.first_name || "",
+        last_name: currentUser?.last_name || "",
         bio: currentUser?.profile?.bio || "",
       });
       setLoading(false);
@@ -209,7 +213,11 @@ const Profile = () => {
       notify.success("Profile updated!");
     } catch (error) {
       console.error(error);
-      notify.error("Failed to update profile");
+      const apiError =
+        error?.response?.data?.error ||
+        error?.response?.data?.detail ||
+        "Failed to update profile";
+      notify.error(apiError);
     } finally {
       setSavingProfile(false);
     }
@@ -523,7 +531,10 @@ const Profile = () => {
                 <CardContent className="pt-16 pb-6 px-6 text-center">
                   {/* Name */}
                   <h2 className="text-xl font-bold text-white mb-1">
-                    {profileUser?.first_name || profileUser?.username}
+                    {[profileUser?.first_name, profileUser?.last_name]
+                      .filter(Boolean)
+                      .join(" ")
+                      .trim() || profileUser?.username}
                   </h2>
                   {/* Username Removed as requested */}
                   {/* <p className="text-sm text-zinc-500 mb-4">
@@ -654,6 +665,36 @@ const Profile = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <label className="text-xs text-slate-400">First Name</label>
+                        <input
+                          type="text"
+                          value={editForm.first_name}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              first_name: e.target.value,
+                            })
+                          }
+                          className="w-full bg-[#162338]/50 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/25"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs text-slate-400">Last Name</label>
+                        <input
+                          type="text"
+                          value={editForm.last_name}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              last_name: e.target.value,
+                            })
+                          }
+                          className="w-full bg-[#162338]/50 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/25"
+                        />
+                      </div>
+                    </div>
                     <div className="space-y-2">
                       <label className="text-xs text-slate-400">Username</label>
                       <input
