@@ -35,8 +35,11 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
     completionPercent,
   } = useMemo(() => {
     const sorted = [...levels].sort((a, b) => (a.order || 0) - (b.order || 0));
-    const cert = sorted.find((l) => l.order === 54) || null;
-    const normal = sorted.filter((l) => l.order !== 54);
+    const cert =
+      sorted.find((l) => l.slug === "certificate" || l.type === "CERTIFICATE") || null;
+    const normal = sorted.filter(
+      (l) => l.slug !== "certificate" && l.type !== "CERTIFICATE"
+    );
 
     const groupsMap = {};
     normal.forEach((level) => {

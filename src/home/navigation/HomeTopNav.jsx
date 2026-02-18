@@ -62,9 +62,15 @@ const HomeTopNav = ({
   }, [unreadCount]);
 
   const activeLevel = levels?.find(
-    (l) => l.unlocked && !l.completed && l.order !== 54,
+    (l) =>
+      l.unlocked &&
+      !l.completed &&
+      l.slug !== "certificate" &&
+      l.type !== "CERTIFICATE",
   );
-  const latestLevel = levels?.filter((l) => l.unlocked && l.order !== 54).pop();
+  const latestLevel = levels
+    ?.filter((l) => l.unlocked && l.slug !== "certificate" && l.type !== "CERTIFICATE")
+    .pop();
   const currentLevel = activeLevel || latestLevel || levels?.[0];
   const xp = user?.profile?.xp || 0;
 

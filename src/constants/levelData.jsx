@@ -54,13 +54,11 @@ export const ICONS = [
 ];
 
 // Procedural Spiral Generator (Inward Winding)
-// Level 1: Bottom Right -> Level 50: Center
-export const generateLevels = (count = 54) => {
+export const generateLevels = (count = 60) => {
   const levels = [];
 
   // 1. Generate Spiral Coordinates (Outwards from (0,0))
-  // Index 0 = Center (Level 50)
-  // Index N = Edge (Level 1)
+  // Index 0 = center, higher indices = outer ring
   const coords = [];
   let x = 0;
   let y = 0;
@@ -121,8 +119,6 @@ export const generateLevels = (count = 54) => {
   const scaleY = 80 / rangeY;
 
   // 4. Construct Levels (Reversed Mapping)
-  // coords index 0 -> Level 50 (Center)
-  // coords index 49 -> Level 1 (Bottom Right)
 
   for (let i = 0; i < count; i++) {
     const id = i + 1;

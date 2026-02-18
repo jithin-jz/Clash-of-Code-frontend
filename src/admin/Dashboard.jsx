@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../stores/useAuthStore";
 import { authAPI } from "../services/api";
@@ -30,6 +30,36 @@ import AdminAuditLogs from "./AdminAuditLogs";
 
 import AdminStore from "./AdminStore";
 
+const normalizeText = (value) => String(value || "").toLowerCase();
+
+const userMatchesQuery = (user, query) => {
+  const search = normalizeText(query?.search).trim();
+  if (search) {
+    const searchable = [
+      user?.username,
+      user?.email,
+      user?.first_name,
+      user?.last_name,
+    ]
+      .map(normalizeText)
+      .join(" ");
+    if (!searchable.includes(search)) {
+      return false;
+    }
+  }
+
+  const role = normalizeText(query?.role).trim();
+  if (role === "superuser" && !user?.is_superuser) return false;
+  if (role === "staff" && (!user?.is_staff || user?.is_superuser)) return false;
+  if (role === "user" && (user?.is_staff || user?.is_superuser)) return false;
+
+  const status = normalizeText(query?.status).trim();
+  if (status === "active" && !user?.is_active) return false;
+  if (status === "blocked" && user?.is_active) return false;
+
+  return true;
+};
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout, checkAuth } = useAuthStore();
@@ -51,7 +81,13 @@ const AdminDashboard = () => {
 
   const [userList, setUserList] = useState([]);
   const [tableLoading, setTableLoading] = useState(false);
+  const [userFilters, setUserFilters] = useState({
+    search: "",
+    role: "",
+    status: "",
+  });
   const [integrity, setIntegrity] = useState(null);
+  const usersRequestRef = useRef(0);
 
   useEffect(() => {
     const verifyAdmin = async () => {
@@ -75,15 +111,62 @@ const AdminDashboard = () => {
     }
   }, [loading, isAuthenticated, user, navigate]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (queryOverrides = {}) => {
+    const query = { ...userFilters, ...queryOverrides };
+    setUserFilters(query);
     setTableLoading(true);
+    const requestId = ++usersRequestRef.current;
     try {
-      const response = await authAPI.getUsers();
-      setUserList(response.data);
+      const pageSize = 100;
+      const response = await authAPI.getUsers({
+        ...query,
+        page: 1,
+        page_size: pageSize,
+      });
+      if (requestId !== usersRequestRef.current) return;
+      const payload = response.data;
+
+      if (Array.isArray(payload)) {
+        const filtered = payload.filter((row) => userMatchesQuery(row, query));
+        setUserList(filtered);
+      } else {
+        let results = payload?.results || [];
+        const totalPages = Number(payload?.total_pages || 1);
+
+        if (totalPages > 1) {
+          const pageRequests = [];
+          for (let currentPage = 2; currentPage <= totalPages; currentPage += 1) {
+            pageRequests.push(
+              authAPI.getUsers({
+                ...query,
+                page: currentPage,
+                page_size: pageSize,
+              }),
+            );
+          }
+          const extraPages = await Promise.all(pageRequests);
+          if (requestId !== usersRequestRef.current) return;
+          for (const pageResponse of extraPages) {
+            const pagePayload = pageResponse.data;
+            if (Array.isArray(pagePayload)) {
+              results = results.concat(pagePayload);
+            } else {
+              results = results.concat(pagePayload?.results || []);
+            }
+          }
+        }
+
+        const filteredResults = results.filter((row) =>
+          userMatchesQuery(row, query),
+        );
+        setUserList(filteredResults);
+      }
     } catch (error) {
       console.error("Failed to fetch users", error);
     } finally {
-      setTableLoading(false);
+      if (requestId === usersRequestRef.current) {
+        setTableLoading(false);
+      }
     }
   };
 
@@ -156,6 +239,10 @@ const AdminDashboard = () => {
     } catch (error) {
       notify.error(error.response?.data?.error || "Failed to delete user");
     }
+  };
+
+  const handleUsersQueryChange = (changes) => {
+    fetchUsers(changes);
   };
 
   const handleLogout = async () => {
@@ -273,6 +360,8 @@ const AdminDashboard = () => {
                 handleBlockToggle={handleBlockToggle}
                 handleDeleteUser={handleDeleteUser}
                 fetchUsers={fetchUsers}
+                userFilters={userFilters}
+                onUsersQueryChange={handleUsersQueryChange}
               />
             </div>
           )}

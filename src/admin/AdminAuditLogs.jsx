@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Table,
   TableBody,
@@ -9,28 +9,96 @@ import {
 } from "../components/ui/table";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
+import { Input } from "../components/ui/input";
 import { Loader2, History, User as UserIcon, Settings } from "lucide-react";
 import { authAPI } from "../services/api";
 import { notify } from "../services/notification";
 import { formatDistanceToNow } from "date-fns";
 
+const sortLogs = (rows, ordering) => {
+  const items = [...rows];
+  const byTimestamp = (a, b) =>
+    new Date(a?.timestamp || 0).getTime() - new Date(b?.timestamp || 0).getTime();
+  const byAction = (a, b) =>
+    String(a?.action || "").localeCompare(String(b?.action || ""));
+
+  if (ordering === "timestamp") {
+    items.sort((a, b) => byTimestamp(a, b) || byAction(a, b));
+  } else if (ordering === "-timestamp") {
+    items.sort((a, b) => byTimestamp(b, a) || byAction(a, b));
+  } else if (ordering === "action") {
+    items.sort((a, b) => byAction(a, b) || byTimestamp(b, a));
+  } else if (ordering === "-action") {
+    items.sort((a, b) => byAction(b, a) || byTimestamp(b, a));
+  }
+  return items;
+};
+
 const AdminAuditLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState({
+    page: 1,
+    page_size: 25,
+    search: "",
+    action: "",
+    ordering: "-timestamp",
+  });
+  const [searchValue, setSearchValue] = useState("");
+  const [pagination, setPagination] = useState({
+    count: 0,
+    page: 1,
+    page_size: 25,
+    total_pages: 1,
+  });
+  const requestRef = useRef(0);
 
   useEffect(() => {
     fetchLogs();
   }, []);
 
-  const fetchLogs = async () => {
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (searchValue !== query.search) {
+        fetchLogs({ search: searchValue, page: 1 });
+      }
+    }, 350);
+    return () => clearTimeout(timeout);
+  }, [searchValue, query.search]);
+
+  const fetchLogs = async (overrides = {}) => {
+    const nextQuery = { ...query, ...overrides };
+    setQuery(nextQuery);
     setLoading(true);
+    const requestId = ++requestRef.current;
     try {
-      const response = await authAPI.getAuditLogs();
-      setLogs(response.data);
+      const response = await authAPI.getAuditLogs(nextQuery);
+      if (requestId !== requestRef.current) return;
+      const payload = response.data;
+      if (Array.isArray(payload)) {
+        setLogs(sortLogs(payload, nextQuery.ordering));
+        setPagination({
+          count: payload.length,
+          page: 1,
+          page_size: payload.length || nextQuery.page_size,
+          total_pages: 1,
+        });
+      } else {
+        const results = payload?.results || [];
+        setLogs(sortLogs(results, nextQuery.ordering));
+        setPagination({
+          count: payload?.count ?? results.length,
+          page: payload?.page ?? nextQuery.page,
+          page_size: payload?.page_size ?? nextQuery.page_size,
+          total_pages: payload?.total_pages ?? 1,
+        });
+      }
     } catch {
       notify.error("Failed to fetch audit logs");
     } finally {
-      setLoading(false);
+      if (requestId === requestRef.current) {
+        setLoading(false);
+      }
     }
   };
 
@@ -90,22 +158,74 @@ const AdminAuditLogs = () => {
     return JSON.stringify(details);
   };
 
+  const page = pagination.page || 1;
+  const pageSize = pagination.page_size || 25;
+  const totalPages = pagination.total_pages || 1;
+  const count = pagination.count || 0;
+  const start = count > 0 ? (page - 1) * pageSize + 1 : 0;
+  const end = count > 0 ? Math.min(page * pageSize, count) : 0;
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-white tracking-tight">
-          Audit Logs
-        </h2>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={fetchLogs}
-          disabled={loading}
-          className="h-8 gap-2 bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors rounded-md"
-        >
-          <Loader2 className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-          <span className="text-xs font-medium">Refresh</span>
-        </Button>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-white tracking-tight">
+            Audit Logs
+          </h2>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fetchLogs(query)}
+            disabled={loading}
+            className="h-8 gap-2 bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors rounded-md"
+          >
+            <Loader2
+              className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`}
+            />
+            <span className="text-xs font-medium">Refresh</span>
+          </Button>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Input
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            placeholder="Search action/admin/target/request id..."
+            className="h-8 w-full sm:w-80 bg-zinc-900 border-zinc-800 text-zinc-200 placeholder:text-zinc-600"
+          />
+          <select
+            value={query.action || ""}
+            onChange={(e) => fetchLogs({ action: e.target.value, page: 1 })}
+            className="h-8 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs px-2"
+          >
+            <option value="">All Actions</option>
+            <option value="TOGGLE_USER_BLOCK">Toggle User Block</option>
+            <option value="DELETE_USER">Delete User</option>
+            <option value="SEND_GLOBAL_NOTIFICATION">Broadcast</option>
+          </select>
+          <select
+            value={query.ordering || "-timestamp"}
+            onChange={(e) => fetchLogs({ ordering: e.target.value, page: 1 })}
+            className="h-8 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs px-2"
+          >
+            <option value="-timestamp">Newest</option>
+            <option value="timestamp">Oldest</option>
+            <option value="action">Action A-Z</option>
+            <option value="-action">Action Z-A</option>
+          </select>
+          <select
+            value={String(query.page_size || 25)}
+            onChange={(e) =>
+              fetchLogs({ page_size: Number(e.target.value), page: 1 })
+            }
+            className="h-8 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs px-2"
+          >
+            <option value="10">10 / page</option>
+            <option value="25">25 / page</option>
+            <option value="50">50 / page</option>
+            <option value="100">100 / page</option>
+          </select>
+        </div>
       </div>
 
       <div className="rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden">
@@ -201,6 +321,34 @@ const AdminAuditLogs = () => {
             )}
           </TableBody>
         </Table>
+      </div>
+      <div className="flex items-center justify-between text-xs text-zinc-500">
+        <span>
+          Showing {start}-{end} of {count}
+        </span>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+            disabled={page <= 1 || loading}
+            onClick={() => fetchLogs({ page: page - 1 })}
+          >
+            Prev
+          </Button>
+          <span className="text-zinc-400">
+            Page {page} / {Math.max(totalPages, 1)}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+            disabled={page >= totalPages || loading}
+            onClick={() => fetchLogs({ page: page + 1 })}
+          >
+            Next
+          </Button>
+        </div>
       </div>
       <div className="flex items-center gap-2 px-1">
         <div className="w-1 h-1 rounded-full bg-[#00af9b]/30" />

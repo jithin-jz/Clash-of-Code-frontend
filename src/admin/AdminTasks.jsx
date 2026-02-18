@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Plus,
   Edit,
@@ -26,10 +26,25 @@ const AdminTasks = () => {
   const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingTask, setEditingTask] = useState(null); // null = list, {} = new, {id...} = edit
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetchTasks();
   }, []);
+
+  const totalCount = tasks.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const paginatedTasks = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return tasks.slice(start, start + pageSize);
+  }, [tasks, page, pageSize]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   const fetchTasks = async () => {
     setIsLoading(true);
@@ -334,7 +349,7 @@ const AdminTasks = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  tasks.map((task) => (
+                  paginatedTasks.map((task) => (
                     <TableRow
                       key={task.id}
                       className="border-zinc-800 hover:bg-zinc-900/40 transition-colors group"
@@ -390,6 +405,51 @@ const AdminTasks = () => {
               </TableBody>
             </Table>
           </div>
+          {!isLoading && (
+            <div className="flex items-center justify-between text-xs text-zinc-500">
+              <div className="flex items-center gap-2">
+                <span>
+                  Showing {totalCount === 0 ? 0 : (page - 1) * pageSize + 1}-
+                  {Math.min(page * pageSize, totalCount)} of {totalCount}
+                </span>
+                <select
+                  value={String(pageSize)}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setPage(1);
+                  }}
+                  className="h-7 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs px-2"
+                >
+                  <option value="10">10 / page</option>
+                  <option value="25">25 / page</option>
+                  <option value="50">50 / page</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  Prev
+                </Button>
+                <span className="text-zinc-400">
+                  Page {page} / {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <TaskForm

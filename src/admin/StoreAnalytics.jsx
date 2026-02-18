@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -11,14 +11,30 @@ import { Badge } from "../components/ui/badge";
 import { Loader2, DollarSign, BarChart3, ShoppingCart } from "lucide-react";
 import { authAPI } from "../services/api";
 import { notify } from "../services/notification";
+import { Button } from "../components/ui/button";
 
 const StoreAnalytics = () => {
   const [data, setData] = useState({ items: [], total_xp_spent: 0 });
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     fetchAnalytics();
   }, []);
+
+  const totalCount = data.items.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const paginatedItems = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return data.items.slice(start, start + pageSize);
+  }, [data.items, page, pageSize]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   const fetchAnalytics = async () => {
     setLoading(true);
@@ -105,9 +121,9 @@ const StoreAnalytics = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                data.items.map((item, idx) => (
+                paginatedItems.map((item, idx) => (
                   <TableRow
-                    key={idx}
+                    key={`${item.name}-${idx}`}
                     className="border-zinc-800 hover:bg-zinc-900/40 transition-colors group"
                   >
                     <TableCell className="py-3 px-6">
@@ -145,6 +161,51 @@ const StoreAnalytics = () => {
             </TableBody>
           </Table>
         </div>
+        {!loading && (
+          <div className="flex items-center justify-between text-xs text-zinc-500">
+            <div className="flex items-center gap-2">
+              <span>
+                Showing {totalCount === 0 ? 0 : (page - 1) * pageSize + 1}-
+                {Math.min(page * pageSize, totalCount)} of {totalCount}
+              </span>
+              <select
+                value={String(pageSize)}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPage(1);
+                }}
+                className="h-7 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs px-2"
+              >
+                <option value="10">10 / page</option>
+                <option value="25">25 / page</option>
+                <option value="50">50 / page</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Prev
+              </Button>
+              <span className="text-zinc-400">
+                Page {page} / {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

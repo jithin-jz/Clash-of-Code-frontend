@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,16 +8,8 @@ import {
   TableRow,
 } from "../components/ui/table";
 import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
-import {
-  RefreshCw,
-  Eye,
-  Shield,
-  Ban,
-  CheckCircle,
-  Loader2,
-  Trash,
-} from "lucide-react";
+import { Input } from "../components/ui/input";
+import { RefreshCw, Eye, Loader2, Trash } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const UserTable = ({
@@ -27,14 +19,97 @@ const UserTable = ({
   handleBlockToggle,
   handleDeleteUser,
   fetchUsers,
+  userFilters,
+  onUsersQueryChange,
 }) => {
+  const [searchValue, setSearchValue] = useState(userFilters?.search || "");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    setSearchValue(userFilters?.search || "");
+  }, [userFilters?.search]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if ((userFilters?.search || "") !== searchValue) {
+        onUsersQueryChange?.({ search: searchValue });
+      }
+    }, 350);
+    return () => clearTimeout(timeout);
+  }, [searchValue, userFilters?.search, onUsersQueryChange]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [userFilters?.search, userFilters?.role, userFilters?.status]);
+
+  const count = userList.length;
+  const totalPages = Math.max(1, Math.ceil(count / pageSize));
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (page - 1) * pageSize;
+    return userList.slice(startIndex, startIndex + pageSize);
+  }, [userList, page, pageSize]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const start = count > 0 ? (page - 1) * pageSize + 1 : 0;
+  const end = count > 0 ? Math.min(page * pageSize, count) : 0;
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-end">
+      <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Input
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            placeholder="Search username or email..."
+            className="h-8 w-full sm:w-64 bg-zinc-900 border-zinc-800 text-zinc-200 placeholder:text-zinc-600"
+          />
+          <select
+            value={userFilters?.role || ""}
+            onChange={(e) =>
+              onUsersQueryChange?.({ role: e.target.value })
+            }
+            className="h-8 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs px-2"
+          >
+            <option value="">All Roles</option>
+            <option value="user">Users</option>
+            <option value="staff">Staff</option>
+            <option value="superuser">Superusers</option>
+          </select>
+          <select
+            value={userFilters?.status || ""}
+            onChange={(e) =>
+              onUsersQueryChange?.({ status: e.target.value })
+            }
+            className="h-8 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs px-2"
+          >
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+          </select>
+          <select
+            value={String(pageSize)}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setPage(1);
+            }}
+            className="h-8 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs px-2"
+          >
+            <option value="10">10 / page</option>
+            <option value="25">25 / page</option>
+            <option value="50">50 / page</option>
+          </select>
+        </div>
+
         <Button
           variant="outline"
           size="sm"
-          onClick={fetchUsers}
+          onClick={() => fetchUsers(userFilters)}
           disabled={tableLoading}
           className="h-8 gap-2 bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors rounded-md"
         >
@@ -90,7 +165,7 @@ const UserTable = ({
                 </TableCell>
               </TableRow>
             ) : (
-              userList.map((usr) => (
+              paginatedUsers.map((usr) => (
                 <TableRow
                   key={usr.username}
                   className="border-zinc-800 hover:bg-zinc-900/40 transition-colors group"
@@ -198,6 +273,35 @@ const UserTable = ({
             )}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="flex items-center justify-between text-xs text-zinc-500">
+        <span>
+          Showing {start}-{end} of {count}
+        </span>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+            disabled={page <= 1 || tableLoading}
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+          >
+            Prev
+          </Button>
+          <span className="text-zinc-400">
+            Page {page} / {Math.max(totalPages, 1)}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
+            disabled={page >= totalPages || tableLoading}
+            onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+          >
+            Next
+          </Button>
+        </div>
       </div>
     </div>
   );

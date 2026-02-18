@@ -153,7 +153,7 @@ export const authAPI = {
   getContributionHistory: (username) => api.get(`/profiles/users/${username}/stats/contributions/`),
 
   // Admin endpoints
-  getUsers: () => api.get("/admin/users/"),
+  getUsers: (params = {}) => api.get("/admin/users/", { params }),
   toggleBlockUser: (username) =>
     api.post(`/admin/users/${username}/toggle-block/`),
   deleteUser: (username) => api.delete(`/admin/users/${username}/delete/`),
@@ -164,7 +164,7 @@ export const authAPI = {
   getSystemSettings: () => api.get("/admin/system/settings/"),
   updateSystemSettings: (data) => api.post("/admin/system/settings/", data),
   sendBroadcast: (message) => api.post("/admin/notifications/broadcast/", { message }),
-  getAuditLogs: () => api.get("/admin/audit-logs/"),
+  getAuditLogs: (params = {}) => api.get("/admin/audit-logs/", { params }),
 };
 
 // Payment endpoints

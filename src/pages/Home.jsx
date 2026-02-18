@@ -23,6 +23,8 @@ import CertificateModal from "../components/CertificateModal";
 // Data
 import { ICONS, generateLevels } from "../constants/levelData.jsx";
 
+const CERTIFICATE_SLUG = "certificate";
+
 const Home = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
@@ -101,7 +103,7 @@ const Home = () => {
   const levels = useMemo(() => {
     // If no levels from API, provide fallback for background
     if (!apiLevels || apiLevels.length === 0) {
-      return generateLevels(54).map((l) => ({
+      return generateLevels(60).map((l) => ({
         ...l,
         status: l.id === 1 ? "UNLOCKED" : "LOCKED",
         unlocked: l.id === 1,
@@ -109,39 +111,39 @@ const Home = () => {
       }));
     }
 
-    // Unified Processing for ALL Levels
-    // const visualPositions = generateLevels(Math.max(53, maxOrder));
-
-    // We trust the API to return the correct order.
-    // We map them to visuals dynamically.
-
     // Sort API levels by order
     const sortedApiLevels = [...apiLevels].sort((a, b) => a.order - b.order);
-
+    const totalChallengeLevels = sortedApiLevels.length;
+    const finalChallenge = sortedApiLevels[totalChallengeLevels - 1];
+    const isFinalChallengeCompleted = finalChallenge?.status === "COMPLETED";
+    const certificateOrder = totalChallengeLevels + 1;
     const levelsWithCert = [...sortedApiLevels];
 
-    // Check if user has completed Level 53 (the last level)
-    const level53 = sortedApiLevels.find((l) => l.order === 53);
-    const isLevel53Completed = level53?.status === "COMPLETED";
-
-    // Manually append Level 54 (Certificate) if it doesn't exist
-    if (!levelsWithCert.find((l) => l.order === 54)) {
+    // Manually append certificate entry if it doesn't exist in API payload.
+    if (
+      totalChallengeLevels > 0 &&
+      !levelsWithCert.find((l) => l.slug === CERTIFICATE_SLUG || l.type === "CERTIFICATE")
+    ) {
       levelsWithCert.push({
-        id: "certificate",
-        order: 54,
-        slug: "certificate",
+        id: CERTIFICATE_SLUG,
+        order: certificateOrder,
+        slug: CERTIFICATE_SLUG,
         title: "Professional Certificate",
         description: "Proof of your mastery",
         stars: 0,
-        status: isLevel53Completed ? "UNLOCKED" : "LOCKED", // Unlock if 53 is done
+        status: isFinalChallengeCompleted ? "UNLOCKED" : "LOCKED",
         xp_reward: 0,
+        type: "CERTIFICATE",
+        required_levels: totalChallengeLevels,
+        unlock_message: `Unlock after completing all ${totalChallengeLevels} levels`,
       });
     }
 
     return levelsWithCert.map((apiData) => {
-      const isCertificate = apiData.order === 54;
+      const isCertificate =
+        apiData.slug === CERTIFICATE_SLUG || apiData.type === "CERTIFICATE";
       return {
-        id: apiData.order,
+        id: isCertificate ? CERTIFICATE_SLUG : apiData.order,
         order: apiData.order,
         name: isCertificate
           ? "Professional Certificate"
@@ -153,7 +155,7 @@ const Home = () => {
         unlocked:
           apiData.status === "UNLOCKED" ||
           apiData.status === "COMPLETED" ||
-          (isCertificate && isLevel53Completed),
+          (isCertificate && isFinalChallengeCompleted),
         completed: apiData.status === "COMPLETED",
         type: isCertificate ? "CERTIFICATE" : "LEVEL",
         ...apiData,
@@ -208,7 +210,9 @@ const Home = () => {
     }
 
     if (level.unlocked) {
-      if (level.order === 54) {
+      const isCertificate =
+        level.slug === CERTIFICATE_SLUG || level.type === "CERTIFICATE";
+      if (isCertificate) {
         if (userCertificate) {
           setCertificateModalOpen(true);
           return;

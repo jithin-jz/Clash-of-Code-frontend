@@ -4,7 +4,7 @@ import { ArrowRight, CheckCircle2, Lock, Star, Trophy } from "lucide-react";
 import { getDifficultyMeta } from "../utils/challengeMeta";
 
 const LevelButton = ({ level, isCurrentLevel, onClick }) => {
-  const isCertificate = level.order === 54;
+  const isCertificate = level.type === "CERTIFICATE" || level.slug === "certificate";
   const difficulty = getDifficultyMeta(level.order);
 
   const statusTone = level.completed
@@ -120,7 +120,9 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
       )}
 
       {isCertificate && (
-        <p className="mt-3 text-xs text-[#f5d08d]">Unlock after completing all 53 levels</p>
+        <p className="mt-3 text-xs text-[#f5d08d]">
+          {level.unlock_message || "Unlock after completing all levels"}
+        </p>
       )}
     </motion.button>
   );
