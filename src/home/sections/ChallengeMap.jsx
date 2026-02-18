@@ -79,6 +79,41 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
     };
   }, [levels]);
 
+  const statsCards = [
+    {
+      key: "solved",
+      label: "Solved",
+      icon: CheckCircle2,
+      value: solvedCount,
+      suffix: `/${challengeLevels.length}`,
+      helper: "Challenges cleared",
+    },
+    {
+      key: "unlocked",
+      label: "Unlocked",
+      icon: Lock,
+      value: unlockedCount,
+      suffix: `/${challengeLevels.length}`,
+      helper: "Ready to play",
+    },
+    {
+      key: "star-score",
+      label: "Star Score",
+      icon: Target,
+      value: totalStars,
+      suffix: `/${maxStars}`,
+      helper: "Total stars earned",
+    },
+    {
+      key: "completed",
+      label: "Completed",
+      icon: BarChart3,
+      value: completionPercent,
+      suffix: "%",
+      helper: "Overall progress",
+    },
+  ];
+
   return (
     <div
       className="w-full h-screen relative overflow-hidden flex flex-col items-center justify-center"
@@ -119,65 +154,41 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
         }`}
       >
         <div className="h-full overflow-y-auto pr-1 pb-5 space-y-4 custom-scrollbar">
-          <section className="w-full rounded-2xl border border-white/12 bg-linear-to-br from-white/[0.12] via-white/[0.07] to-white/[0.03] backdrop-blur-xl p-4 sm:p-5 shadow-[0_22px_60px_rgba(0,0,0,0.3)]">
+          <section className="w-full rounded-3xl border border-white/14 bg-linear-to-br from-white/[0.14] via-white/[0.08] to-white/[0.03] backdrop-blur-xl p-3 sm:p-4 shadow-[0_24px_65px_rgba(0,0,0,0.34)]">
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-              <div className="rounded-2xl border border-white/15 bg-[#101a29]/65 backdrop-blur-md p-4">
-                <div className="flex items-center gap-2 text-slate-300">
-                  <CheckCircle2 size={14} className="text-emerald-400" />
-                  <span className="text-[11px] uppercase tracking-[0.16em] font-semibold">
-                    Solved
-                  </span>
-                </div>
-                <p className="text-3xl font-bold text-white mt-2">
-                  {solvedCount}
-                  <span className="text-slate-500 text-base font-semibold">
-                    /{challengeLevels.length}
-                  </span>
-                </p>
-              </div>
+              {statsCards.map((card) => {
+                const Icon = card.icon;
 
-              <div className="rounded-2xl border border-white/15 bg-[#101a29]/65 backdrop-blur-md p-4">
-                <div className="flex items-center gap-2 text-slate-300">
-                  <Lock size={14} className="text-sky-300" />
-                  <span className="text-[11px] uppercase tracking-[0.16em] font-semibold">
-                    Unlocked
-                  </span>
-                </div>
-                <p className="text-3xl font-bold text-white mt-2">
-                  {unlockedCount}
-                  <span className="text-slate-500 text-base font-semibold">
-                    /{challengeLevels.length}
-                  </span>
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-white/15 bg-[#101a29]/65 backdrop-blur-md p-4">
-                <div className="flex items-center gap-2 text-slate-300">
-                  <Target size={14} className="text-amber-300" />
-                  <span className="text-[11px] uppercase tracking-[0.16em] font-semibold">
-                    Star Score
-                  </span>
-                </div>
-                <p className="text-3xl font-bold text-white mt-2">
-                  {totalStars}
-                  <span className="text-slate-500 text-base font-semibold">
-                    /{maxStars}
-                  </span>
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-white/15 bg-[#101a29]/65 backdrop-blur-md p-4">
-                <div className="flex items-center gap-2 text-slate-300">
-                  <BarChart3 size={14} className="text-violet-300" />
-                  <span className="text-[11px] uppercase tracking-[0.16em] font-semibold">
-                    Completion
-                  </span>
-                </div>
-                <p className="text-3xl font-bold text-white mt-2">
-                  {completionPercent}
-                  <span className="text-slate-500 text-base font-semibold">%</span>
-                </p>
-              </div>
+                return (
+                  <div
+                    key={card.key}
+                    className="relative overflow-hidden rounded-2xl border border-white/15 bg-[#101a29]/65 p-4 backdrop-blur-md"
+                  >
+                    <div className="absolute -top-6 -right-6 h-20 w-20 rounded-full bg-white/8 blur-2xl pointer-events-none" />
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-2.5">
+                        <span
+                          className="h-8 w-8 rounded-lg border border-white/20 bg-white/[0.04] inline-flex items-center justify-center text-slate-300"
+                        >
+                          <Icon size={15} />
+                        </span>
+                        <span className="text-[11px] uppercase tracking-[0.18em] font-extrabold text-white/85">
+                          {card.label}
+                        </span>
+                      </div>
+                      <div className="mt-2.5 flex items-end gap-1.5">
+                        <span className="text-4xl font-black text-white leading-none">
+                          {card.value}
+                        </span>
+                        <span className="text-[1.38rem] font-bold text-white/42 leading-none">
+                          {card.suffix}
+                        </span>
+                      </div>
+                      <p className="mt-1.5 text-xs text-white/65">{card.helper}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </section>
 
@@ -204,7 +215,7 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
                   {trackLevels.map((level, index) => {
                     const next = trackLevels[index + 1];
                     const isCurrentLevel = level.unlocked && !next?.unlocked;

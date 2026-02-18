@@ -17,7 +17,7 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
     <motion.button
       onClick={onClick}
       disabled={!level.unlocked}
-      className={`w-full text-left rounded-2xl border p-4 transition-all duration-200 ${statusTone} ${
+      className={`w-full text-left rounded-xl border p-3 sm:p-3.5 min-h-[160px] transition-all duration-200 ${statusTone} ${
         level.unlocked
           ? "cursor-pointer hover:border-[#4b6386] hover:bg-[#152137]"
           : "cursor-not-allowed opacity-80"
@@ -25,10 +25,10 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
       whileHover={level.unlocked ? { y: -2 } : {}}
       whileTap={level.unlocked ? { scale: 0.995 } : {}}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-start justify-between gap-2.5">
+        <div className="flex items-center gap-2.5 min-w-0">
           <div
-            className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 ${
+            className={`w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${
               isCertificate
                 ? "bg-linear-to-br from-[#facc15] to-[#f59e0b] border-[#fde68a] text-black"
                 : "bg-[#1c2a3f] border-[#415672] text-[#d3deee]"
@@ -52,10 +52,10 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
           </div>
 
           <div className="min-w-0">
-            <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-[0.14em] truncate">
+            <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold uppercase tracking-[0.14em] whitespace-normal">
               {isCertificate ? "Certification" : `Level ${level.order}`}
             </p>
-            <p className="text-base font-semibold text-slate-50 leading-tight truncate">
+            <p className="text-[13px] sm:text-[14px] font-semibold text-slate-50 leading-snug whitespace-normal break-words">
               {isCertificate ? "Professional Badge" : level.title || level.name}
             </p>
           </div>
@@ -64,7 +64,7 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
         <div className="flex items-center gap-2 shrink-0">
           {!isCertificate && (
             <span
-              className={`text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide ${difficulty.pill}`}
+              className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide ${difficulty.pill}`}
             >
               {difficulty.label}
             </span>
@@ -86,7 +86,7 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
       </div>
 
       {!isCertificate && (
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-2.5 flex items-center justify-between">
           <p className="text-xs text-slate-400">
             {(level.xp_reward || 0).toLocaleString()} XP
           </p>
@@ -94,7 +94,7 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
             {[1, 2, 3].map((star) => (
               <Star
                 key={star}
-                size={12}
+                size={11}
                 strokeWidth={2.2}
                 className={
                   star <= (level.stars || 0)
@@ -108,7 +108,7 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
       )}
 
       {isCurrentLevel && level.unlocked && (
-        <div className="mt-3">
+        <div className="mt-2.5">
           <span className="inline-flex text-[10px] px-2.5 py-1 rounded-md font-semibold bg-[#3b82f6]/15 text-[#93c5fd] border border-[#3b82f6]/35 uppercase tracking-wide">
             Current
           </span>
@@ -116,11 +116,11 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
       )}
 
       {!isCertificate && !level.unlocked && (
-        <p className="mt-3 text-xs text-slate-500">Complete previous level to unlock</p>
+        <p className="mt-2.5 text-xs text-slate-500">Complete previous level to unlock</p>
       )}
 
       {isCertificate && (
-        <p className="mt-3 text-xs text-[#f5d08d]">
+        <p className="mt-2.5 text-xs text-[#f5d08d]">
           {level.unlock_message || "Unlock after completing all levels"}
         </p>
       )}
