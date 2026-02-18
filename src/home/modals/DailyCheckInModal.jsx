@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { checkInApi } from '../../services/checkInApi';
 import useUserStore from '../../stores/useUserStore';
+import useAuthStore from '../../stores/useAuthStore';
 import { Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -20,6 +21,7 @@ const DailyCheckInModal = ({ isOpen, onClose, onClaim }) => {
   const [loading, setLoading] = useState(true);
   const [checkingIn, setCheckingIn] = useState(false);
   const { fetchCurrentUser } = useUserStore();
+  const { user, setUser } = useAuthStore();
 
   useEffect(() => {
     if (isOpen) {
@@ -28,6 +30,7 @@ const DailyCheckInModal = ({ isOpen, onClose, onClaim }) => {
   }, [isOpen]);
 
   const loadCheckInStatus = async () => {
+    setLoading(true);
     try {
       const data = await checkInApi.getCheckInStatus();
       setCheckInStatus(data);
@@ -55,7 +58,21 @@ const DailyCheckInModal = ({ isOpen, onClose, onClaim }) => {
         today_checkin: data.check_in,
         freezes_left: data.freezes_left
       });
-      if (fetchCurrentUser) await fetchCurrentUser();
+
+      // Apply XP immediately for snappier UI feedback, then sync in background.
+      if (user?.profile && typeof data.xp_earned === 'number') {
+        setUser({
+          ...user,
+          profile: {
+            ...user.profile,
+            xp: (user.profile.xp || 0) + data.xp_earned,
+          },
+        });
+      }
+
+      if (fetchCurrentUser) {
+        void fetchCurrentUser().catch(() => {});
+      }
       if (onClaim) onClaim();
       
       if (data.streak_saved) {

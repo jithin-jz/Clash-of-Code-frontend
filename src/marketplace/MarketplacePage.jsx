@@ -36,7 +36,7 @@ const CATEGORIES = [
 
 const MarketplacePage = () => {
   const navigate = useNavigate();
-  const { user, checkAuth, setUser } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const {
     items,
     isLoading,
@@ -65,8 +65,18 @@ const MarketplacePage = () => {
 
     const result = await purchaseItem(item.id);
     if (result.success) {
+      const remainingXp = result.data?.remaining_xp;
+      const latestUser = useAuthStore.getState().user;
+      if (latestUser?.profile && typeof remainingXp === "number") {
+        setUser({
+          ...latestUser,
+          profile: {
+            ...latestUser.profile,
+            xp: remainingXp,
+          },
+        });
+      }
       toast.success(result.data.message || "Purchase successful.");
-      await checkAuth();
     } else {
       toast.error(result.error || "Purchase failed.");
     }
@@ -76,11 +86,12 @@ const MarketplacePage = () => {
     const result = await equipItem(item.id);
     if (result.success) {
       const data = result.data || {};
-      if (user?.profile) {
+      const latestUser = useAuthStore.getState().user;
+      if (latestUser?.profile) {
         setUser({
-          ...user,
+          ...latestUser,
           profile: {
-            ...user.profile,
+            ...latestUser.profile,
             ...(data.active_theme ? { active_theme: data.active_theme } : {}),
             ...(data.active_font ? { active_font: data.active_font } : {}),
             ...(data.active_effect ? { active_effect: data.active_effect } : {}),
@@ -89,7 +100,6 @@ const MarketplacePage = () => {
         });
       }
       toast.success(result.data.message || "Equipped successfully.");
-      await checkAuth();
     } else {
       toast.error(result.error || "Failed to equip.");
     }
@@ -98,11 +108,12 @@ const MarketplacePage = () => {
   const handleUnequip = async (item) => {
     const result = await unequipCategory(item.category);
     if (result.success) {
-      if (user?.profile) {
+      const latestUser = useAuthStore.getState().user;
+      if (latestUser?.profile) {
         setUser({
-          ...user,
+          ...latestUser,
           profile: {
-            ...user.profile,
+            ...latestUser.profile,
             ...(item.category === "THEME" ? { active_theme: "vs-dark" } : {}),
             ...(item.category === "FONT" ? { active_font: "Fira Code" } : {}),
             ...(item.category === "EFFECT" ? { active_effect: null } : {}),
@@ -111,7 +122,6 @@ const MarketplacePage = () => {
         });
       }
       toast.success(result.data.message || "Unequipped successfully.");
-      await checkAuth();
     } else {
       toast.error(result.error || "Failed to unequip.");
     }

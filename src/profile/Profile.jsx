@@ -217,20 +217,79 @@ const Profile = () => {
 
   const handleFollowToggle = async () => {
     if (!currentUser) return navigate("/login");
+    const targetUsername = profileUser?.username;
+    if (!targetUsername) return;
+
+    const previousProfile = profileUser;
+    const nextIsFollowing = !previousProfile?.is_following;
+    const nextFollowerCount = Math.max(
+      0,
+      (previousProfile?.followers_count || 0) + (nextIsFollowing ? 1 : -1),
+    );
+
+    setProfileUser((prev) =>
+      prev
+        ? {
+            ...prev,
+            is_following: nextIsFollowing,
+            followers_count: nextFollowerCount,
+          }
+        : prev,
+    );
+
     try {
-      const data = await followUser(profileUser.username);
-      setProfileUser((prev) => ({
-        ...prev,
-        is_following: data.is_following,
-        followers_count: data.follower_count,
-      }));
+      const data = await followUser(targetUsername);
+      setProfileUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              is_following: data.is_following,
+              followers_count: data.follower_count,
+            }
+          : prev,
+      );
     } catch (error) {
       console.error("Failed to toggle follow", error);
+      setProfileUser(previousProfile);
+      notify.error("Failed to update follow status.");
     }
   };
 
   const handleListFollowToggle = async (targetUsername) => {
     if (!currentUser) return;
+    const previousList = userList;
+    const previousProfile = profileUser;
+    const targetUser = previousList.find((u) => u.username === targetUsername);
+    const optimisticFollowState = targetUser
+      ? !targetUser.is_following
+      : null;
+
+    if (optimisticFollowState !== null) {
+      setUserList((prev) =>
+        prev.map((u) =>
+          u.username === targetUsername
+            ? { ...u, is_following: optimisticFollowState }
+            : u,
+        ),
+      );
+    }
+
+    if (targetUsername === previousProfile?.username) {
+      setProfileUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              is_following: !previousProfile?.is_following,
+              followers_count: Math.max(
+                0,
+                (previousProfile?.followers_count || 0) +
+                  (previousProfile?.is_following ? -1 : 1),
+              ),
+            }
+          : prev,
+      );
+    }
+
     try {
       const data = await followUser(targetUsername);
       setUserList((prev) =>
@@ -243,27 +302,40 @@ const Profile = () => {
       );
 
       // Update main profile stats if we are following/unfollowing the displayed user
-      if (targetUsername === profileUser.username) {
-        setProfileUser((prev) => ({
-          ...prev,
-          is_following: data.is_following,
-          followers_count: data.follower_count,
-        }));
+      if (targetUsername === profileUser?.username) {
+        setProfileUser((prev) =>
+          prev
+            ? {
+                ...prev,
+                is_following: data.is_following,
+                followers_count: data.follower_count,
+              }
+            : prev,
+        );
       }
     } catch (error) {
       console.error("Failed to toggle follow in list", error);
+      setUserList(previousList);
+      if (targetUsername === previousProfile?.username) {
+        setProfileUser(previousProfile);
+      }
+      notify.error("Failed to update follow status.");
     }
   };
 
   const handleFollowSuggested = async (suggestedUsername) => {
     if (!currentUser) return navigate("/login");
+    const previousSuggestedUsers = suggestedUsers;
+    setSuggestedUsers((prev) =>
+      prev.filter((u) => u.username !== suggestedUsername),
+    );
+
     try {
       await followUser(suggestedUsername);
-      setSuggestedUsers((prev) =>
-        prev.filter((u) => u.username !== suggestedUsername),
-      );
     } catch (error) {
       console.error("Failed to follow", error);
+      setSuggestedUsers(previousSuggestedUsers);
+      notify.error("Failed to follow user.");
     }
   };
 
