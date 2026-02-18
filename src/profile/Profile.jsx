@@ -282,7 +282,11 @@ const Profile = () => {
     setIsRedeeming(true);
     try {
       const result = await redeemReferral(referralCodeInput);
-      notify.success(`Referral redeemed! +${result.xp_awarded} XP`);
+      const redeemerXp = result.redeemer_xp_awarded ?? result.xp_awarded;
+      const referrerXp = result.referrer_xp_awarded ?? 100;
+      notify.success(
+        `Referral redeemed! You got +${redeemerXp} XP and your referrer got +${referrerXp} XP.`,
+      );
       setReferralCodeInput("");
       // Update local user state immediately to reflect new XP and redeemed status
       // (Handled by store, but we might want to refresh visible UI if dependent)

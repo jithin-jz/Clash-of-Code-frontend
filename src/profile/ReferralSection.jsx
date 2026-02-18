@@ -28,7 +28,12 @@ const ReferralSection = () => {
 
     try {
       const result = await redeemReferral(referralCode);
-      setMessage({ type: 'success', text: `Success! You earned ${result.xp_awarded} XP. Total XP: ${result.new_total_xp}` });
+      const redeemerXp = result.redeemer_xp_awarded ?? result.xp_awarded;
+      const referrerXp = result.referrer_xp_awarded ?? 100;
+      setMessage({
+        type: 'success',
+        text: `Success! You earned ${redeemerXp} XP and your referrer earned ${referrerXp} XP. Total XP: ${result.new_total_xp}`,
+      });
       setReferralCode('');
     } catch (error) {
       setMessage({ type: 'error', text: error.message });
@@ -110,7 +115,7 @@ const ReferralSection = () => {
             
             {!user.profile.is_referred && (
               <p className="text-xs text-gray-600">
-                Get <span className="text-[#ffa116]">100 XP</span> instant bonus.
+                Both users get <span className="text-[#ffa116]">100 XP</span> instant bonus.
               </p>
             )}
           </div>
