@@ -3,7 +3,20 @@ import { SkeletonBase, SkeletonPage, SkeletonCode } from "../common/SkeletonPrim
 
 const ChallengeWorkspaceSkeleton = () => {
   return (
-    <SkeletonPage className="flex flex-col">
+    <SkeletonPage className="flex flex-col h-dvh bg-[#0b1119]">
+      <div className="absolute inset-0 pointer-events-none bg-[#0b1119]" />
+      <div className="absolute inset-0 pointer-events-none bg-linear-to-b from-[#101928] via-[#0d141f] to-[#0a0f17]" />
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.06]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(148,163,184,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.35) 1px, transparent 1px)",
+          backgroundSize: "52px 52px",
+        }}
+      />
+      <div className="absolute top-0 left-[8%] w-[26rem] h-[26rem] rounded-full bg-[#2563eb]/10 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[-8rem] right-[10%] w-[22rem] h-[22rem] rounded-full bg-[#0ea5e9]/10 blur-3xl pointer-events-none" />
+
       <div className="relative z-10 h-14 bg-[#0a1220]/85 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-4">
         <div className="flex items-center gap-4">
           <SkeletonBase className="w-9 h-9 rounded-xl" />

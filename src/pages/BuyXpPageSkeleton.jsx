@@ -4,28 +4,14 @@ import { SkeletonBase, SkeletonPage } from "../common/SkeletonPrimitives";
 const BuyXpPageSkeleton = () => {
   return (
     <SkeletonPage className="flex flex-col">
-      {/* Header */}
-      <div className="bg-[#0a1220]/85 backdrop-blur-xl border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="h-16 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <SkeletonBase className="h-9 w-9 rounded-xl" />
-              <SkeletonBase className="h-4 w-20 rounded" />
-            </div>
-            <SkeletonBase className="h-8 w-16 rounded-lg opacity-50" />
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <main className="flex-1 max-w-6xl mx-auto px-4 sm:px-6 py-6 w-full overflow-hidden">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      {/* Main Content Skeleton */}
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 min-w-0 overflow-hidden">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
               className="bg-[#0f1b2e]/70 border border-[#7ea3d9]/20 rounded-2xl p-5 flex flex-col gap-4"
             >
-              {/* Icon */}
               <SkeletonBase className="w-10 h-10 rounded-lg" />
 
               {/* Label & Amount */}

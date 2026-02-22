@@ -4,27 +4,8 @@ import { SkeletonBase, SkeletonPage } from "../common/SkeletonPrimitives";
 const HomeSkeleton = () => {
   return (
     <SkeletonPage className="relative">
-      {/* Navbar */}
-      <div className="relative z-10 h-16 border-b border-white/10 bg-[#0a1220]/85 backdrop-blur-xl px-3 sm:px-6 lg:px-8 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-        <div className="flex items-center gap-2">
-          <SkeletonBase className="w-10 h-10 rounded-full" />
-          <SkeletonBase className="w-10 h-10 rounded-full" />
-          <SkeletonBase className="w-28 h-10 rounded-full" />
-          <SkeletonBase className="w-40 h-10 rounded-full" />
-        </div>
-        <SkeletonBase className="w-44 h-5 rounded-md" />
-        <div className="flex items-center gap-2 justify-self-end">
-          <SkeletonBase className="w-10 h-10 rounded-full" />
-          <SkeletonBase className="w-10 h-10 rounded-full" />
-          <SkeletonBase className="w-10 h-10 rounded-full" />
-          <SkeletonBase className="w-10 h-10 rounded-full" />
-          <SkeletonBase className="w-10 h-10 rounded-full" />
-          <SkeletonBase className="w-24 h-10 rounded-full" />
-        </div>
-      </div>
-
       {/* Content — Track sections matching ChallengeMap layout */}
-      <div className="relative z-10 h-[calc(100vh-64px)] mt-0 px-6 pt-4 pb-0">
+      <div className="relative z-10 w-full mt-0 px-6 pt-4 pb-0">
         <div className="h-full overflow-hidden space-y-6">
           {[...Array(3)].map((_, sectionIdx) => (
             <section

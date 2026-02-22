@@ -4,34 +4,28 @@ import { SkeletonBase, SkeletonPage } from "../common/SkeletonPrimitives";
 const MarketplacePageSkeleton = () => {
   return (
     <SkeletonPage className="flex flex-col">
-      {/* Header Skeleton */}
-      <div className="sticky top-0 z-50 bg-[#0a1220]/85 backdrop-blur-xl border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="h-16 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <SkeletonBase className="w-9 h-9 rounded-xl" />
-              <SkeletonBase className="w-16 h-5 rounded-md" />
-            </div>
-            <SkeletonBase className="w-24 h-8 rounded-lg" />
-          </div>
-        </div>
-      </div>
+      {/* Unified Action Row Skeleton */}
+      <div className="sticky top-14 z-20 border-b border-white/5 bg-[#0a0f18]/85 backdrop-blur-xl">
+        <div className="w-full px-4 sm:px-6 lg:px-8 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-4 py-2 sm:py-3">
+            <SkeletonBase className="w-8 h-8 rounded-lg shrink-0 -ml-1.5" />
+            <div className="w-px h-5 bg-white/10 shrink-0 hidden sm:block" />
 
-      {/* Category Tabs Skeleton */}
-      <div className="border-b border-white/10 bg-[#0a1220]/75 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center gap-2 py-2.5">
-            <SkeletonBase className="w-16 h-8 rounded-full" />
-            <SkeletonBase className="w-20 h-8 rounded-full" />
-            <SkeletonBase className="w-[4.5rem] h-8 rounded-full" />
-            <SkeletonBase className="w-20 h-8 rounded-full" />
+            <div className="flex items-center gap-1 sm:gap-2 flex-1 overflow-x-hidden">
+              <SkeletonBase className="w-16 h-8 rounded-full" />
+              <SkeletonBase className="w-20 h-8 rounded-full" />
+              <SkeletonBase className="w-[4.5rem] h-8 rounded-full" />
+              <SkeletonBase className="w-20 h-8 rounded-full" />
+            </div>
+
+            <SkeletonBase className="w-[4.5rem] h-8 rounded-full ml-1 shrink-0" />
           </div>
         </div>
       </div>
 
       {/* Items Grid Skeleton */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-6 min-w-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
