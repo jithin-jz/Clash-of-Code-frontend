@@ -19,7 +19,7 @@ const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
   ];
 
   return (
-    <aside className="w-64 h-full bg-[#0a1220]/85 backdrop-blur-xl border-r border-white/10 flex flex-col shrink-0 sticky top-0">
+    <aside className="w-64 h-[calc(100vh-3.5rem)] bg-[#0a1220]/85 backdrop-blur-xl border-r border-white/10 flex flex-col shrink-0 sticky top-14">
       {/* Header */}
       <div className="h-14 flex items-center px-6 border-b border-white/10">
         <div className="flex items-center gap-2">
@@ -41,11 +41,10 @@ const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors duration-200 ${
-              activeTab === item.id
-                ? "bg-[#162338] text-white border border-white/15"
-                : "text-slate-300 hover:text-white hover:bg-white/10"
-            }`}
+            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors duration-200 ${activeTab === item.id
+              ? "bg-[#162338] text-white border border-white/15"
+              : "text-slate-300 hover:text-white hover:bg-white/10"
+              }`}
           >
             <span
               className={`${activeTab === item.id ? "text-white" : "text-slate-500"}`}
