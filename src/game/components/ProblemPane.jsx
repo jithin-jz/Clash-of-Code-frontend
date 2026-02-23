@@ -53,9 +53,9 @@ const ProblemPane = ({ challenge, loading }) => {
         </div>
       </div>
 
-      <div className="flex-1 p-4 pb-8 space-y-4">
-        <div className="rounded-xl border border-white/10 bg-[#111d30] p-4">
-          <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider mb-2">
+      <div className="flex-1 p-3 sm:p-4 pb-8 space-y-4">
+        <div className="rounded-xl border border-white/10 bg-[#111d30] p-3 sm:p-4">
+          <h3 className="text-[10px] sm:text-xs font-bold text-zinc-200 uppercase tracking-wider mb-2">
             Problem
           </h3>
           <div className="prose prose-invert prose-sm max-w-none prose-p:text-zinc-300 prose-code:text-[#66d1c3] prose-code:bg-black/25 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md">

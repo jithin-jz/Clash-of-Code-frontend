@@ -626,10 +626,12 @@ const ChallengeWorkspace = () => {
           <Motion.div
             initial={{ scale: 0.98, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-[#0c0c0e] border border-white/10 rounded-none p-8 max-w-sm w-full flex flex-col items-center text-center shadow-2xl"
+            className="bg-[#0c0c0e]/95 backdrop-blur-md border border-white/10 rounded-3xl p-6 sm:p-10 max-w-sm w-full flex flex-col items-center text-center shadow-2xl relative overflow-hidden"
           >
+            {/* Glossy overlay */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-[#10b981] to-transparent opacity-50" />
             <div className="relative z-10 flex flex-col items-center gap-6">
-              <div className="w-16 h-16 rounded-none flex items-center justify-center mb-2 bg-green-500/10">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-2 bg-green-500/10 border border-green-500/20">
                 <Sparkles size={32} className="text-green-500" />
               </div>
 
@@ -709,10 +711,10 @@ const ChallengeWorkspace = () => {
       </div>
 
       {/* Main Content - Minimalist Boxy Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative z-10 p-2 sm:p-3 gap-3">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative z-10 p-0 sm:p-3 gap-0 sm:gap-3">
         {/* LEFT CARD: Problem — desktop always visible, mobile only when tab=problem */}
         <div
-          className={`lg:flex w-full lg:w-[24rem] min-h-0 flex-col bg-[#0f1827]/64 backdrop-blur-xl border border-white/12 rounded-2xl shadow-[0_22px_60px_rgba(0,0,0,0.3)] overflow-y-auto custom-scrollbar ${mobileTab === "problem" ? "flex" : "hidden"
+          className={`lg:flex flex-1 lg:flex-none w-full lg:w-[24rem] min-h-0 flex-col bg-[#0f1827]/64 backdrop-blur-xl border-y sm:border border-white/12 sm:rounded-2xl shadow-[0_22px_60px_rgba(0,0,0,0.3)] overflow-y-auto custom-scrollbar ${mobileTab === "problem" ? "flex" : "hidden"
             }`}
         >
           <div className="flex-1 min-h-0 relative">
@@ -722,7 +724,7 @@ const ChallengeWorkspace = () => {
 
         {/* MIDDLE COLUMN: Editor & Console Cards — desktop always visible, mobile only when tab=code */}
         <div
-          className={`lg:flex flex-1 flex-col min-w-0 rounded-2xl border border-white/12 shadow-[0_22px_60px_rgba(0,0,0,0.3)] overflow-hidden bg-[#0f1827]/64 backdrop-blur-xl ${mobileTab === "code" ? "flex" : "hidden"
+          className={`lg:flex flex-1 flex-col min-w-0 sm:rounded-2xl sm:border border-white/12 shadow-[0_22px_60px_rgba(0,0,0,0.3)] overflow-hidden bg-[#0f1827]/64 backdrop-blur-xl ${mobileTab === "code" ? "flex" : "hidden"
             }`}
         >
           {/* Editor Card */}
@@ -744,7 +746,7 @@ const ChallengeWorkspace = () => {
           </div>
 
           {/* Console Card */}
-          <div className="h-[32%] min-h-[180px] flex flex-col bg-[#0b1526]/90 border-t border-white/10">
+          <div className="h-[35%] sm:h-[32%] min-h-[180px] flex flex-col bg-[#0b1526]/90 border-t border-white/10">
             <div className="px-3 py-2 border-b border-white/10 bg-[#111d30] flex justify-between items-center h-8">
               <span className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase font-sans">
                 Terminal
@@ -763,7 +765,7 @@ const ChallengeWorkspace = () => {
 
         {/* RIGHT CARD: AI Assistant — desktop always visible, mobile only when tab=ai */}
         <div
-          className={`lg:flex w-full lg:w-[24rem] xl:w-[26rem] flex-col bg-[#0f1827]/64 backdrop-blur-xl border border-white/12 rounded-2xl shadow-[0_22px_60px_rgba(0,0,0,0.3)] overflow-hidden ${mobileTab === "ai" ? "flex" : "hidden"
+          className={`lg:flex flex-1 lg:flex-none w-full lg:w-[24rem] xl:w-[26rem] flex-col bg-[#0f1827]/64 backdrop-blur-xl border-y sm:border border-white/12 sm:rounded-2xl shadow-[0_22px_60px_rgba(0,0,0,0.3)] overflow-hidden ${mobileTab === "ai" ? "flex" : "hidden"
             }`}
         >
           <div className="flex-1 flex flex-col overflow-hidden relative">
@@ -784,25 +786,27 @@ const ChallengeWorkspace = () => {
       </div>
 
       {/* MOBILE TAB BAR — only shown on mobile */}
-      <div className="lg:hidden shrink-0 relative z-20 bg-[#0a1220]/95 backdrop-blur-xl border-t border-white/10">
+      <div className="lg:hidden shrink-0 relative z-20 bg-[#0a1220]/95 backdrop-blur-xl border-t border-white/10 pb-[env(safe-area-inset-bottom,0px)]">
         <div className="flex items-stretch h-14">
           {MOBILE_TABS.map(({ id, label, Icon }) => (
             <button
               key={id}
               type="button"
               onClick={() => setMobileTab(id)}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 transition-all duration-150 ${mobileTab === id
-                ? "text-[#10b981] border-t-2 border-[#10b981] bg-[#10b981]/5"
-                : "text-slate-500 hover:text-slate-300 border-t-2 border-transparent"
+              className={`flex-1 flex flex-col items-center justify-center gap-1.5 transition-all duration-200 ${mobileTab === id
+                ? "text-[#10b981] bg-[#10b981]/5 relative after:absolute after:top-0 after:left-1/2 after:-translate-x-1/2 after:w-10 after:h-0.5 after:bg-[#10b981] after:rounded-full"
+                : "text-slate-500 hover:text-slate-300"
                 }`}
             >
-              <Icon size={18} strokeWidth={mobileTab === id ? 2.2 : 1.7} />
-              <span className="text-[10px] font-semibold uppercase tracking-wide">{label}</span>
+              <Icon
+                size={mobileTab === id ? 19 : 18}
+                strokeWidth={mobileTab === id ? 2.5 : 2}
+                className="transition-transform duration-200"
+              />
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${mobileTab === id ? "opacity-100" : "opacity-70"}`}>{label}</span>
             </button>
           ))}
         </div>
-        {/* Safe area for iPhone home indicator */}
-        <div className="h-[env(safe-area-inset-bottom,0px)]" />
       </div>
     </div>
   );

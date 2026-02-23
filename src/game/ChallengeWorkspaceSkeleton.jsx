@@ -28,8 +28,8 @@ const ChallengeWorkspaceSkeleton = () => {
         </div>
       </div>
 
-      <div className="relative z-10 flex-1 p-2 sm:p-3 gap-3 flex flex-col lg:flex-row overflow-hidden">
-        <div className="w-full lg:w-[24rem] rounded-2xl border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 p-4 space-y-4">
+      <div className="relative z-10 flex-1 p-0 sm:p-3 gap-0 sm:gap-3 flex flex-col lg:flex-row overflow-hidden">
+        <div className="w-full lg:w-[24rem] sm:rounded-2xl sm:border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 p-4 space-y-4">
           <SkeletonBase className="h-6 w-44" />
           <SkeletonBase className="h-10 w-full rounded-xl" />
           {[...Array(4)].map((_, i) => (
@@ -37,18 +37,18 @@ const ChallengeWorkspaceSkeleton = () => {
           ))}
         </div>
 
-        <div className="flex-1 min-w-0 rounded-2xl border border-[#7ea3d9]/20 bg-[#0f1b2e]/60 overflow-hidden flex flex-col">
+        <div className="flex-1 min-w-0 sm:rounded-2xl sm:border border-[#7ea3d9]/20 bg-[#0f1b2e]/60 overflow-hidden flex flex-col">
           <div className="flex-1 p-2">
             <SkeletonCode lines={18} className="h-full" />
           </div>
-          <div className="h-[32%] min-h-[180px] border-t border-white/10 p-4 space-y-3">
+          <div className="h-[35%] sm:h-[32%] min-h-[180px] border-t border-white/10 p-4 space-y-3">
             <SkeletonBase className="h-4 w-24" />
             <SkeletonBase className="h-10 w-full rounded-lg" />
             <SkeletonBase className="h-10 w-5/6 rounded-lg" />
           </div>
         </div>
 
-        <div className="w-full lg:w-[22rem] rounded-2xl border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 p-4 flex flex-col">
+        <div className="w-full lg:w-[22rem] sm:rounded-2xl sm:border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 p-4 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <SkeletonBase className="h-4 w-24" />
             <SkeletonBase className="h-4 w-14" />
