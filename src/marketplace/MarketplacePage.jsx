@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -21,11 +21,9 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import useAuthStore from "../stores/useAuthStore";
-import useMarketplaceStore from "../stores/useMarketplaceStore";
-import { toast } from "sonner";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import MarketplacePageSkeleton from "./MarketplacePageSkeleton";
+import { useMarketplace } from "../hooks/useMarketplace";
 
 const CATEGORIES = [
   { id: "THEME", label: "Themes", icon: Palette },
@@ -34,100 +32,26 @@ const CATEGORIES = [
   { id: "VICTORY", label: "Victory", icon: PartyPopper },
 ];
 
-const MarketplacePage = () => {
+const MarketplacePage = memo(() => {
   const navigate = useNavigate();
-  const { user, setUser } = useAuthStore();
   const {
+    user,
     items,
     isLoading,
     isMutating,
     activeMutationItemId,
-    error,
-    fetchItems,
-    purchaseItem,
-    equipItem,
-    unequipCategory,
-  } = useMarketplaceStore();
-  const [activeCategory, setActiveCategory] = useState("THEME");
+    activeCategory,
+    setActiveCategory,
+    handleBuy,
+    handleEquip,
+    handleStickyUnequip
+  } = useMarketplace();
 
-  useEffect(() => {
-    fetchItems();
-  }, [fetchItems]);
+  const filteredItems = useMemo(() => {
+    return items.filter((item) => item.category === activeCategory);
+  }, [items, activeCategory]);
 
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-    }
-  }, [error]);
-
-  const handleBuy = async (item) => {
-    if (!user || user.profile.xp < item.cost) return;
-
-    const result = await purchaseItem(item.id);
-    if (result.success) {
-      const remainingXp = result.data?.remaining_xp;
-      const latestUser = useAuthStore.getState().user;
-      if (latestUser?.profile && typeof remainingXp === "number") {
-        setUser({
-          ...latestUser,
-          profile: {
-            ...latestUser.profile,
-            xp: remainingXp,
-          },
-        });
-      }
-      toast.success(result.data.message || "Purchase successful.");
-    } else {
-      toast.error(result.error || "Purchase failed.");
-    }
-  };
-
-  const handleEquip = async (item) => {
-    const result = await equipItem(item.id);
-    if (result.success) {
-      const data = result.data || {};
-      const latestUser = useAuthStore.getState().user;
-      if (latestUser?.profile) {
-        setUser({
-          ...latestUser,
-          profile: {
-            ...latestUser.profile,
-            ...(data.active_theme ? { active_theme: data.active_theme } : {}),
-            ...(data.active_font ? { active_font: data.active_font } : {}),
-            ...(data.active_effect ? { active_effect: data.active_effect } : {}),
-            ...(data.active_victory ? { active_victory: data.active_victory } : {}),
-          },
-        });
-      }
-      toast.success(result.data.message || "Equipped successfully.");
-    } else {
-      toast.error(result.error || "Failed to equip.");
-    }
-  };
-
-  const handleUnequip = async (item) => {
-    const result = await unequipCategory(item.category);
-    if (result.success) {
-      const latestUser = useAuthStore.getState().user;
-      if (latestUser?.profile) {
-        setUser({
-          ...latestUser,
-          profile: {
-            ...latestUser.profile,
-            ...(item.category === "THEME" ? { active_theme: "vs-dark" } : {}),
-            ...(item.category === "FONT" ? { active_font: "Fira Code" } : {}),
-            ...(item.category === "EFFECT" ? { active_effect: null } : {}),
-            ...(item.category === "VICTORY" ? { active_victory: "default" } : {}),
-          },
-        });
-      }
-      toast.success(result.data.message || "Unequipped successfully.");
-    } else {
-      toast.error(result.error || "Failed to unequip.");
-    }
-  };
-
-  const isItemActive = (item) => {
+  const isItemActive = useCallback((item) => {
     if (!user?.profile) return false;
     if (item.category === "THEME")
       return user.profile.active_theme === item.item_data?.theme_key;
@@ -144,17 +68,14 @@ const MarketplacePage = () => {
         user.profile.active_victory === item.item_data?.animation_type
       );
     return false;
-  };
+  }, [user]);
 
-  const renderIcon = (iconName) => {
+  const renderIcon = useCallback((iconName) => {
     const Icon = LucideIcons[iconName] || LucideIcons.Package;
     return <Icon className="w-8 h-8" />;
-  };
+  }, []);
 
-  const filteredItems = useMemo(
-    () => items.filter((item) => item.category === activeCategory),
-    [items, activeCategory],
-  );
+  /* filteredItems removed - now handled by hook-level orchestration or correctly placed memo */
 
   return (
     <AnimatePresence mode="wait">
@@ -324,7 +245,7 @@ const MarketplacePage = () => {
                                 `}
                                 onClick={() =>
                                   isActive
-                                    ? handleUnequip(item)
+                                    ? handleStickyUnequip(item.category)
                                     : handleEquip(item)
                                 }
                               >
@@ -376,6 +297,8 @@ const MarketplacePage = () => {
       )}
     </AnimatePresence>
   );
-};
+});
+
+MarketplacePage.displayName = "MarketplacePage";
 
 export default MarketplacePage;

@@ -416,9 +416,7 @@ const Profile = () => {
   }
 
   return loading ? (
-    <div className="h-screen w-full bg-[#0b1119]">
-      <ProfileSkeleton />
-    </div>
+    <ProfileSkeleton />
   ) : (
     <div className="relative min-h-screen overflow-x-hidden w-full max-w-[100vw] pb-20 sm:pb-0 text-white flex flex-col">
       {/* Main Content */}
@@ -798,145 +796,176 @@ const Profile = () => {
             </div>
 
             {/* Right Column - Suggestions */}
-            <div className="lg:col-span-1 space-y-6 min-w-0">
-              {isOwnProfile && suggestedUsers.length > 0 && (
-                <Card className="bg-[#0f1b2e]/70 border-[#7ea3d9]/20 sticky top-4 shadow-xl overflow-hidden">
-                  <CardHeader className="py-3 px-4 border-b border-white/10 bg-[#0f1b2e]/70">
-                    <CardTitle className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center h-6">
-                      Suggested for you
-                    </CardTitle>
+            <div className="lg:col-span-1 min-w-0">
+              <div className="sticky top-[88px] space-y-4">
+                <Card className="bg-[#0f1b2e]/70 border-[#7ea3d9]/20">
+                  <CardHeader className="p-4 border-b border-white/5">
+                    <CardTitle className="text-sm font-medium">Suggested for you</CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 space-y-4">
-                    {suggestedUsers.map((user) => (
-                      <div
-                        key={user.username}
-                        className="flex items-center justify-between group"
-                      >
-                        <div
-                          className="flex items-center gap-3 cursor-pointer flex-1 min-w-0"
-                          onClick={() => navigate(`/profile/${user.username}`)}
-                        >
-                          <Avatar className="w-10 h-10 shrink-0 border border-white/10 shadow-sm transition-transform group-hover:scale-105">
-                            <AvatarImage src={user.avatar_url} />
-                            <AvatarFallback className="bg-zinc-800 text-zinc-400 font-medium">
-                              {user.username[0]}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="truncate">
-                            <div className="text-sm font-semibold text-white truncate group-hover:text-[#00af9b] transition-colors">
-                              {user.username}
-                            </div>
-                            <div className="text-xs text-zinc-500 truncate">
-                              Suggested for you
-                            </div>
+                    {suggestedUsers.length > 0 ? (
+                      <div className="space-y-4">
+                        {suggestedUsers.map((user) => (
+                          <div key={user.id} className="flex items-center justify-between gap-3">
+                            <button
+                              onClick={() => navigate(`/profile/${user.username}`)}
+                              className="flex items-center gap-3 min-w-0 hover:opacity-80 transition-opacity"
+                            >
+                              <Avatar className="w-8 h-8 shrink-0">
+                                <AvatarImage src={user.profile?.avatar_url} />
+                                <AvatarFallback className="bg-[#162338] text-[10px] text-zinc-400">
+                                  {user.username[0]?.toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="min-w-0">
+                                <p className="text-xs font-semibold text-white truncate">
+                                  {user.username}
+                                </p>
+                                <p className="text-[10px] text-slate-400 truncate">
+                                  Suggested for you
+                                </p>
+                              </div>
+                            </button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 text-[10px] font-bold text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 px-2"
+                              onClick={() => handleFollowSuggested(user.username)}
+                            >
+                              Follow
+                            </Button>
                           </div>
-                        </div>
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleFollowSuggested(user.username);
-                          }}
-                          variant="ghost"
-                          className="text-xs font-medium text-[#00af9b] hover:text-white hover:bg-[#00af9b]/10 h-8 px-3 rounded-lg"
-                        >
-                          Follow
-                        </Button>
+                        ))}
                       </div>
-                    ))}
+                    ) : (
+                      <p className="text-[11px] text-zinc-500 text-center py-2">No suggestions available</p>
+                    )}
                   </CardContent>
                 </Card>
-              )}
+
+                {/* Minimal Footer */}
+                <div className="px-4 text-[10px] text-zinc-600 space-y-2">
+                  <div className="flex flex-wrap gap-x-3 gap-y-1">
+                    <a href="#" className="hover:underline">About</a>
+                    <a href="#" className="hover:underline">Help</a>
+                    <a href="#" className="hover:underline">Privacy</a>
+                    <a href="#" className="hover:underline">Terms</a>
+                  </div>
+                  <p>© {new Date().getFullYear()} CLASH OF CODE</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </main>
 
+      {/* Modals & Dialogs */}
       <CreatePostDialog
-        open={createPostOpen}
-        onOpenChange={setCreatePostOpen}
+        isOpen={createPostOpen}
+        onClose={() => setCreatePostOpen(false)}
         onPostCreated={() => setRefreshPosts((prev) => prev + 1)}
       />
 
-      {/* User List Modal */}
-      <Dialog
-        open={!!listType}
-        onOpenChange={(open) => !open && setListType(null)}
-      >
-        <DialogContent
-          hideOverlay
-          showClose={false}
-          className="bg-[#0f1b2e] border border-white/15 max-w-sm rounded-xl p-0"
-        >
-          <DialogHeader className="p-4 border-b border-white/5">
-            <DialogTitle className="text-white text-sm font-medium">
-              {listType === "followers" ? "Followers" : "Following"}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="bg-[#0f1b2e] border-[#7ea3d9]/20 text-white">
+          <DialogHeader>
+            <DialogTitle>Delete Account</DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Are you absolutely sure? This action cannot be undone. All your
+              progress, XP, and items will be permanently deleted.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => setDeleteDialogOpen(false)}
+              className="text-slate-300"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmDeleteAccount}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete Permanently
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Followers/Following List Dialog */}
+      <Dialog open={listType !== null} onOpenChange={() => setListType(null)}>
+        <DialogContent className="bg-[#0b1119] border-white/10 text-white max-w-sm p-0 overflow-hidden">
+          <DialogHeader className="p-4 border-b border-white/5 space-y-1">
+            <DialogTitle className="text-base font-bold capitalize">
+              {listType}
             </DialogTitle>
           </DialogHeader>
-          <div className="max-h-[60vh] overflow-y-auto">
+          <div className="max-h-[400px] overflow-y-auto py-2">
             {listLoading ? (
-              <div className="p-4 space-y-3">
-                {[...Array(4)].map((_, idx) => (
-                  <div key={idx} className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 flex-1">
-                      <SkeletonBase className="w-9 h-9 rounded-full" />
-                      <div className="space-y-2 w-full">
-                        <SkeletonBase className="h-3 w-24 rounded" />
-                        <SkeletonBase className="h-2.5 w-16 rounded" />
-                      </div>
+              <div className="p-4 space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <SkeletonBase className="w-10 h-10 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <SkeletonBase className="h-3 w-24 rounded" />
+                      <SkeletonBase className="h-2 w-32 rounded" />
                     </div>
-                    <SkeletonBase className="h-8 w-16 rounded-md" />
                   </div>
                 ))}
               </div>
             ) : userList.length === 0 ? (
-              <div className="p-8 text-center text-zinc-500 text-sm">
-                No users found.
+              <div className="p-8 text-center text-slate-500">
+                <Users size={32} className="mx-auto mb-3 opacity-20" />
+                <p className="text-sm">No {listType} yet</p>
               </div>
             ) : (
-              <div>
-                {userList.map((user) => (
+              <div className="divide-y divide-white/5">
+                {userList.map((userItem) => (
                   <div
-                    key={user.username}
-                    className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
+                    key={userItem.username}
+                    className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors"
                   >
-                    <div
-                      className="flex items-center gap-3 cursor-pointer flex-1"
+                    <button
                       onClick={() => {
                         setListType(null);
-                        navigate(`/profile/${user.username}`);
+                        navigate(`/profile/${userItem.username}`);
                       }}
+                      className="flex items-center gap-3 min-w-0 text-left"
                     >
-                      <Avatar className="w-9 h-9">
-                        <AvatarImage
-                          src={user.avatar_url}
-                          alt={user.username}
-                        />
-                        <AvatarFallback className="bg-[#162338] text-slate-300 text-sm">
-                          {user.username?.[0]?.toUpperCase()}
+                      <Avatar className="w-10 h-10 border border-white/10">
+                        <AvatarImage src={userItem.avatar_url} />
+                        <AvatarFallback className="bg-[#162338]">
+                          {userItem.username[0]?.toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <div className="text-sm font-medium text-white">
-                          {user.first_name || user.username}
-                        </div>
-                        <div className="text-xs text-slate-400">
-                          @{user.username}
-                        </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-white truncate">
+                          {userItem.username}
+                        </p>
+                        <p className="text-xs text-slate-500 truncate">
+                          {userItem.first_name || ""} {userItem.last_name || ""}
+                        </p>
                       </div>
-                    </div>
-                    {currentUser && user.username !== currentUser.username && (
-                      <Button
-                        size="sm"
-                        variant={user.is_following ? "secondary" : "default"}
-                        className={`h-8 text-xs ${user.is_following ? "bg-[#162338] text-slate-300 hover:bg-[#1b2a40]" : "bg-white text-black hover:bg-slate-200"}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleListFollowToggle(user.username);
-                        }}
-                      >
-                        {user.is_following ? "Unfollow" : "Follow"}
-                      </Button>
-                    )}
+                    </button>
+                    {currentUser &&
+                      userItem.username !== currentUser.username && (
+                        <Button
+                          size="sm"
+                          variant={
+                            userItem.is_following ? "secondary" : "default"
+                          }
+                          className={`h-8 px-4 text-xs font-bold ${userItem.is_following
+                            ? "bg-zinc-800 text-white hover:bg-zinc-700"
+                            : "bg-white text-black hover:bg-zinc-200"
+                            }`}
+                          onClick={() =>
+                            handleListFollowToggle(userItem.username)
+                          }
+                        >
+                          {userItem.is_following ? "Following" : "Follow"}
+                        </Button>
+                      )}
                   </div>
                 ))}
               </div>
@@ -944,36 +973,8 @@ const Profile = () => {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Delete Account Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="bg-[#0f1b2e] border border-white/15 text-white rounded-xl max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-red-500 flex items-center gap-2 text-sm">
-              <Shield className="w-4 h-4" /> Delete Account
-            </DialogTitle>
-            <DialogDescription className="text-slate-400 text-sm mt-2">
-              This action cannot be undone. You will lose all your data.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex gap-2 mt-4">
-            <Button
-              variant="ghost"
-              onClick={() => setDeleteDialogOpen(false)}
-              className="text-slate-300 hover:text-white text-sm"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={confirmDeleteAccount}
-              className="bg-red-600 hover:bg-red-700 text-white text-sm"
-            >
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
+
 export default Profile;

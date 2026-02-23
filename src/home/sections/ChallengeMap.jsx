@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { motion as Motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import { ArrowRight, Crown, Lock } from "lucide-react";
 import LevelButton from "../../game/LevelButton";
 import { getTrackMeta } from "../../utils/challengeMeta";
@@ -14,9 +13,7 @@ const TRACK_ORDER = [
   "OOP Mastery",
 ];
 
-const ChallengeMap = ({ levels, handleLevelClick, user }) => {
-  const navigate = useNavigate();
-
+const ChallengeMap = ({ levels, handleLevelClick }) => {
   const {
     certificateLevel,
     completedChallenges,
@@ -70,71 +67,9 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
 
   return (
     <div className="w-full relative flex flex-col items-center">
-
-      {/* HERO — Minimal & Elegant */}
-      {!user && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 text-center">
-
-          {/* Single soft glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#3b82f6]/[0.04] blur-[100px] pointer-events-none" />
-
-          <Motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-lg relative z-10"
-          >
-            {/* Heading */}
-            <h1 className="text-4xl sm:text-5xl font-bold text-white leading-[1.15] tracking-tight">
-              Master Python
-              <span className="block mt-1 bg-gradient-to-r from-[#60a5fa] to-[#a78bfa] bg-clip-text text-transparent">
-                through practice
-              </span>
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-[15px] text-slate-400 mt-5 leading-relaxed">
-              60+ challenges across 6 tracks.
-              <br />
-              Earn your certificate when every level is complete.
-            </p>
-
-            {/* Minimal stats row */}
-            <div className="flex items-center justify-center gap-8 mt-8">
-              <div className="text-center">
-                <p className="text-lg font-bold text-white">60+</p>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mt-0.5">Challenges</p>
-              </div>
-              <div className="w-px h-8 bg-white/10" />
-              <div className="text-center">
-                <p className="text-lg font-bold text-white">6</p>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mt-0.5">Tracks</p>
-              </div>
-              <div className="w-px h-8 bg-white/10" />
-              <div className="text-center">
-                <p className="text-lg font-bold text-white">1</p>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mt-0.5">Certificate</p>
-              </div>
-            </div>
-
-            {/* CTA */}
-            <button
-              onClick={() => navigate("/login")}
-              className="mt-8 h-11 px-7 rounded-xl bg-white text-[#0f172a] text-sm font-semibold hover:bg-slate-100 transition-colors duration-200"
-            >
-              Get Started
-            </button>
-          </Motion.div>
-        </div>
-      )}
-
       {/* MAIN CONTENT */}
-      <div
-        className={`w-full px-3 sm:px-6 transition-all duration-500 ${!user ? "blur-sm opacity-20 grayscale pointer-events-none select-none" : ""
-          }`}
-      >
+      <div className="w-full px-3 sm:px-6">
         <div className="space-y-1 pb-4">
-
           {/* TRACK SECTIONS */}
           {TRACK_ORDER.map((track) => {
             const trackLevels = grouped[track] || [];
@@ -204,9 +139,9 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
                   : "border-white/5 bg-white/[0.02] cursor-not-allowed grayscale-[50%]"
                   }`}
               >
-                <div className="flex justify-between items-start">
-                  <div className="flex gap-4">
-                    <div className="h-10 w-10 rounded-lg bg-yellow-400 text-black flex items-center justify-center">
+                <div className="flex justify-between items-start gap-4">
+                  <div className="flex gap-4 min-w-0">
+                    <div className="h-10 w-10 rounded-lg bg-yellow-400 text-black flex items-center justify-center shrink-0">
                       {certificateLevel.unlocked ? (
                         <Crown size={18} />
                       ) : (
@@ -214,12 +149,12 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
                       )}
                     </div>
 
-                    <div>
-                      <h4 className="text-sm font-semibold text-white">
+                    <div className="min-w-0">
+                      <h4 className="text-sm font-semibold text-white truncate">
                         Python Mastery Certificate
                       </h4>
 
-                      <p className="mt-2 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-slate-500 line-clamp-2">
                         {certificateLevel.unlocked
                           ? "View and share your achievement."
                           : "Complete all levels to unlock."}
@@ -229,11 +164,10 @@ const ChallengeMap = ({ levels, handleLevelClick, user }) => {
 
                   <ArrowRight
                     size={16}
-                    className={
-                      certificateLevel.unlocked
-                        ? "text-yellow-400"
-                        : "text-slate-600"
-                    }
+                    className={`shrink-0 mt-1 ${certificateLevel.unlocked
+                      ? "text-yellow-400"
+                      : "text-slate-600"
+                      }`}
                   />
                 </div>
 

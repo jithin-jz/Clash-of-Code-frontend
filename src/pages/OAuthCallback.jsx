@@ -133,12 +133,14 @@ const OAuthCallback = ({ provider }) => {
 
   if (loading || isProcessing) {
     return (
-      <SkeletonPage className="flex items-center justify-center px-4">
-        <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-[#0f1b2e]/70 p-6 space-y-4">
-          <SkeletonBase className="h-6 w-48 rounded-md mx-auto" />
+      <SkeletonPage className="flex items-center justify-center px-4 min-h-screen bg-[#060a11]">
+        <div className="relative z-10 w-full max-w-md rounded-[2rem] border border-white/10 bg-[#0f1b2e]/60 backdrop-blur-3xl p-8 space-y-6 text-center">
+          <SkeletonBase className="h-10 w-48 rounded-md mx-auto" />
           <SkeletonBase className="h-4 w-64 rounded mx-auto" />
-          <SkeletonBase className="h-11 w-full rounded-xl" />
-          <SkeletonBase className="h-11 w-full rounded-xl" />
+          <div className="space-y-4 pt-4">
+            <SkeletonBase className="h-12 w-full rounded-2xl" />
+            <SkeletonBase className="h-12 w-full rounded-2xl" />
+          </div>
         </div>
       </SkeletonPage>
     );
@@ -149,7 +151,7 @@ const OAuthCallback = ({ provider }) => {
       error ||
       `Authentication was cancelled or failed: ${searchParams.get("error")}`;
     return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-900 via-[#1a1a1a] to-slate-900 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-[#060a11] px-4">
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-12 text-center max-w-md">
           <div className="text-5xl mb-4">❌</div>
           <h2 className="text-white text-2xl font-semibold mb-3">
@@ -165,7 +167,7 @@ const OAuthCallback = ({ provider }) => {
                 navigate("/login");
               }
             }}
-            className="px-8 py-3 bg-linear-to-r from-[#ff8f00] to-[#ffa116] text-white rounded-xl font-medium hover:shadow-lg hover:shadow-[#ff8f00]/25 transition-all hover:-translate-y-0.5"
+            className="px-8 py-3 bg-linear-to-r from-blue-600 to-blue-500 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-blue-500/25 transition-all hover:-translate-y-0.5"
           >
             {isPopup ? "Close" : "Try Again"}
           </button>

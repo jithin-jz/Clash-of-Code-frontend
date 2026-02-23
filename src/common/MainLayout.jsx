@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useShallow } from "zustand/react/shallow";
 import useAuthStore from "../stores/useAuthStore";
 import useChallengesStore from "../stores/useChallengesStore";
 import {
@@ -12,73 +13,97 @@ import {
 } from "../home";
 import { checkInApi } from "../services/checkInApi";
 
-const MainLayout = ({ children }) => {
+/**
+ * MainLayout — Single persistent layout wrapping all authenticated routes.
+ *
+ * Performance optimisations applied:
+ *  1. useShallow selectors on Zustand stores → prevents re-render when
+ *     unrelated store slices change (e.g. marketplace mutations).
+ *  2. useCallback on every handler → stable references for memoised children.
+ *  3. React.memo on the export → avoids parent-triggered re-renders.
+ *  4. Memoised hideNav / showFooter flags.
+ */
+const MainLayout = memo(({ children }) => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { user, logout } = useAuthStore();
-    const { challenges: apiLevels, fetchChallenges } = useChallengesStore();
 
+    // ---- Zustand Selectors (shallow) ----
+    const { user, logout } = useAuthStore(
+        useShallow((s) => ({ user: s.user, logout: s.logout }))
+    );
+    const { apiLevels, fetchChallenges } = useChallengesStore(
+        useShallow((s) => ({ apiLevels: s.challenges, fetchChallenges: s.fetchChallenges }))
+    );
+
+    // ---- Local UI State ----
     const [isChatOpen, setChatOpen] = useState(false);
     const [isLeaderboardOpen, setLeaderboardOpen] = useState(false);
     const [isNotificationOpen, setNotificationOpen] = useState(false);
     const [checkInOpen, setCheckInOpen] = useState(false);
     const [hasUnclaimedReward, setHasUnclaimedReward] = useState(false);
 
-    // Hide nav on gameplay screens
-    const hideNav = location.pathname.startsWith("/level/");
+    // ---- Derived state (memoised) ----
+    const hideNav = useMemo(() => location.pathname.startsWith("/level/"), [location.pathname]);
+    const showFooter = useMemo(() => location.pathname === "/", [location.pathname]);
 
+    // ---- Data Fetching ----
     useEffect(() => {
-        if (user) {
-            fetchChallenges();
-        }
+        if (user) fetchChallenges();
     }, [user, fetchChallenges]);
 
     useEffect(() => {
-        const checkRewardStatus = async () => {
-            if (!user) return;
+        if (!user) return;
+        let cancelled = false;
+        (async () => {
             try {
                 const data = await checkInApi.getCheckInStatus();
-                setHasUnclaimedReward(!data.checked_in_today);
+                if (!cancelled) setHasUnclaimedReward(!data.checked_in_today);
             } catch (error) {
                 console.error("Failed to check reward status:", error);
             }
-        };
-        checkRewardStatus();
+        })();
+        return () => { cancelled = true; };
     }, [user]);
 
-    const handleLogout = async () => {
+    // ---- Stable Callbacks ----
+    const handleLogout = useCallback(async () => {
         await logout();
         navigate("/");
-    };
+    }, [logout, navigate]);
 
-    // Keyboard Shortcuts — Global
+    const handleCloseNotification = useCallback(() => setNotificationOpen(false), []);
+    const handleCloseCheckIn = useCallback(() => setCheckInOpen(false), []);
+    const handleClaimReward = useCallback(() => setHasUnclaimedReward(false), []);
+
+    // ---- Keyboard Shortcuts ----
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
-                e.preventDefault();
-                setChatOpen((prev) => !prev);
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") {
-                e.preventDefault();
-                setLeaderboardOpen((prev) => !prev);
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
-                e.preventDefault();
-                if (user) {
-                    navigate("/profile");
-                }
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "x") {
-                e.preventDefault();
-                if (user) {
-                    navigate("/shop");
-                }
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-                e.preventDefault();
-                if (user) {
-                    navigate("/store");
-                }
+            const key = e.key.toLowerCase();
+            if (!(e.ctrlKey || e.metaKey)) return;
+
+            switch (key) {
+                case "b":
+                    e.preventDefault();
+                    setChatOpen((prev) => !prev);
+                    break;
+                case "l":
+                    e.preventDefault();
+                    setLeaderboardOpen((prev) => !prev);
+                    break;
+                case "p":
+                    e.preventDefault();
+                    if (user) navigate("/profile");
+                    break;
+                case "x":
+                    e.preventDefault();
+                    if (user) navigate("/shop");
+                    break;
+                case "s":
+                    e.preventDefault();
+                    if (user) navigate("/store");
+                    break;
+                default:
+                    break;
             }
         };
 
@@ -86,14 +111,15 @@ const MainLayout = ({ children }) => {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [user, navigate]);
 
+    // ---- Early exit for gameplay screens ----
     if (hideNav) return children;
 
     return (
         <div className="min-h-screen relative overflow-x-hidden w-full max-w-[100vw] bg-[#0a0f18] text-white selection:bg-[#38bdf8]/30">
-            {/* Global Fixed Background - Deep & Premium */}
+            {/* Global Fixed Background */}
             <div className="fixed inset-0 z-0 pointer-events-none bg-[#0a0f18]" />
 
-            {/* Minimal noise/texture overlay for glass look */}
+            {/* Noise texture overlay */}
             <div
                 className="fixed inset-0 z-0 pointer-events-none opacity-[0.015] mix-blend-overlay"
                 style={{
@@ -130,20 +156,20 @@ const MainLayout = ({ children }) => {
 
                 <NotificationDrawer
                     isOpen={isNotificationOpen}
-                    onClose={() => setNotificationOpen(false)}
+                    onClose={handleCloseNotification}
                 />
 
                 <DailyCheckInModal
                     isOpen={checkInOpen}
-                    onClose={() => setCheckInOpen(false)}
-                    onClaim={() => setHasUnclaimedReward(false)}
+                    onClose={handleCloseCheckIn}
+                    onClaim={handleClaimReward}
                 />
 
                 <main className="pt-14">
                     {children}
                 </main>
 
-                {location.pathname === "/" && (
+                {showFooter && (
                     <div className="pb-16 sm:pb-0">
                         <SiteFooter />
                     </div>
@@ -151,6 +177,8 @@ const MainLayout = ({ children }) => {
             </div>
         </div>
     );
-};
+});
+
+MainLayout.displayName = "MainLayout";
 
 export default MainLayout;

@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import { Sparkles, Gem } from "lucide-react";
+import { SkeletonCircle, SkeletonCard } from "../../common/SkeletonPrimitives";
 
 const formatReviewMarkdown = (raw = "") => {
   if (!raw) return "";
@@ -187,19 +188,19 @@ const AIAssistantPane = ({
               {isHintLoading && (
                 <div className="flex-none w-full h-full min-h-0 snap-start p-4 flex flex-col">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="w-2 h-2 rounded-full bg-[#00af9b] animate-pulse" />
+                    <SkeletonCircle className="w-2.5 h-2.5 bg-[#00af9b]/40" />
                     <span className="text-[10px] font-bold text-[#00af9b]/50 uppercase tracking-widest">
                       Generating...
                     </span>
                   </div>
-                  <div className="flex-1 bg-white/[0.05] border border-white/10 rounded-xl p-4 animate-pulse relative">
+                  <SkeletonCard variant="solid" className="flex-1 bg-white/[0.05] border border-white/10 rounded-xl p-4 relative">
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Sparkles
                         size={20}
-                        className="text-[#00af9b]/20 animate-pulse"
+                        className="text-[#00af9b]/20"
                       />
                     </div>
-                  </div>
+                  </SkeletonCard>
                 </div>
               )}
             </div>
@@ -213,8 +214,8 @@ const AIAssistantPane = ({
                       <div
                         key={i}
                         className={`w-1 h-1 transition-all duration-300 ${i === activeIndex
-                            ? "bg-[#00af9b] scale-125 shadow-[0_0_8px_rgba(59,130,246,0.5)]"
-                            : "bg-white/10"
+                          ? "bg-[#00af9b] scale-125 shadow-[0_0_8px_rgba(59,130,246,0.5)]"
+                          : "bg-white/10"
                           }`}
                       />
                     ),
@@ -240,8 +241,8 @@ const AIAssistantPane = ({
                 isHintLoading || (userXp !== undefined && userXp < nextCost)
               }
               className={`w-full text-[10px] font-bold h-10 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden uppercase tracking-widest ${userXp !== undefined && userXp < nextCost
-                  ? "bg-red-500/10 border border-red-500/25 text-red-300 cursor-not-allowed"
-                  : "bg-[#ffa116] text-black hover:bg-[#ff8f00] border border-[#ffb347]/40 shadow-lg shadow-[#ffa116]/20"
+                ? "bg-red-500/10 border border-red-500/25 text-red-300 cursor-not-allowed"
+                : "bg-[#ffa116] text-black hover:bg-[#ff8f00] border border-[#ffb347]/40 shadow-lg shadow-[#ffa116]/20"
                 }`}
             >
               {/* Shimmer effect overlay */}
@@ -250,7 +251,7 @@ const AIAssistantPane = ({
               )}
 
               {isHintLoading ? (
-                <span className="w-3 h-3 rounded-full bg-black/50 animate-pulse" />
+                <SkeletonCircle className="w-3 h-3 bg-black/40" />
               ) : (
                 <Sparkles size={12} className="fill-current" />
               )}
@@ -273,7 +274,7 @@ const AIAssistantPane = ({
             className="w-full bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 text-[10px] font-bold h-10 rounded-xl transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
           >
             {isHintLoading ? (
-              <span className="w-3 h-3 rounded-full bg-white/70 animate-pulse" />
+              <SkeletonCircle className="w-3 h-3 bg-white/40" />
             ) : (
               <Sparkles size={12} />
             )}
@@ -288,7 +289,7 @@ const AIAssistantPane = ({
           className="w-full bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 hover:text-white border border-white/15 text-[10px] font-bold h-10 rounded-xl transition-all flex items-center justify-center gap-2 uppercase tracking-widest disabled:opacity-60"
         >
           {isReviewLoading ? (
-            <span className="w-3 h-3 rounded-full bg-white/70 animate-pulse" />
+            <SkeletonCircle className="w-3 h-3 bg-white/40" />
           ) : (
             <Sparkles size={12} />
           )}
