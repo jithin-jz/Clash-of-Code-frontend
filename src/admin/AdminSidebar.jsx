@@ -19,7 +19,7 @@ const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
   ];
 
   return (
-    <aside className="w-64 h-[calc(100vh-3.5rem)] bg-[#0a1220]/85 backdrop-blur-xl border-r border-white/10 flex flex-col shrink-0 sticky top-14">
+    <aside className="w-64 h-screen bg-[#0a1220]/85 backdrop-blur-xl border-r border-white/10 flex flex-col shrink-0 sticky top-0">
       {/* Header */}
       <div className="h-14 flex items-center px-6 border-b border-white/10">
         <div className="flex items-center gap-2">

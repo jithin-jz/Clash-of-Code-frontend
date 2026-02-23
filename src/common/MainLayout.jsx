@@ -43,7 +43,9 @@ const MainLayout = memo(({ children }) => {
     const [hasUnclaimedReward, setHasUnclaimedReward] = useState(false);
 
     // ---- Derived state (memoised) ----
-    const hideNav = useMemo(() => location.pathname.startsWith("/level/"), [location.pathname]);
+    const hideNav = useMemo(() =>
+        location.pathname.startsWith("/level/") || location.pathname.startsWith("/admin/"),
+        [location.pathname]);
     const showFooter = useMemo(() => location.pathname === "/", [location.pathname]);
 
     // ---- Data Fetching ----

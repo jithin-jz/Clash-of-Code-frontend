@@ -258,7 +258,7 @@ const AdminDashboard = () => {
   if (!user?.is_staff && !user?.is_superuser) return null;
 
   return (
-    <div className="relative min-h-[calc(100vh-3.5rem)] font-sans antialiased text-slate-200 bg-[#0b1119]">
+    <div className="relative min-h-screen font-sans antialiased text-slate-200 bg-[#0b1119]">
       <AppBackdrop />
       <div className="relative z-10 flex">
         <AdminSidebar
