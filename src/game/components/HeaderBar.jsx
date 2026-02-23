@@ -22,9 +22,9 @@ const HeaderBar = ({
         </button>
         <div className="flex items-center gap-3">
           <div className="flex flex-col">
-            <h1 className="text-sm font-bold text-slate-100 uppercase tracking-wide flex items-center gap-2">
+            <h1 className="text-sm font-bold text-slate-100 uppercase tracking-wide flex items-center gap-2 truncate max-w-[140px] sm:max-w-none">
               <span className="w-1.5 h-1.5 rounded-full bg-[#00af9b]"></span>
-              {title}
+              <span className="truncate">{title}</span>
             </h1>
           </div>
         </div>
@@ -36,8 +36,8 @@ const HeaderBar = ({
         <div className="flex items-center p-1.5">
           <div
             className={`w-1.5 h-1.5 rounded-none ${isPyodideReady
-                ? "bg-[#00af9b] shadow-[#00af9b]/50"
-                : "bg-[#ffa116] animate-pulse"
+              ? "bg-[#00af9b] shadow-[#00af9b]/50"
+              : "bg-[#ffa116] animate-pulse"
               }`}
           />
         </div>

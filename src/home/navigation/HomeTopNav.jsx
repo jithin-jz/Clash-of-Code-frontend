@@ -86,10 +86,9 @@ const HomeTopNav = ({
           animate={{ y: 0, opacity: 1 }}
           className="pointer-events-auto h-14 w-full border-b border-white/[0.04] bg-[#0a0f18]/80 backdrop-blur-xl px-4 sm:px-6 flex sm:grid sm:grid-cols-[1fr_auto_1fr] items-center justify-between gap-3"
         >
-          {/* LEFT: Progress + XP */}
-          <div className="flex items-center gap-2 justify-self-start order-2 sm:order-none">
+          <div className="flex items-center justify-start gap-1 sm:gap-1.5 flex-1">
             {user ? (
-              <div className="flex items-center gap-1.5 order-2 sm:order-none">
+              <>
                 {/* Notification Bell — mobile only */}
                 <button
                   type="button"
@@ -102,17 +101,7 @@ const HomeTopNav = ({
                   )}
                 </button>
 
-                {/* Chat — mobile only (moved from bottom) */}
-                <button
-                  type="button"
-                  onClick={() => setChatOpen((prev) => !prev)}
-                  className={`sm:hidden h-8 w-8 rounded-lg flex items-center justify-center relative transition-colors ${isChatOpen ? "bg-[#00af9b]/15 text-[#00af9b]" : "bg-white/[0.04] text-slate-400"
-                    }`}
-                >
-                  <MessageSquare size={18} strokeWidth={isChatOpen ? 2.5 : 1.75} />
-                </button>
-
-                {/* XP / Purchase */}
+                {/* XP / Purchase — desktop & mobile */}
                 <button
                   type="button"
                   onClick={() => navigate("/shop")}
@@ -122,144 +111,157 @@ const HomeTopNav = ({
                   <Gem size={13} className="text-[#a78bfa]" />
                   <span className="text-white font-bold text-xs">{xp.toLocaleString()}</span>
                 </button>
-              </div>
+
+                {/* Daily Check-in & Store — desktop only (moved from right) */}
+                <div className="hidden sm:flex items-center gap-1">
+                  <NavIcon
+                    onClick={() => setCheckInOpen(true)}
+                    title="Daily Check-in"
+                    icon={<Calendar size={16} />}
+                    badge={
+                      hasUnclaimedReward ? (
+                        <span className="pointer-events-none absolute -top-0.5 -right-0.5 z-10 h-2 w-2 rounded-full bg-[#f59e0b] ring-2 ring-[#0a1220] animate-pulse" />
+                      ) : null
+                    }
+                  />
+
+                  <NavIcon
+                    onClick={() => navigate("/store")}
+                    title="Store"
+                    icon={<ShoppingBag size={16} />}
+                  />
+                </div>
+              </>
+            ) : null}
+          </div>
+
+          {/* CENTER: Title */}
+          <div className="flex items-center justify-center shrink-0">
+            <h1 className="text-sm sm:text-base font-bold tracking-[0.1em] sm:tracking-[0.18em] text-slate-100 truncate px-2 text-center">
+              CLASH OF CODE
+            </h1>
+          </div>
+
+          {/* RIGHT: Actions */}
+          <div className="flex items-center justify-end gap-1.5 flex-1">
+            {user ? (
+              <>
+                {/* Chat — mobile only */}
+                <button
+                  type="button"
+                  onClick={() => setChatOpen((prev) => !prev)}
+                  className={`sm:hidden h-8 w-8 rounded-lg flex items-center justify-center relative transition-colors ${isChatOpen ? "bg-[#00af9b]/15 text-[#00af9b]" : "bg-white/[0.04] text-slate-400"
+                    }`}
+                >
+                  <MessageSquare size={18} strokeWidth={isChatOpen ? 2.5 : 1.75} />
+                </button>
+
+                {/* DESKTOP NAV ICONS — hidden on mobile */}
+                <div className="hidden sm:flex items-center gap-1">
+                  <NavIcon
+                    onClick={() => setChatOpen((prev) => !prev)}
+                    title="Chat"
+                    icon={<MessageSquare size={16} />}
+                    className={isChatOpen ? "text-[#00af9b] bg-[#00af9b]/10" : ""}
+                  />
+
+                  <NavIcon
+                    onClick={() => setLeaderboardOpen((prev) => !prev)}
+                    title="Leaderboard"
+                    icon={<Trophy size={16} />}
+                  />
+
+                  <NavIcon
+                    onClick={() => {
+                      if (Notification.permission === "default") {
+                        useNotificationStore.getState().requestPermission();
+                      }
+                      setNotificationOpen((prev) => !prev);
+                    }}
+                    title="Notifications"
+                    icon={
+                      <Motion.div
+                        animate={
+                          hasNewNotification
+                            ? { rotate: [0, -10, 10, -10, 10, 0], scale: [1, 1.1, 1] }
+                            : {}
+                        }
+                        transition={{ duration: 0.5 }}
+                      >
+                        <Bell size={16} className={unreadCount > 0 ? "text-[#f59e0b]" : ""} />
+                      </Motion.div>
+                    }
+                    className={unreadCount > 0 ? "text-[#f59e0b]" : ""}
+                    badge={
+                      unreadCount > 0 ? (
+                        <AnimatePresence>
+                          <Motion.span
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            className="pointer-events-none absolute -top-0.5 -right-0.5 z-10 h-2 w-2 rounded-full bg-[#f59e0b] ring-2 ring-[#0a1220]"
+                          />
+                        </AnimatePresence>
+                      ) : null
+                    }
+                  />
+
+                  <div className="w-px h-5 bg-white/10 mx-1" />
+
+                  {/* Profile */}
+                  <button
+                    type="button"
+                    onClick={() => navigate("/profile")}
+                    title="Profile"
+                    className="h-8 w-8 rounded-lg overflow-hidden border border-white/15 hover:border-white/40 transition-all shrink-0"
+                  >
+                    {user?.profile?.avatar_url ? (
+                      <img
+                        src={user.profile.avatar_url}
+                        alt="profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-white/[0.06] flex items-center justify-center">
+                        <User size={14} className="text-slate-400" />
+                      </div>
+                    )}
+                  </button>
+
+                  <NavIcon
+                    onClick={handleLogout}
+                    title="Logout"
+                    icon={<LogOut size={14} />}
+                    className="text-slate-500 hover:text-rose-400"
+                  />
+
+                  <div className="w-px h-5 bg-white/10 mx-1" />
+                </div>
+
+                {/* Play CTA — hidden on mobile */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (currentLevel?.slug) {
+                      navigate(`/level/${currentLevel.slug}`);
+                    }
+                  }}
+                  title="Play"
+                  className="hidden sm:inline-flex h-8 px-3 rounded-lg bg-[#10b981] hover:bg-[#059669] text-white text-xs font-semibold tracking-wide transition-all duration-200 items-center gap-1.5 shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.3)]"
+                >
+                  <Play size={12} fill="currentColor" />
+                  Play
+                </button>
+              </>
             ) : (
               <button
                 type="button"
                 onClick={() => navigate("/login")}
-                className="h-8 px-3 rounded-lg text-slate-300 hover:text-white text-xs font-medium transition-colors order-2 sm:order-none"
+                className="h-8 px-3 rounded-lg text-slate-300 hover:text-white text-xs font-medium transition-colors"
               >
                 Log in
               </button>
             )}
-          </div>
-
-          {/* CENTER: Title */}
-          <h1 className="text-sm sm:text-base font-bold tracking-[0.18em] text-slate-100 truncate shrink px-2 order-1 sm:order-none">
-            CLASH OF CODE
-          </h1>
-
-          {/* RIGHT: Actions */}
-          <div className="flex items-center gap-1 justify-self-end">
-            {/* DESKTOP NAV ICONS — hidden on mobile */}
-            {user && (
-              <div className="hidden sm:flex items-center gap-1">
-                <NavIcon
-                  onClick={() => setChatOpen((prev) => !prev)}
-                  title="Chat"
-                  icon={<MessageSquare size={16} />}
-                  className={isChatOpen ? "text-[#00af9b] bg-[#00af9b]/10" : ""}
-                />
-
-                <NavIcon
-                  onClick={() => setLeaderboardOpen((prev) => !prev)}
-                  title="Leaderboard"
-                  icon={<Trophy size={16} />}
-                />
-
-                <NavIcon
-                  onClick={() => {
-                    if (Notification.permission === "default") {
-                      useNotificationStore.getState().requestPermission();
-                    }
-                    setNotificationOpen((prev) => !prev);
-                  }}
-                  title="Notifications"
-                  icon={
-                    <Motion.div
-                      animate={
-                        hasNewNotification
-                          ? { rotate: [0, -10, 10, -10, 10, 0], scale: [1, 1.1, 1] }
-                          : {}
-                      }
-                      transition={{ duration: 0.5 }}
-                    >
-                      <Bell size={16} className={unreadCount > 0 ? "text-[#f59e0b]" : ""} />
-                    </Motion.div>
-                  }
-                  className={unreadCount > 0 ? "text-[#f59e0b]" : ""}
-                  badge={
-                    unreadCount > 0 ? (
-                      <AnimatePresence>
-                        <Motion.span
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0, opacity: 0 }}
-                          className="pointer-events-none absolute -top-0.5 -right-0.5 z-10 h-2 w-2 rounded-full bg-[#f59e0b] ring-2 ring-[#0a1220]"
-                        />
-                      </AnimatePresence>
-                    ) : null
-                  }
-                />
-
-                <NavIcon
-                  onClick={() => setCheckInOpen(true)}
-                  title="Daily Check-in"
-                  icon={<Calendar size={16} />}
-                  badge={
-                    hasUnclaimedReward ? (
-                      <span className="pointer-events-none absolute -top-0.5 -right-0.5 z-10 h-2 w-2 rounded-full bg-[#f59e0b] ring-2 ring-[#0a1220] animate-pulse" />
-                    ) : null
-                  }
-                />
-
-                <NavIcon
-                  onClick={() => navigate("/store")}
-                  title="Store"
-                  icon={<ShoppingBag size={16} />}
-                />
-
-                <div className="w-px h-5 bg-white/10 mx-1" />
-
-                {/* Profile */}
-                <button
-                  type="button"
-                  onClick={() => navigate("/profile")}
-                  title="Profile"
-                  className="h-8 w-8 rounded-lg overflow-hidden border border-white/15 hover:border-white/40 transition-all shrink-0"
-                >
-                  {user?.profile?.avatar_url ? (
-                    <img
-                      src={user.profile.avatar_url}
-                      alt="profile"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-white/[0.06] flex items-center justify-center">
-                      <User size={14} className="text-slate-400" />
-                    </div>
-                  )}
-                </button>
-
-                <NavIcon
-                  onClick={handleLogout}
-                  title="Logout"
-                  icon={<LogOut size={14} />}
-                  className="text-slate-500 hover:text-rose-400"
-                />
-
-                <div className="w-px h-5 bg-white/10 mx-1" />
-              </div>
-            )}
-
-            {/* Play CTA — hidden on mobile as it is now in bottom nav */}
-            <button
-              type="button"
-              onClick={() => {
-                if (!user) {
-                  navigate("/login");
-                  return;
-                }
-                if (currentLevel?.slug) {
-                  navigate(`/level/${currentLevel.slug}`);
-                }
-              }}
-              title="Play"
-              className="hidden sm:inline-flex h-8 px-3 rounded-lg bg-[#10b981] hover:bg-[#059669] text-white text-xs font-semibold tracking-wide transition-all duration-200 items-center gap-1.5 shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.3)]"
-            >
-              <Play size={12} fill="currentColor" />
-              Play
-            </button>
           </div>
         </Motion.nav>
       </div>

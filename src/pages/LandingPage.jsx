@@ -61,7 +61,7 @@ const LandingPage = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.1 }}
-                    className="text-5xl sm:text-7xl lg:text-8xl font-bold leading-[1.1] tracking-tight mb-8"
+                    className="text-4xl sm:text-7xl lg:text-8xl font-bold leading-[1.1] tracking-tight mb-8"
                 >
                     Clash of Code
                     <span className="block mt-2 bg-gradient-to-r from-blue-400 via-[#a78bfa] to-purple-500 bg-clip-text text-transparent">
