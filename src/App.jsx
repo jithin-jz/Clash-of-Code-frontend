@@ -62,174 +62,170 @@ const AppContent = memo(() => {
   return (
     <ErrorBoundary>
       <Toaster />
-      <div className="min-h-screen">
-        <main>
-          <MainLayout>
-            <Routes>
-              {/* Public Landing (Game Map) - Visible to all */}
-              <Route
-                path="/"
-                element={
-                  user ? (
-                    <Suspense fallback={<HomeSkeleton />}>
-                      <Home />
-                    </Suspense>
-                  ) : (
-                    <Suspense fallback={<SkeletonGenericPage />}>
-                      <LandingPage />
-                    </Suspense>
-                  )
-                }
-              />
+      <MainLayout>
+        <Routes>
+          {/* Public Landing (Game Map) - Visible to all */}
+          <Route
+            path="/"
+            element={
+              user ? (
+                <Suspense fallback={<HomeSkeleton />}>
+                  <Home />
+                </Suspense>
+              ) : (
+                <Suspense fallback={<SkeletonGenericPage />}>
+                  <LandingPage />
+                </Suspense>
+              )
+            }
+          />
 
-              {/* Authentication - Public Only */}
-              <Route
-                path="/login"
-                element={
-                  <PublicOnlyRoute>
-                    <Suspense fallback={<LoginSkeleton />}>
-                      <Login />
-                    </Suspense>
-                  </PublicOnlyRoute>
-                }
-              />
+          {/* Authentication - Public Only */}
+          <Route
+            path="/login"
+            element={
+              <PublicOnlyRoute>
+                <Suspense fallback={<LoginSkeleton />}>
+                  <Login />
+                </Suspense>
+              </PublicOnlyRoute>
+            }
+          />
 
-              {/* Redirect legacy routes to / */}
-              <Route path="/home" element={<Navigate to="/" replace />} />
+          {/* Redirect legacy routes to / */}
+          <Route path="/home" element={<Navigate to="/" replace />} />
 
-              {/* OAuth Callbacks */}
-              <Route
-                path="/auth/github/callback"
-                element={
-                  <Suspense fallback={<LoginSkeleton />}>
-                    <OAuthCallback provider="github" />
-                  </Suspense>
-                }
-              />
-              <Route
-                path="/auth/google/callback"
-                element={
-                  <Suspense fallback={<LoginSkeleton />}>
-                    <OAuthCallback provider="google" />
-                  </Suspense>
-                }
-              />
+          {/* OAuth Callbacks */}
+          <Route
+            path="/auth/github/callback"
+            element={
+              <Suspense fallback={<LoginSkeleton />}>
+                <OAuthCallback provider="github" />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/auth/google/callback"
+            element={
+              <Suspense fallback={<LoginSkeleton />}>
+                <OAuthCallback provider="google" />
+              </Suspense>
+            }
+          />
 
-              {/* Admin Dashboard - Admin Only */}
-              <Route
-                path="/admin/dashboard"
-                element={
-                  <AdminRoute>
-                    <Suspense fallback={<SkeletonAdminDashboard />}>
-                      <AdminDashboard />
-                    </Suspense>
-                  </AdminRoute>
-                }
-              />
+          {/* Admin Dashboard - Admin Only */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminRoute>
+                <Suspense fallback={<SkeletonAdminDashboard />}>
+                  <AdminDashboard />
+                </Suspense>
+              </AdminRoute>
+            }
+          />
 
-              {/* Protected Routes */}
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<ProfileSkeleton />}>
-                      <Profile />
-                    </Suspense>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile/:username"
-                element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<ProfileSkeleton />}>
-                      <Profile />
-                    </Suspense>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/level/:id"
-                element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<SkeletonCode />}>
-                      <ChallengeWorkspace />
-                    </Suspense>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/shop"
-                element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<BuyXpPageSkeleton />}>
-                      <BuyXpPage />
-                    </Suspense>
-                  </ProtectedRoute>
-                }
-              />
+          {/* Protected Routes */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<ProfileSkeleton />}>
+                  <Profile />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/:username"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<ProfileSkeleton />}>
+                  <Profile />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/level/:id"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<SkeletonCode />}>
+                  <ChallengeWorkspace />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/shop"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<BuyXpPageSkeleton />}>
+                  <BuyXpPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
 
-              <Route
-                path="/buy-xp"
-                element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<BuyXpPageSkeleton />}>
-                      <BuyXpPage />
-                    </Suspense>
-                  </ProtectedRoute>
-                }
-              />
+          <Route
+            path="/buy-xp"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<BuyXpPageSkeleton />}>
+                  <BuyXpPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
 
-              <Route
-                path="/game"
-                element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<SkeletonGenericPage />}>
-                      <GameRedirectPage />
-                    </Suspense>
-                  </ProtectedRoute>
-                }
-              />
+          <Route
+            path="/game"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<SkeletonGenericPage />}>
+                  <GameRedirectPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
 
-              <Route
-                path="/store"
-                element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<MarketplacePageSkeleton />}>
-                      <MarketplacePage />
-                    </Suspense>
-                  </ProtectedRoute>
-                }
-              />
+          <Route
+            path="/store"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<MarketplacePageSkeleton />}>
+                  <MarketplacePage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
 
-              {/* Public Certificate Verification */}
-              <Route
-                path="/verify/:certificateId"
-                element={
-                  <Suspense fallback={<SkeletonGenericPage />}>
-                    <CertificateVerification />
-                  </Suspense>
-                }
-              />
+          {/* Public Certificate Verification */}
+          <Route
+            path="/verify/:certificateId"
+            element={
+              <Suspense fallback={<SkeletonGenericPage />}>
+                <CertificateVerification />
+              </Suspense>
+            }
+          />
 
-              {/* Fallback */}
-              <Route
-                path="/admin"
-                element={
-                  <AdminRoute>
-                    <Suspense fallback={<SkeletonAdminDashboard />}>
-                      <AdminDashboard />
-                    </Suspense>
-                  </AdminRoute>
-                }
-              />
+          {/* Fallback */}
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <Suspense fallback={<SkeletonAdminDashboard />}>
+                  <AdminDashboard />
+                </Suspense>
+              </AdminRoute>
+            }
+          />
 
-              {/* 404 Route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </MainLayout>
-        </main>
-      </div>
+          {/* 404 Route */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </MainLayout>
     </ErrorBoundary>
   );
 });

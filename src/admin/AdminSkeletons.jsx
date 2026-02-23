@@ -3,8 +3,8 @@ import { SkeletonBase, SkeletonPage } from "../common/SkeletonPrimitives";
 import { TableCell, TableRow } from "../components/ui/table";
 
 export const AdminPageSkeleton = () => (
-  <SkeletonPage className="flex min-h-screen">
-    <aside className="w-[260px] h-screen sticky top-0 border-r border-white/10 bg-[#0a1220]/85 p-5 space-y-4">
+  <SkeletonPage className="flex h-screen overflow-hidden">
+    <aside className="w-[260px] h-full border-r border-white/10 bg-[#0a1220]/85 p-5 space-y-4">
       <SkeletonBase className="h-8 w-28 rounded-md" />
       <SkeletonBase className="h-11 w-full rounded-xl" />
       <SkeletonBase className="h-11 w-full rounded-xl" />

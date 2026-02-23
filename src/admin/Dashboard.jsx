@@ -27,6 +27,7 @@ import ChallengeAnalytics from "./ChallengeAnalytics";
 import StoreAnalytics from "./StoreAnalytics";
 import AdminBroadcast from "./AdminBroadcast";
 import AdminAuditLogs from "./AdminAuditLogs";
+import AdminIntelligence from "./AdminIntelligence";
 
 import AdminStore from "./AdminStore";
 import AppBackdrop from "../components/AppBackdrop";
@@ -88,6 +89,7 @@ const AdminDashboard = () => {
     status: "",
   });
   const [integrity, setIntegrity] = useState(null);
+  const [intelligenceData, setIntelligenceData] = useState(null);
   const usersRequestRef = useRef(0);
 
   useEffect(() => {
@@ -109,9 +111,10 @@ const AdminDashboard = () => {
         fetchUsers();
         fetchStats();
         fetchIntegrity();
+        fetchIntelligence();
       }
     }
-  }, [loading, isAuthenticated, user, navigate]);
+  }, [loading, isAuthenticated, user, navigate, activeTab]);
   /* eslint-enable react-hooks/exhaustive-deps */
 
   const fetchUsers = async (queryOverrides = {}) => {
@@ -191,6 +194,15 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchIntelligence = async () => {
+    try {
+      const response = await authAPI.getIntelligence();
+      setIntelligenceData(response.data);
+    } catch (error) {
+      console.error("Failed to fetch intelligence data", error);
+    }
+  };
+
   const handleBlockToggle = (username) => {
     const currentUserData = userList.find((u) => u.username === username);
     const action = currentUserData?.is_active ? "ban" : "unban";
@@ -258,9 +270,9 @@ const AdminDashboard = () => {
   if (!user?.is_staff && !user?.is_superuser) return null;
 
   return (
-    <div className="relative min-h-screen font-sans antialiased text-slate-200 bg-[#0b1119]">
+    <div className="relative h-screen overflow-hidden font-sans antialiased text-slate-200 bg-[#0b1119]">
       <AppBackdrop />
-      <div className="relative z-10 flex">
+      <div className="relative z-10 flex h-full">
         <AdminSidebar
           user={user}
           activeTab={activeTab}
@@ -268,7 +280,7 @@ const AdminDashboard = () => {
           handleLogout={handleLogout}
         />
 
-        <main className="flex-1">
+        <main className="flex-1 h-full overflow-y-auto custom-scrollbar">
           <div className="p-8 max-w-7xl mx-auto space-y-6">
             {activeTab === "users" && (
               <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
@@ -399,6 +411,17 @@ const AdminDashboard = () => {
             {activeTab === "audit" && (
               <div className="animate-in slide-in-from-bottom-4 duration-500">
                 <AdminAuditLogs />
+              </div>
+            )}
+
+            {activeTab === "intelligence" && (
+              <div className="animate-in slide-in-from-bottom-4 duration-500">
+                <AdminIntelligence
+                  stats={rawStats}
+                  integrity={integrity}
+                  userList={userList}
+                  data={intelligenceData}
+                />
               </div>
             )}
           </div>

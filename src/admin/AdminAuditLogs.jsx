@@ -154,12 +154,20 @@ const AdminAuditLogs = () => {
     if (!details) return "-";
     if (typeof details === "string") return details;
 
-    if (details.before || details.after) {
-      const beforeState = details.before?.is_active;
-      const afterState = details.after?.is_active;
-      if (typeof beforeState === "boolean" && typeof afterState === "boolean") {
-        return `is_active: ${beforeState} -> ${afterState}`;
+    if (details.before !== undefined || details.after !== undefined) {
+      const beforeState = details.before?.is_active ?? details.before;
+      const afterState = details.after?.is_active ?? details.after;
+      if (beforeState !== undefined && afterState !== undefined) {
+        return `Changed: ${JSON.stringify(beforeState)} -> ${JSON.stringify(afterState)}`;
       }
+    }
+
+    if (details.message) return details.message;
+    if (details.reason) return details.reason;
+
+    const entries = Object.entries(details);
+    if (entries.length > 0) {
+      return entries.map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(", ");
     }
 
     return JSON.stringify(details);
@@ -280,10 +288,10 @@ const AdminAuditLogs = () => {
                   <TableCell className="py-3 px-6">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-md bg-[#162338] border border-white/10 flex items-center justify-center text-[10px] font-bold text-slate-500">
-                        {log.admin[0].toUpperCase()}
+                        {log.admin ? log.admin[0].toUpperCase() : "S"}
                       </div>
                       <span className="text-sm font-medium text-slate-100 tracking-tight">
-                        {log.admin}
+                        {log.admin || "System"}
                       </span>
                     </div>
                   </TableCell>
@@ -296,21 +304,23 @@ const AdminAuditLogs = () => {
                       {log.target}
                     </div>
                   </TableCell>
-                  <TableCell className="py-3 text-[10px] font-mono text-slate-500 group-hover:text-slate-300 transition-all truncate max-w-xs">
-                    {renderDetails(log.details)}
+                  <TableCell className="py-3 text-[10px] font-mono text-slate-500 group-hover:text-slate-300 transition-all">
+                    <div className="max-w-xs truncate" title={JSON.stringify(log.details)}>
+                      {renderDetails(log.details)}
+                    </div>
                   </TableCell>
                   <TableCell className="text-right py-3 px-6">
                     <div className="flex flex-col items-end">
                       <span className="text-[11px] font-medium text-slate-300">
-                        {formatDistanceToNow(new Date(log.timestamp), {
+                        {log.timestamp ? formatDistanceToNow(new Date(log.timestamp), {
                           addSuffix: true,
-                        })}
+                        }) : "Unknown"}
                       </span>
                       <span className="text-[9px] text-slate-600 font-mono uppercase">
-                        {new Date(log.timestamp).toLocaleTimeString([], {
+                        {log.timestamp ? new Date(log.timestamp).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
-                        })}
+                        }) : ""}
                       </span>
                     </div>
                   </TableCell>

@@ -41,7 +41,7 @@ api.interceptors.response.use(
       const now = Date.now();
       if (now - lastRateLimitNoticeAt > 3000) {
         const retryAfter = error.response.headers['retry-after'];
-        const message = retryAfter 
+        const message = retryAfter
           ? `Too many requests. Please wait ${retryAfter} seconds.`
           : "Too many requests. Please slow down.";
         notify.error(message, { duration: 4000 });
@@ -160,6 +160,7 @@ export const authAPI = {
   getAdminStats: () => api.get("/admin/stats/"),
   getChallengeAnalytics: () => api.get("/admin/analytics/challenges/"),
   getStoreAnalytics: () => api.get("/admin/analytics/store/"),
+  getIntelligence: () => api.get("/admin/analytics/intelligence/"),
   getSystemIntegrity: () => api.get("/admin/system/integrity/"),
   getSystemSettings: () => api.get("/admin/system/settings/"),
   updateSystemSettings: (data) => api.post("/admin/system/settings/", data),

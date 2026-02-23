@@ -16,10 +16,11 @@ const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
     { id: "store", label: "Store", icon: <ShoppingBag size={18} /> },
     { id: "broadcast", label: "Announcements", icon: <Shield size={18} /> },
     { id: "audit", label: "Audit Logs", icon: <Layers size={18} /> },
+    { id: "intelligence", label: "Intelligence", icon: <BarChart size={18} /> },
   ];
 
   return (
-    <aside className="w-64 h-screen bg-[#0a1220]/85 backdrop-blur-xl border-r border-white/10 flex flex-col shrink-0 sticky top-0">
+    <aside className="w-64 h-full bg-[#0a1220]/85 backdrop-blur-xl border-r border-white/10 flex flex-col shrink-0">
       {/* Header */}
       <div className="h-14 flex items-center px-6 border-b border-white/10">
         <div className="flex items-center gap-2">
