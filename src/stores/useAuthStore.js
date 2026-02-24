@@ -290,12 +290,23 @@ const useAuthStore = create((set, get) => ({
 
     set({ isOtpLoading: true, error: null });
     try {
-      await authAPI.requestOtp(email);
+      const response = await authAPI.requestOtp(email);
+      const debugOtp = response?.data?.debug_otp;
+
       set({
         isOtpLoading: false,
         otpCooldownUntil: Date.now() + 60000,
         lastOtpEmail: email,
+        ...(debugOtp ? { otp: String(debugOtp) } : {}),
       });
+
+      if (debugOtp) {
+        notify.info(`Debug OTP: ${debugOtp}`, {
+          description: "Auto-filled locally because debug OTP mode is enabled.",
+          duration: 8000,
+        });
+      }
+
       return true;
     } catch (error) {
       const retryAfter = Number(error.response?.headers?.["retry-after"]);

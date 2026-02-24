@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
+import { fileURLToPath, URL } from "node:url";
 
 function getPackageName(id) {
   const match = id.split(/node_modules[\\/]/)[1];
@@ -15,6 +16,13 @@ function getPackageName(id) {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      "lucide-react": fileURLToPath(
+        new URL("./src/icons/lucide-react.jsx", import.meta.url),
+      ),
+    },
+  },
   build: {
     chunkSizeWarningLimit: 700,
     rollupOptions: {
@@ -34,9 +42,8 @@ export default defineConfig({
           if (pkg === "monaco-editor" || pkg === "@monaco-editor/react") {
             return "vendor-monaco";
           }
-          if (pkg === "framer-motion") return "vendor-motion";
+          if (pkg === "framer-motion" || pkg === "motion") return "vendor-motion";
           if (pkg.startsWith("@radix-ui/")) return "vendor-radix";
-          if (pkg === "lucide-react") return "vendor-icons";
           if (pkg === "emoji-picker-react") return "vendor-emoji";
           if (pkg === "react-markdown" || pkg.startsWith("remark-") || pkg.startsWith("rehype-")) {
             return "vendor-markdown";

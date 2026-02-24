@@ -117,7 +117,8 @@ const MainLayout = memo(({ children }) => {
     // ---- Keyboard Shortcuts ----
     useEffect(() => {
         const handleKeyDown = (e) => {
-            const key = e.key.toLowerCase();
+            const key = typeof e?.key === "string" ? e.key.toLowerCase() : "";
+            if (!key) return;
             if (!(e.ctrlKey || e.metaKey)) return;
 
             switch (key) {
