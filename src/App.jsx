@@ -87,7 +87,7 @@ const AppContent = memo(() => {
   }
 
   return (
-    <ErrorBoundary>
+    <>
       <Toaster />
       <MainLayout>
         <Routes>
@@ -260,7 +260,7 @@ const AppContent = memo(() => {
           />
         </Routes>
       </MainLayout>
-    </ErrorBoundary>
+    </>
   );
 });
 
@@ -269,7 +269,9 @@ AppContent.displayName = "AppContent";
 const App = () => {
   return (
     <Router>
-      <AppContent />
+      <ErrorBoundary>
+        <AppContent />
+      </ErrorBoundary>
     </Router>
   );
 };
