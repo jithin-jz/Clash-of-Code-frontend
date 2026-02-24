@@ -180,10 +180,10 @@ const AdminStore = () => {
         </Button>
       </div>
 
-      <div className="rounded-lg border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl overflow-hidden">
+      <div className="rounded-lg border border-white/5 bg-[#0d1525] shadow-sm overflow-hidden">
         <Table className="min-w-[760px]">
           <TableHeader>
-            <TableRow className="border-white/10 hover:bg-transparent bg-[#111d30]/85">
+            <TableRow className="border-white/10 hover:bg-transparent bg-white/[0.02]">
               <TableHead className="w-[80px] text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3 px-6">
                 Icon
               </TableHead>
@@ -203,7 +203,7 @@ const AdminStore = () => {
           </TableHeader>
           <TableBody>
             {loading ? (
-              <AdminTableLoadingRow colSpan={5} rows={6} />
+              [...Array(6)].map((_, i) => <AdminTableLoadingRow key={i} colSpan={5} />)
             ) : (
               paginatedItems.map((item) => (
                 <TableRow
@@ -211,7 +211,7 @@ const AdminStore = () => {
                   className="border-white/10 hover:bg-white/5 transition-colors group"
                 >
                   <TableCell className="py-3 px-6">
-                    <div className="w-10 h-10 bg-[#162338] rounded-lg border border-white/10 flex items-center justify-center overflow-hidden">
+                    <div className="w-10 h-10 bg-white/[0.04] rounded-lg border border-white/10 flex items-center justify-center overflow-hidden">
                       {item.image ? (
                         <img
                           src={item.image}
@@ -236,7 +236,7 @@ const AdminStore = () => {
                   <TableCell className="py-3">
                     <Badge
                       variant="outline"
-                      className="bg-[#162338]/60 border-white/10 text-[9px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md text-slate-300"
+                      className="bg-white/[0.04]/60 border-white/10 text-[9px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md text-slate-300"
                     >
                       {item.category}
                     </Badge>
@@ -283,7 +283,7 @@ const AdminStore = () => {
                 setPageSize(Number(e.target.value));
                 setPage(1);
               }}
-              className="h-7 rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
+              className="h-7 rounded-md bg-white/[0.04] border border-white/10 text-slate-300 text-xs px-2"
             >
               <option value="10">10 / page</option>
               <option value="25">25 / page</option>
@@ -294,7 +294,7 @@ const AdminStore = () => {
             <Button
               variant="outline"
               size="sm"
-              className="h-7 px-2 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
+              className="h-7 px-2 border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/10"
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
@@ -306,7 +306,7 @@ const AdminStore = () => {
             <Button
               variant="outline"
               size="sm"
-              className="h-7 px-2 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
+              className="h-7 px-2 border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/10"
               disabled={page >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             >
@@ -318,7 +318,7 @@ const AdminStore = () => {
 
       {/* Edit/Create Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-[#0f1b2e] border-white/15 text-white max-w-[calc(100vw-2rem)] sm:max-w-md">
+        <DialogContent className="bg-[#0d1525] border-white/10 text-white max-w-[calc(100vw-2rem)] sm:max-w-md shadow-2xl">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold text-slate-100">
               {currentItem ? "Edit Item" : "New Item"}
@@ -335,7 +335,7 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="bg-[#162338]/50 border-white/10 h-9 text-sm"
+                  className="bg-white/[0.04] border-white/10 h-9 text-sm"
                   required
                 />
               </div>
@@ -348,7 +348,7 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  className="w-full h-9 px-3 rounded-md bg-[#162338]/50 border border-white/10 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/20"
+                  className="w-full h-9 px-3 rounded-md bg-white/[0.04] border border-white/10 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/20"
                 >
                   <option value="THEME">Theme</option>
                   <option value="FONT">Font</option>
@@ -367,7 +367,7 @@ const AdminStore = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="bg-[#162338]/50 border-white/10 h-20 text-sm resize-none"
+                className="bg-white/[0.04] border-white/10 h-20 text-sm resize-none"
               />
             </div>
 
@@ -382,7 +382,7 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, cost: parseInt(e.target.value) })
                   }
-                  className="bg-[#162338]/50 border-white/10 h-9 text-sm"
+                  className="bg-white/[0.04] border-white/10 h-9 text-sm"
                   required
                 />
               </div>
@@ -395,7 +395,7 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, icon_name: e.target.value })
                   }
-                  className="bg-[#162338]/50 border-white/10 h-9 text-sm"
+                  className="bg-white/[0.04] border-white/10 h-9 text-sm"
                   placeholder="e.g. Palette"
                 />
               </div>
@@ -410,7 +410,7 @@ const AdminStore = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, item_data: e.target.value })
                 }
-                className="bg-[#162338]/50 border-white/10 h-24 font-mono text-[10px] resize-none"
+                className="bg-white/[0.04] border-white/10 h-24 font-mono text-[10px] resize-none"
                 placeholder='{"theme_key": "dracula"}'
               />
             </div>
@@ -425,7 +425,7 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, image: e.target.value })
                   }
-                  className="bg-[#162338]/50 border-white/10 h-9 text-sm flex-1"
+                  className="bg-white/[0.04] border-white/10 h-9 text-sm flex-1"
                   placeholder="/assets/item.png"
                 />
                 <Input
@@ -458,7 +458,7 @@ const AdminStore = () => {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-9 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
+                  className="h-9 border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/10"
                   onClick={() =>
                     document.getElementById("image-upload").click()
                   }

@@ -55,16 +55,16 @@ export const SkeletonAvatar = ({ size = "md", className, ...props }) => {
   return <SkeletonCircle className={cn(sizes[size], className)} {...props} />;
 };
 
-export const SkeletonCard = ({ className, children, variant = "glass", ...props }) => {
+export const SkeletonCard = ({ className, children, variant = "solid", ...props }) => {
   const variants = {
-    glass: "bg-[#0f1b2e]/60 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]",
-    solid: "bg-white/[0.04] border-white/5",
-    plain: "bg-transparent border-white/5"
+    glass: "bg-[#0d1525]/80 backdrop-blur-md border border-white/5 shadow-sm",
+    solid: "bg-white/[0.04] border border-white/5",
+    plain: "bg-transparent border border-white/5"
   };
 
   return (
     <div
-      className={cn("p-4 rounded-2xl relative overflow-hidden", variants[variant], className)}
+      className={cn("p-4 rounded-xl relative overflow-hidden", variants[variant], className)}
       {...props}
     >
       <Shimmer />

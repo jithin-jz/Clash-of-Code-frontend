@@ -115,7 +115,7 @@ const AdminAuditLogs = () => {
         return (
           <Badge
             variant="outline"
-            className="bg-[#162338]/60 border-white/10 text-slate-300 text-[9px] uppercase tracking-wider"
+            className="bg-white/[0.04] border-white/10 text-slate-300 text-[9px] uppercase tracking-wider"
           >
             Moderation
           </Badge>
@@ -133,7 +133,7 @@ const AdminAuditLogs = () => {
         return (
           <Badge
             variant="outline"
-            className="bg-[#162338]/60 border-white/10 text-slate-300 text-[9px] uppercase tracking-wider"
+            className="bg-white/[0.04] border-white/10 text-slate-300 text-[9px] uppercase tracking-wider"
           >
             Broadcast
           </Badge>
@@ -142,7 +142,7 @@ const AdminAuditLogs = () => {
         return (
           <Badge
             variant="outline"
-            className="bg-[#162338]/60 border-white/10 text-slate-400 text-[9px] uppercase tracking-wider"
+            className="bg-white/[0.04] border-white/10 text-slate-400 text-[9px] uppercase tracking-wider"
           >
             System
           </Badge>
@@ -192,7 +192,7 @@ const AdminAuditLogs = () => {
             size="sm"
             onClick={() => fetchLogs(query)}
             disabled={loading}
-            className="h-8 gap-2 bg-[#162338]/50 border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-colors rounded-md"
+            className="h-8 gap-2 bg-white/[0.04] border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-colors rounded-md"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             <span className="text-xs font-medium">
@@ -206,12 +206,12 @@ const AdminAuditLogs = () => {
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Search action/admin/target/request id..."
-            className="h-8 w-full sm:w-80 bg-[#162338]/50 border-white/10 text-slate-200 placeholder:text-slate-500"
+            className="h-8 w-full sm:w-80 bg-white/[0.04] border-white/10 text-slate-200 placeholder:text-slate-500"
           />
           <select
             value={query.action || ""}
             onChange={(e) => fetchLogs({ action: e.target.value, page: 1 })}
-            className="h-8 w-full sm:w-auto rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
+            className="h-8 w-full sm:w-auto rounded-md bg-white/[0.04] border border-white/10 text-slate-300 text-xs px-2"
           >
             <option value="">All Actions</option>
             <option value="TOGGLE_USER_BLOCK">Toggle User Block</option>
@@ -221,7 +221,7 @@ const AdminAuditLogs = () => {
           <select
             value={query.ordering || "-timestamp"}
             onChange={(e) => fetchLogs({ ordering: e.target.value, page: 1 })}
-            className="h-8 w-full sm:w-auto rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
+            className="h-8 w-full sm:w-auto rounded-md bg-white/[0.04] border border-white/10 text-slate-300 text-xs px-2"
           >
             <option value="-timestamp">Newest</option>
             <option value="timestamp">Oldest</option>
@@ -233,7 +233,7 @@ const AdminAuditLogs = () => {
             onChange={(e) =>
               fetchLogs({ page_size: Number(e.target.value), page: 1 })
             }
-            className="h-8 w-full sm:w-auto rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
+            className="h-8 w-full sm:w-auto rounded-md bg-white/[0.04] border border-white/10 text-slate-300 text-xs px-2"
           >
             <option value="10">10 / page</option>
             <option value="25">25 / page</option>
@@ -243,10 +243,10 @@ const AdminAuditLogs = () => {
         </div>
       </div>
 
-      <div className="rounded-lg border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl overflow-hidden">
+      <div className="rounded-lg border border-white/5 bg-[#0d1525] shadow-sm overflow-hidden">
         <Table className="min-w-[980px]">
           <TableHeader>
-            <TableRow className="border-white/10 hover:bg-transparent bg-[#111d30]/85">
+            <TableRow className="border-white/10 hover:bg-transparent bg-white/[0.02]">
               <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3 px-6">
                 Admin
               </TableHead>
@@ -266,7 +266,7 @@ const AdminAuditLogs = () => {
           </TableHeader>
           <TableBody>
             {loading ? (
-              <AdminTableLoadingRow colSpan={5} rows={8} />
+              [...Array(8)].map((_, i) => <AdminTableLoadingRow key={i} colSpan={5} />)
             ) : logs.length === 0 ? (
               <TableRow>
                 <TableCell
@@ -287,7 +287,7 @@ const AdminAuditLogs = () => {
                 >
                   <TableCell className="py-3 px-6">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-md bg-[#162338] border border-white/10 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                      <div className="w-6 h-6 rounded-md bg-white/[0.04] border border-white/10 flex items-center justify-center text-[10px] font-bold text-slate-500">
                         {log.admin ? log.admin[0].toUpperCase() : "S"}
                       </div>
                       <span className="text-sm font-medium text-slate-100 tracking-tight">
@@ -338,7 +338,7 @@ const AdminAuditLogs = () => {
           <Button
             variant="outline"
             size="sm"
-            className="h-7 px-2 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
+            className="h-7 px-2 border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/10"
             disabled={page <= 1 || loading}
             onClick={() => fetchLogs({ page: page - 1 })}
           >
@@ -350,7 +350,7 @@ const AdminAuditLogs = () => {
           <Button
             variant="outline"
             size="sm"
-            className="h-7 px-2 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
+            className="h-7 px-2 border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/10"
             disabled={page >= totalPages || loading}
             onClick={() => fetchLogs({ page: page + 1 })}
           >

@@ -163,6 +163,8 @@ export const authAPI = {
   getSystemIntegrity: () => api.get("/admin/system/integrity/"),
   sendBroadcast: (message) => api.post("/admin/notifications/broadcast/", { message }),
   getAuditLogs: (params = {}) => api.get("/admin/audit-logs/", { params }),
+  getUserEngagementAnalytics: () => api.get("/admin/analytics/engagement/"),
+  getUltimateAnalytics: () => api.get("/admin/analytics/ultimate/"),
 };
 
 // Payment endpoints

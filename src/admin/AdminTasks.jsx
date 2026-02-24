@@ -115,7 +115,7 @@ const AdminTasks = () => {
     };
 
     return (
-      <div className="bg-[#0f1b2e]/70 rounded-xl p-6 border border-[#7ea3d9]/20 backdrop-blur-xl">
+      <div className="bg-[#0d1525] rounded-xl p-6 border border-white/5 shadow-sm">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-slate-100">
             {task ? "Edit Challenge" : "New Challenge"}
@@ -138,7 +138,7 @@ const AdminTasks = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full bg-[#162338]/50 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white placeholder-slate-600"
+                className="w-full bg-white/[0.04] border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white placeholder-slate-600"
                 placeholder="FizzBuzz"
                 required
               />
@@ -149,7 +149,7 @@ const AdminTasks = () => {
                 name="slug"
                 value={formData.slug}
                 onChange={handleChange}
-                className="w-full bg-[#162338]/50 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white font-mono placeholder-slate-600"
+                className="w-full bg-white/[0.04] border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white font-mono placeholder-slate-600"
                 placeholder="fizz-buzz"
                 required
               />
@@ -164,7 +164,7 @@ const AdminTasks = () => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full h-32 bg-[#162338]/50 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white font-mono placeholder-slate-600 resize-none"
+              className="w-full h-32 bg-white/[0.04] border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white font-mono placeholder-slate-600 resize-none"
               required
             />
           </div>
@@ -177,7 +177,7 @@ const AdminTasks = () => {
                 name="order"
                 value={formData.order}
                 onChange={handleChange}
-                className="w-full bg-[#162338]/50 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white"
+                className="w-full bg-white/[0.04] border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white"
               />
             </div>
             <div className="space-y-1.5">
@@ -189,7 +189,7 @@ const AdminTasks = () => {
                 name="xp_reward"
                 value={formData.xp_reward}
                 onChange={handleChange}
-                className="w-full bg-[#162338]/50 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white"
+                className="w-full bg-white/[0.04] border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white"
               />
             </div>
             <div className="space-y-1.5">
@@ -201,7 +201,7 @@ const AdminTasks = () => {
                 name="time_limit"
                 value={formData.time_limit}
                 onChange={handleChange}
-                className="w-full bg-[#162338]/50 border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white"
+                className="w-full bg-white/[0.04] border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white"
               />
             </div>
           </div>
@@ -288,7 +288,7 @@ const AdminTasks = () => {
                 size="sm"
                 onClick={fetchTasks}
                 disabled={isLoading}
-                className="h-8 gap-2 bg-[#162338]/50 border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-colors rounded-md"
+                className="h-8 gap-2 bg-white/[0.04] border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-colors rounded-md"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
                 <span className="text-xs font-medium">
@@ -306,10 +306,10 @@ const AdminTasks = () => {
             </div>
           </div>
 
-          <div className="rounded-lg border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl overflow-hidden">
+          <div className="rounded-lg border border-white/5 bg-[#0d1525] shadow-sm overflow-hidden">
             <Table className="min-w-[760px]">
               <TableHeader>
-                <TableRow className="border-white/10 hover:bg-transparent bg-[#111d30]/85">
+                <TableRow className="border-white/10 hover:bg-transparent bg-white/[0.02]">
                   <TableHead className="w-[80px] text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
                     #
                   </TableHead>
@@ -329,7 +329,7 @@ const AdminTasks = () => {
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <AdminTableLoadingRow colSpan={5} rows={6} />
+                  [...Array(6)].map((_, i) => <AdminTableLoadingRow key={i} colSpan={5} />)
                 ) : tasks.length === 0 ? (
                   <TableRow>
                     <TableCell
@@ -409,7 +409,7 @@ const AdminTasks = () => {
                     setPageSize(Number(e.target.value));
                     setPage(1);
                   }}
-                  className="h-7 rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
+                  className="h-7 rounded-md bg-white/[0.04] border border-white/10 text-slate-300 text-xs px-2"
                 >
                   <option value="10">10 / page</option>
                   <option value="25">25 / page</option>
@@ -420,7 +420,7 @@ const AdminTasks = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 px-2 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
+                  className="h-7 px-2 border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/10"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
@@ -432,7 +432,7 @@ const AdminTasks = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 px-2 border-white/10 bg-[#162338]/50 text-slate-300 hover:text-white hover:bg-white/10"
+                  className="h-7 px-2 border-white/10 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/10"
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 >

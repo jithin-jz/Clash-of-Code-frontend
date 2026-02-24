@@ -5,6 +5,7 @@ import {
   Shield,
   Layers,
   ShoppingBag,
+  TrendingUp,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 
@@ -19,7 +20,7 @@ const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
   ];
 
   return (
-    <aside className="w-full md:w-64 md:h-full bg-[#0a1220]/85 backdrop-blur-xl border-b md:border-b-0 md:border-r border-white/10 flex flex-col shrink-0">
+    <aside className="w-full md:w-64 md:h-full bg-[#0d1525] border-b md:border-b-0 md:border-r border-white/5 flex flex-col shrink-0">
       {/* Header */}
       <div className="h-14 flex items-center justify-between px-4 md:px-6 border-b border-white/10">
         <div className="flex items-center gap-2 min-w-0">
@@ -50,16 +51,14 @@ const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-xs md:text-sm transition-colors duration-200 ${
-                activeTab === item.id
-                  ? "bg-[#162338] text-white border border-white/15"
-                  : "text-slate-300 hover:text-white hover:bg-white/10"
-              }`}
+              className={`shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-xs md:text-sm transition-colors duration-200 ${activeTab === item.id
+                ? "bg-[#162338] text-white border border-white/15"
+                : "text-slate-300 hover:text-white hover:bg-white/10"
+                }`}
             >
               <span
-                className={`${
-                  activeTab === item.id ? "text-white" : "text-slate-500"
-                }`}
+                className={`${activeTab === item.id ? "text-white" : "text-slate-500"
+                  }`}
               >
                 {item.icon}
               </span>

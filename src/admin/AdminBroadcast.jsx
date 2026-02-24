@@ -47,7 +47,7 @@ const AdminBroadcast = () => {
           </h2>
         </div>
 
-        <div className="p-4 sm:p-6 rounded-xl border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl space-y-4">
+        <div className="p-4 sm:p-6 rounded-xl border border-white/5 bg-[#0d1525] shadow-sm space-y-4">
           <div className="space-y-1.5">
             <label className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
               Message Content
@@ -56,7 +56,7 @@ const AdminBroadcast = () => {
               placeholder="Type your announcement here..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="bg-[#162338]/50 border-white/10 h-32 sm:h-40 focus:border-white/20 transition-colors text-white rounded-lg p-4 placeholder:text-slate-600 leading-relaxed resize-none"
+              className="bg-white/[0.04] border-white/10 h-32 sm:h-40 focus:border-white/20 transition-colors text-white rounded-lg p-4 placeholder:text-slate-600 leading-relaxed resize-none"
             />
           </div>
 
@@ -71,7 +71,7 @@ const AdminBroadcast = () => {
             </span>
           </Button>
 
-          <div className="p-3 rounded-lg border border-white/10 bg-[#0a1220]/70 text-[10px] text-slate-500 leading-relaxed text-center font-medium">
+          <div className="p-3 rounded-lg border border-white/10 bg-[#0a1220] text-[10px] text-slate-500 leading-relaxed text-center font-medium">
             <span className="text-slate-300 font-bold uppercase tracking-tighter mr-1">
               Note:
             </span>

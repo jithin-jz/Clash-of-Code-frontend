@@ -12,8 +12,7 @@ import { Shield } from "lucide-react";
 import AdminSidebar from "./AdminSidebar";
 import UserTable from "./UserTable";
 import AdminTasks from "./AdminTasks";
-import ChallengeAnalytics from "./ChallengeAnalytics";
-import StoreAnalytics from "./StoreAnalytics";
+import Analytics from "./analytics";
 import AdminBroadcast from "./AdminBroadcast";
 import AdminAuditLogs from "./AdminAuditLogs";
 import AdminStore from "./AdminStore";
@@ -193,7 +192,7 @@ const AdminDashboard = () => {
     const action = currentUserData?.is_active ? "ban" : "unban";
 
     notify.warning("Confirm Action", {
-      description: `Are you sure you want to ${action} the inhabitant ${username}?`,
+      description: `Are you sure you want to ${action} the user ${username}?`,
       action: {
         label: "Confirm",
         onClick: () => confirmBlockToggle(username),
@@ -255,7 +254,7 @@ const AdminDashboard = () => {
   if (!user?.is_staff && !user?.is_superuser) return <AdminPageSkeleton />;
 
   return (
-    <div className="relative h-screen overflow-hidden font-sans antialiased text-slate-200 bg-[#0b1119]">
+    <div className="relative h-screen overflow-hidden font-sans antialiased text-slate-200 bg-[#0a0f18]">
       <AppBackdrop />
       <div className="relative z-10 flex h-full flex-col md:flex-row">
         <AdminSidebar
@@ -271,11 +270,11 @@ const AdminDashboard = () => {
               <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 gap-6">
-                    <div className="p-6 rounded-xl bg-[#0f1b2e]/70 border border-[#7ea3d9]/20 backdrop-blur-xl shadow-sm flex flex-col justify-between group/card">
+                    <div className="p-6 rounded-xl bg-[#0d1525] border border-white/5 shadow-sm flex flex-col justify-between group/card">
                       <div>
                         <div className="flex items-center justify-between mb-2">
                           <h3 className="text-sm font-semibold text-slate-100">
-                            System Health
+                            System Overview
                           </h3>
                           <Badge
                             variant="outline"
@@ -370,8 +369,7 @@ const AdminDashboard = () => {
 
             {activeTab === "analytics" && (
               <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
-                <ChallengeAnalytics />
-                <StoreAnalytics />
+                <Analytics />
               </div>
             )}
 
