@@ -66,19 +66,19 @@ const UserTable = ({
   return (
     <div className="space-y-4">
       <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
           <Input
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Search username or email..."
-            className="h-8 w-full sm:w-64 bg-[#162338]/50 border-white/10 text-slate-200 placeholder:text-slate-500"
+            className="h-8 w-full min-w-0 sm:w-64 bg-[#162338]/50 border-white/10 text-slate-200 placeholder:text-slate-500"
           />
           <select
             value={userFilters?.role || ""}
             onChange={(e) =>
               onUsersQueryChange?.({ role: e.target.value })
             }
-            className="h-8 rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
+            className="h-8 w-full sm:w-auto rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
           >
             <option value="">All Roles</option>
             <option value="user">Users</option>
@@ -90,7 +90,7 @@ const UserTable = ({
             onChange={(e) =>
               onUsersQueryChange?.({ status: e.target.value })
             }
-            className="h-8 rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
+            className="h-8 w-full sm:w-auto rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
           >
             <option value="">All Status</option>
             <option value="active">Active</option>
@@ -102,7 +102,7 @@ const UserTable = ({
               setPageSize(Number(e.target.value));
               setPage(1);
             }}
-            className="h-8 rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
+            className="h-8 w-full sm:w-auto rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
           >
             <option value="10">10 / page</option>
             <option value="25">25 / page</option>
@@ -125,7 +125,7 @@ const UserTable = ({
       </div>
 
       <div className="rounded-lg border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl overflow-hidden">
-        <Table>
+        <Table className="min-w-[760px]">
           <TableHeader>
             <TableRow className="border-white/10 hover:bg-transparent bg-[#111d30]/85">
               <TableHead className="w-[80px] text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
@@ -268,7 +268,7 @@ const UserTable = ({
         </Table>
       </div>
 
-      <div className="flex items-center justify-between text-xs text-slate-500">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-slate-500">
         <span>
           Showing {start}-{end} of {count}
         </span>

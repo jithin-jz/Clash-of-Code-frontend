@@ -861,8 +861,8 @@ const Profile = () => {
 
       {/* Modals & Dialogs */}
       <CreatePostDialog
-        isOpen={createPostOpen}
-        onClose={() => setCreatePostOpen(false)}
+        open={createPostOpen}
+        onOpenChange={setCreatePostOpen}
         onPostCreated={() => setRefreshPosts((prev) => prev + 1)}
       />
 

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import useAuthStore from "../stores/useAuthStore";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import { Mail, Github, Chrome } from "lucide-react";
 
 const Login = () => {
+  const navigate = useNavigate();
   const {
     loading,
     isOAuthLoading,
@@ -21,8 +23,18 @@ const Login = () => {
     requestOtp,
     verifyOtp,
     handleOAuthMessage,
+    isAuthenticated,
+    isInitialized,
+    user,
   } = useAuthStore();
   const [otpCooldownSeconds, setOtpCooldownSeconds] = useState(0);
+
+  const getRedirectPath = (userData) => {
+    if (userData?.is_staff || userData?.is_superuser) {
+      return "/admin/dashboard";
+    }
+    return "/";
+  };
 
   useEffect(() => {
     const updateCooldown = () => {
@@ -40,6 +52,11 @@ const Login = () => {
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
   }, [handleOAuthMessage]);
+
+  useEffect(() => {
+    if (!isInitialized || !isAuthenticated) return;
+    navigate(getRedirectPath(user), { replace: true });
+  }, [isInitialized, isAuthenticated, user, navigate]);
 
   const handleOAuthClick = async (provider) => {
     await openOAuthPopup(provider);
@@ -80,6 +97,8 @@ const Login = () => {
       toast.success("Welcome Back!", {
         description: "You have been successfully logged in.",
       });
+      const currentUser = useAuthStore.getState().user;
+      navigate(getRedirectPath(currentUser), { replace: true });
     } else {
       const latestError = useAuthStore.getState().error;
       toast.error("Invalid OTP", {

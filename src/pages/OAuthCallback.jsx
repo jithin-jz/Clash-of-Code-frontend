@@ -28,6 +28,7 @@ const OAuthCallback = ({ provider }) => {
   useEffect(() => {
     // Check if this is a popup window
     const isPopupWindow = window.opener && !window.opener.closed;
+    const targetOrigin = window.location.origin;
     setIsPopup(isPopupWindow);
 
     const processCallback = async () => {
@@ -44,7 +45,7 @@ const OAuthCallback = ({ provider }) => {
               provider,
               error: errorParam,
             },
-            "*",
+            targetOrigin,
           );
           window.close();
         }
@@ -76,7 +77,7 @@ const OAuthCallback = ({ provider }) => {
                 type: "oauth-success",
                 provider,
               },
-              "*",
+              targetOrigin,
             );
             window.close();
           } else {
@@ -95,7 +96,7 @@ const OAuthCallback = ({ provider }) => {
                 provider,
                 error: storeError,
               },
-              "*",
+              targetOrigin,
             );
             window.close();
           }
@@ -112,7 +113,7 @@ const OAuthCallback = ({ provider }) => {
               provider,
               error: err.message,
             },
-            "*",
+            targetOrigin,
           );
           window.close();
         }
@@ -176,7 +177,18 @@ const OAuthCallback = ({ provider }) => {
     );
   }
 
-  return null;
+  return (
+    <SkeletonPage className="flex items-center justify-center px-4 min-h-screen bg-[#060a11]">
+      <div className="relative z-10 w-full max-w-md rounded-[2rem] border border-white/10 bg-[#0f1b2e]/60 backdrop-blur-3xl p-8 space-y-6 text-center">
+        <SkeletonBase className="h-10 w-56 rounded-md mx-auto" />
+        <SkeletonBase className="h-4 w-64 rounded mx-auto" />
+        <div className="space-y-4 pt-4">
+          <SkeletonBase className="h-12 w-full rounded-2xl" />
+          <SkeletonBase className="h-12 w-full rounded-2xl" />
+        </div>
+      </div>
+    </SkeletonPage>
+  );
 };
 
 export default OAuthCallback;

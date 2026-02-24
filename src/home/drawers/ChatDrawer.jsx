@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import useChatStore from "../../stores/useChatStore";
 import useAuthStore from "../../stores/useAuthStore";
 import { MessageSquare, Users, X } from "lucide-react";
-import { motion as Motion } from "framer-motion";
+import { AnimatePresence, motion as Motion } from "framer-motion";
 
 // Subcomponents
 import ChatInput from "../components/ChatInput";
@@ -98,13 +98,16 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
   );
 
   return (
-    <Motion.div
-      className="fixed top-14 left-0 h-[calc(100vh-56px)] z-40 w-full sm:w-[390px]"
-      initial={{ x: "-100%" }}
-      animate={{ x: isChatOpen ? 0 : "-100%" }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-    >
-      <div className="w-full h-full bg-linear-to-b from-[#111d30]/95 via-[#0f1b2e]/95 to-[#0c1627]/95 backdrop-blur-3xl border-r border-white/15 flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative pb-16 sm:pb-0">
+    <AnimatePresence>
+      {isChatOpen && (
+        <Motion.div
+          className="fixed top-14 left-0 h-[calc(100vh-56px)] z-40 w-full sm:w-[390px]"
+          initial={{ x: "-100%" }}
+          animate={{ x: 0 }}
+          exit={{ x: "-100%" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
+          <div className="w-full h-full bg-linear-to-b from-[#111d30]/95 via-[#0f1b2e]/95 to-[#0c1627]/95 backdrop-blur-3xl border-r border-white/15 flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative pb-16 sm:pb-0">
         {/* Decorative gradient orb */}
         <div className="absolute -top-20 -left-20 w-44 h-44 bg-[#3b82f6]/12 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 -right-12 w-36 h-36 bg-[#00af9b]/10 rounded-full blur-3xl pointer-events-none" />
@@ -176,9 +179,10 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
           pickerRef={pickerRef}
           emojiButtonRef={emojiButtonRef}
         />
-      </div>
-
-    </Motion.div>
+          </div>
+        </Motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

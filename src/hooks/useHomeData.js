@@ -11,10 +11,11 @@ const CERTIFICATE_SLUG = "certificate";
  * Custom hook to manage Home page data, levels, and certificates.
  *
  * Performance: useShallow selector on challenges store prevents
- * re-renders from currentChallenge/error changes that don't affect
+ * re-renders from unrelated challenge-store updates that don't affect
  * the home page. Level transformation is fully memoised.
  */
 export const useHomeData = (user) => {
+    const userId = user?.id;
     const { challenges: apiLevels, isLoading, fetchChallenges } = useChallengesStore(
         useShallow((s) => ({
             challenges: s.challenges,
@@ -22,6 +23,7 @@ export const useHomeData = (user) => {
             fetchChallenges: s.fetchChallenges,
         }))
     );
+    const [hasFetchedOnce, setHasFetchedOnce] = useState(false);
 
     const [certificateModalOpen, setCertificateModalOpen] = useState(false);
     const [userCertificate, setUserCertificate] = useState(null);
@@ -29,17 +31,44 @@ export const useHomeData = (user) => {
 
     // Initial Fetch
     useEffect(() => {
-        if (user) {
-            fetchChallenges();
-        }
-    }, [user, fetchChallenges]);
+        let cancelled = false;
+
+        const runInitialFetch = async () => {
+            if (!userId) {
+                setHasFetchedOnce(true);
+                return;
+            }
+
+            setHasFetchedOnce(false);
+            try {
+                await fetchChallenges();
+            } finally {
+                if (!cancelled) {
+                    setHasFetchedOnce(true);
+                }
+            }
+        };
+
+        runInitialFetch();
+        return () => {
+            cancelled = true;
+        };
+    }, [userId, fetchChallenges]);
+
+    const showHomeSkeleton = userId && apiLevels.length === 0 && (!hasFetchedOnce || isLoading);
+
+    const certificateCheckKey = useMemo(() => {
+        if (!userId || !apiLevels?.length) return "";
+        const completedCount = apiLevels.filter((level) => level.status === "COMPLETED").length;
+        return `${userId}:${completedCount}:${apiLevels.length}`;
+    }, [userId, apiLevels]);
 
     // Certificate Eligibility Logic
     useEffect(() => {
         let cancelled = false;
 
         const checkCertificate = async () => {
-            if (!user || !apiLevels || apiLevels.length === 0) return;
+            if (!userId || !certificateCheckKey) return;
 
             try {
                 const eligibility = await challengesApi.checkCertificateEligibility();
@@ -54,7 +83,7 @@ export const useHomeData = (user) => {
                         setUserCertificate(certData);
                     }
 
-                    const shownKey = `cert_shown_${user.id}`;
+                    const shownKey = `cert_shown_${userId}`;
                     if (certData && !localStorage.getItem(shownKey)) {
                         setCertificateModalOpen(true);
                         localStorage.setItem(shownKey, "true");
@@ -67,10 +96,14 @@ export const useHomeData = (user) => {
 
         checkCertificate();
         return () => { cancelled = true; };
-    }, [user, apiLevels]);
+    }, [userId, certificateCheckKey]);
 
     // Level Transformation Logic — fully memoised
     const levels = useMemo(() => {
+        if (showHomeSkeleton) {
+            return [];
+        }
+
         if (!apiLevels || apiLevels.length === 0) {
             return generateLevels(60).map((l) => ({
                 ...l,
@@ -129,7 +162,7 @@ export const useHomeData = (user) => {
                 ...apiData,
             };
         });
-    }, [apiLevels]);
+    }, [apiLevels, showHomeSkeleton]);
 
     const handleCertificateClick = useCallback(async () => {
         if (userCertificate) {
@@ -156,7 +189,7 @@ export const useHomeData = (user) => {
 
     return {
         levels,
-        isLoading,
+        isLoading: showHomeSkeleton,
         certificateModalOpen,
         setCertificateModalOpen,
         userCertificate,

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Trophy, Crown, Medal, Users, X, Gem } from "lucide-react";
-import { motion as Motion } from "framer-motion";
+import { AnimatePresence, motion as Motion } from "framer-motion";
 import { SkeletonBase } from "../../common/SkeletonPrimitives";
 import api from "../../services/api";
 import useAuthStore from "../../stores/useAuthStore";
@@ -45,13 +45,16 @@ const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
   };
 
   return (
-    <Motion.div
-      className="fixed top-14 right-0 h-[calc(100vh-56px)] z-50 w-full sm:w-[390px]"
-      initial={{ x: "100%" }}
-      animate={{ x: isLeaderboardOpen ? 0 : "100%" }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-    >
-      <div className="w-full h-full bg-linear-to-b from-[#111d30]/95 via-[#0f1b2e]/95 to-[#0c1627]/95 backdrop-blur-3xl border-l border-white/15 flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative pb-16 sm:pb-0">
+    <AnimatePresence>
+      {isLeaderboardOpen && (
+        <Motion.div
+          className="fixed top-14 right-0 h-[calc(100vh-56px)] z-50 w-full sm:w-[390px]"
+          initial={{ x: "100%" }}
+          animate={{ x: 0 }}
+          exit={{ x: "100%" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
+          <div className="w-full h-full bg-linear-to-b from-[#111d30]/95 via-[#0f1b2e]/95 to-[#0c1627]/95 backdrop-blur-3xl border-l border-white/15 flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative pb-16 sm:pb-0">
         {/* Decorative gradient orb */}
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#3b82f6]/12 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 -left-10 w-32 h-32 bg-[#00af9b]/10 rounded-full blur-3xl pointer-events-none" />
@@ -217,8 +220,10 @@ const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
           )}
         </div>
 
-      </div>
-    </Motion.div>
+          </div>
+        </Motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

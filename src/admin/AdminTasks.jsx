@@ -131,7 +131,7 @@ const AdminTasks = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-slate-500">Title</label>
               <input
@@ -169,7 +169,7 @@ const AdminTasks = () => {
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-slate-500">Order</label>
               <input
@@ -206,12 +206,12 @@ const AdminTasks = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 h-[300px]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:h-[300px]">
             <div className="flex flex-col space-y-1.5">
               <label className="text-xs font-medium text-slate-500">
                 Initial Code
               </label>
-              <div className="flex-1 border border-white/10 rounded-md overflow-hidden bg-[#0a1220]">
+              <div className="h-56 lg:h-full border border-white/10 rounded-md overflow-hidden bg-[#0a1220]">
                 <Editor
                   height="100%"
                   defaultLanguage="python"
@@ -233,7 +233,7 @@ const AdminTasks = () => {
               <label className="text-xs font-medium text-slate-500">
                 Validation Code
               </label>
-              <div className="flex-1 border border-white/10 rounded-md overflow-hidden bg-[#0a1220]">
+              <div className="h-56 lg:h-full border border-white/10 rounded-md overflow-hidden bg-[#0a1220]">
                 <Editor
                   height="100%"
                   defaultLanguage="python"
@@ -278,11 +278,11 @@ const AdminTasks = () => {
     <div className="space-y-4">
       {!editingTask ? (
         <>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <h2 className="text-xl font-semibold text-slate-100 tracking-tight">
               Challenge Management
             </h2>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -307,7 +307,7 @@ const AdminTasks = () => {
           </div>
 
           <div className="rounded-lg border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl overflow-hidden">
-            <Table>
+            <Table className="min-w-[760px]">
               <TableHeader>
                 <TableRow className="border-white/10 hover:bg-transparent bg-[#111d30]/85">
                   <TableHead className="w-[80px] text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3">
@@ -397,8 +397,8 @@ const AdminTasks = () => {
             </Table>
           </div>
           {!isLoading && (
-            <div className="flex items-center justify-between text-xs text-slate-500">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-slate-500">
+              <div className="flex flex-wrap items-center gap-2">
                 <span>
                   Showing {totalCount === 0 ? 0 : (page - 1) * pageSize + 1}-
                   {Math.min(page * pageSize, totalCount)} of {totalCount}

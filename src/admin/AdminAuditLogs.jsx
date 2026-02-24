@@ -183,7 +183,7 @@ const AdminAuditLogs = () => {
   return (
     <div className="space-y-4">
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <h2 className="text-xl font-semibold text-slate-100 tracking-tight">
             Audit Logs
           </h2>
@@ -201,7 +201,7 @@ const AdminAuditLogs = () => {
           </Button>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
           <Input
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
@@ -211,7 +211,7 @@ const AdminAuditLogs = () => {
           <select
             value={query.action || ""}
             onChange={(e) => fetchLogs({ action: e.target.value, page: 1 })}
-            className="h-8 rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
+            className="h-8 w-full sm:w-auto rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
           >
             <option value="">All Actions</option>
             <option value="TOGGLE_USER_BLOCK">Toggle User Block</option>
@@ -221,7 +221,7 @@ const AdminAuditLogs = () => {
           <select
             value={query.ordering || "-timestamp"}
             onChange={(e) => fetchLogs({ ordering: e.target.value, page: 1 })}
-            className="h-8 rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
+            className="h-8 w-full sm:w-auto rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
           >
             <option value="-timestamp">Newest</option>
             <option value="timestamp">Oldest</option>
@@ -233,7 +233,7 @@ const AdminAuditLogs = () => {
             onChange={(e) =>
               fetchLogs({ page_size: Number(e.target.value), page: 1 })
             }
-            className="h-8 rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
+            className="h-8 w-full sm:w-auto rounded-md bg-[#162338]/50 border border-white/10 text-slate-300 text-xs px-2"
           >
             <option value="10">10 / page</option>
             <option value="25">25 / page</option>
@@ -244,7 +244,7 @@ const AdminAuditLogs = () => {
       </div>
 
       <div className="rounded-lg border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl overflow-hidden">
-        <Table>
+        <Table className="min-w-[980px]">
           <TableHeader>
             <TableRow className="border-white/10 hover:bg-transparent bg-[#111d30]/85">
               <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3 px-6">
@@ -330,7 +330,7 @@ const AdminAuditLogs = () => {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between text-xs text-slate-500">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-slate-500">
         <span>
           Showing {start}-{end} of {count}
         </span>

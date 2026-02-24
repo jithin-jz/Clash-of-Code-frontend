@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 
 // Components (loaded immediately)
@@ -52,10 +53,32 @@ import { Toaster } from "./components/ui/sonner";
  * Wrapped in memo so Router context changes don't cascade.
  */
 const AppContent = memo(() => {
+  const location = useLocation();
   const { user, authLoading } = useInitializeApp();
 
   // Root application loader (skeleton-only)
   if (authLoading) {
+    if (location.pathname === "/") {
+      return <HomeSkeleton />;
+    }
+    if (location.pathname === "/login") {
+      return <LoginSkeleton />;
+    }
+    if (location.pathname.startsWith("/admin")) {
+      return <SkeletonAdminDashboard />;
+    }
+    if (
+      location.pathname.startsWith("/shop") ||
+      location.pathname.startsWith("/buy-xp")
+    ) {
+      return <BuyXpPageSkeleton />;
+    }
+    if (location.pathname.startsWith("/store")) {
+      return <MarketplacePageSkeleton />;
+    }
+    if (location.pathname.startsWith("/profile")) {
+      return <ProfileSkeleton />;
+    }
     return <SkeletonGenericPage />;
   }
 
@@ -223,7 +246,14 @@ const AppContent = memo(() => {
           />
 
           {/* 404 Route */}
-          <Route path="*" element={<NotFound />} />
+          <Route
+            path="*"
+            element={
+              <Suspense fallback={<SkeletonGenericPage />}>
+                <NotFound />
+              </Suspense>
+            }
+          />
         </Routes>
       </MainLayout>
     </ErrorBoundary>

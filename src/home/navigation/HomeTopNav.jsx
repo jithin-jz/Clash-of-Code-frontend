@@ -34,14 +34,15 @@ const HomeTopNav = ({
   hasUnclaimedReward,
 }) => {
   const navigate = useNavigate();
+  const userId = user?.id;
   const [hasNewNotification, setHasNewNotification] = useState(false);
   const prevUnreadCountRef = useRef(0);
 
   const { unreadCount, fetchNotifications } = useNotificationStore();
 
   useEffect(() => {
-    if (user) fetchNotifications();
-  }, [user, fetchNotifications]);
+    if (userId) fetchNotifications();
+  }, [userId, fetchNotifications]);
 
   useEffect(() => {
     if (
@@ -59,18 +60,25 @@ const HomeTopNav = ({
   }, [unreadCount]);
 
 
+  const normalLevels = (levels || [])
+    .filter((l) => l.slug !== "certificate" && l.type !== "CERTIFICATE")
+    .sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999));
 
-  const activeLevel = levels?.find(
-    (l) =>
-      l.unlocked &&
-      !l.completed &&
-      l.slug !== "certificate" &&
-      l.type !== "CERTIFICATE",
+  const isLevelCompleted = (level) =>
+    level?.completed === true || level?.status === "COMPLETED";
+
+  const isLevelUnlocked = (level) => {
+    if (level?.unlocked === true) return true;
+    return level?.status === "UNLOCKED" || level?.status === "COMPLETED";
+  };
+
+  const activeLevel = normalLevels.find(
+    (level) => isLevelUnlocked(level) && !isLevelCompleted(level),
   );
-  const latestLevel = levels
-    ?.filter((l) => l.unlocked && l.slug !== "certificate" && l.type !== "CERTIFICATE")
-    .pop();
-  const currentLevel = activeLevel || latestLevel || levels?.[0];
+  const latestUnlockedLevel = [...normalLevels]
+    .reverse()
+    .find((level) => isLevelUnlocked(level));
+  const currentLevel = activeLevel || latestUnlockedLevel || normalLevels[0];
   const xp = user?.profile?.xp || 0;
 
   // completionPercent removed to fix lint error as it's currently unused in mobile-first nav

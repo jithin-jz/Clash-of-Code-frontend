@@ -39,7 +39,7 @@ const AdminBroadcast = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-8">
+    <div className="max-w-2xl mx-auto py-4 sm:py-8">
       <div className="space-y-6">
         <div className="space-y-1.5">
           <h2 className="text-xl font-semibold text-slate-100 tracking-tight">
@@ -47,7 +47,7 @@ const AdminBroadcast = () => {
           </h2>
         </div>
 
-        <div className="p-6 rounded-xl border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl space-y-4">
+        <div className="p-4 sm:p-6 rounded-xl border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl space-y-4">
           <div className="space-y-1.5">
             <label className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
               Message Content
@@ -56,7 +56,7 @@ const AdminBroadcast = () => {
               placeholder="Type your announcement here..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="bg-[#162338]/50 border-white/10 h-40 focus:border-white/20 transition-colors text-white rounded-lg p-4 placeholder:text-slate-600 leading-relaxed resize-none"
+              className="bg-[#162338]/50 border-white/10 h-32 sm:h-40 focus:border-white/20 transition-colors text-white rounded-lg p-4 placeholder:text-slate-600 leading-relaxed resize-none"
             />
           </div>
 

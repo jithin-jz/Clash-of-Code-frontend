@@ -8,13 +8,11 @@ import { challengesApi } from "../services/challengesApi";
 const useChallengesStore = create((set, get) => ({
   // State
   challenges: [],
-  currentChallenge: null,
   isLoading: false,
-  isLoadingChallenge: false,
+  isRefreshing: false,
   error: null,
   lastFetched: null,
-  
-  // Polling removed - manual tasks don't need generation
+  _fetchPromise: null,
 
   // Cache duration (5 minutes)
   CACHE_DURATION: 5 * 60 * 1000,
@@ -26,95 +24,130 @@ const useChallengesStore = create((set, get) => ({
   fetchChallenges: async (force = false) => {
     const state = get();
     const now = Date.now();
+    const hasCachedData = state.challenges.length > 0;
+    const isCacheFresh =
+      state.lastFetched && now - state.lastFetched < state.CACHE_DURATION;
 
-    // Use cache if valid and not forced
-    if (
-      !force &&
-      state.lastFetched &&
-      now - state.lastFetched < state.CACHE_DURATION &&
-      state.challenges.length > 0
-    ) {
+    // De-duplicate concurrent calls from multiple mounted components.
+    if (state._fetchPromise) {
+      return state._fetchPromise;
+    }
+
+    // Serve cache instantly when fresh.
+    if (!force && hasCachedData && isCacheFresh) {
       return state.challenges;
     }
 
-    set({ isLoading: true, error: null });
+    set({
+      isLoading: !hasCachedData,
+      isRefreshing: hasCachedData,
+      error: null,
+    });
 
-    try {
-      const data = await challengesApi.getAll();
-      set({
-        challenges: data,
-        isLoading: false,
-        lastFetched: now,
-        error: null,
-      });
-      return data;
-    } catch (error) {
-      console.error("Failed to fetch challenges:", error);
-      set({
-        isLoading: false,
-        error: error.message || "Failed to fetch challenges",
-      });
-      return [];
-    }
+    const fetchPromise = (async () => {
+      try {
+        const data = await challengesApi.getAll();
+        set({
+          challenges: data,
+          isLoading: false,
+          isRefreshing: false,
+          lastFetched: Date.now(),
+          error: null,
+        });
+        return data;
+      } catch (error) {
+        console.error("Failed to fetch challenges:", error);
+        set({
+          isLoading: false,
+          isRefreshing: false,
+          error: error.message || "Failed to fetch challenges",
+        });
+        return get().challenges;
+      } finally {
+        set({ _fetchPromise: null });
+      }
+    })();
+
+    set({ _fetchPromise: fetchPromise });
+    return fetchPromise;
   },
 
   /**
-   * Fetch a single challenge by slug.
-   * Checks cache first before API call.
+   * Fetch only when cache is older than maxAgeMs.
+   * Useful for periodic/focus-based real-time refresh without request spam.
    */
-  fetchChallenge: async (slug) => {
+  ensureFreshChallenges: async (maxAgeMs = 30000) => {
     const state = get();
-
-    // Check if already in cache
-    const cached = state.challenges.find((c) => c.slug === slug);
-    if (cached && state.currentChallenge?.slug !== slug) {
-      set({ currentChallenge: cached });
+    const isStale =
+      !state.lastFetched || Date.now() - state.lastFetched > maxAgeMs;
+    if (!isStale && state.challenges.length > 0) {
+      return state.challenges;
     }
-
-    set({ isLoadingChallenge: true, error: null });
-
-    try {
-      const data = await challengesApi.getBySlug(slug);
-      set({
-        currentChallenge: data,
-        isLoadingChallenge: false,
-        error: null,
-      });
-      return data;
-    } catch (error) {
-      console.error("Failed to fetch challenge:", error);
-      set({
-        isLoadingChallenge: false,
-        error: error.message || "Failed to fetch challenge",
-      });
-      return null;
-    }
+    return get().fetchChallenges(true);
   },
 
   /**
-   * Submit a challenge solution.
+   * Merge a challenge detail payload into cache.
+   * Keeps cache in sync when level detail is opened.
    */
-  submitChallenge: async (slug, data) => {
-    try {
-      const result = await challengesApi.submit(slug, data);
-      
-      // If completed, update cache
-      if (result.status === "completed" || result.status === "already_completed") {
-        set((state) => ({
-          challenges: state.challenges.map((c) =>
-            c.slug === slug ? { ...c, status: "COMPLETED", stars: result.stars } : c
-          ),
-        }));
+  upsertChallenge: (challenge) => {
+    if (!challenge?.slug) return;
+    set((state) => {
+      const idx = state.challenges.findIndex((c) => c.slug === challenge.slug);
+      if (idx === -1) {
+        const merged = [...state.challenges, challenge].sort(
+          (a, b) => (a.order ?? 9999) - (b.order ?? 9999),
+        );
+        return { challenges: merged };
+      }
+      const next = [...state.challenges];
+      next[idx] = { ...next[idx], ...challenge };
+      return { challenges: next };
+    });
+  },
+
+  /**
+   * Optimistically apply completion progress to keep UI instant.
+   */
+  applySubmissionResult: (slug, result) => {
+    if (!slug || !result) return;
+    set((state) => {
+      const idx = state.challenges.findIndex((c) => c.slug === slug);
+      if (idx === -1) return state;
+
+      const next = [...state.challenges];
+      const current = next[idx];
+      next[idx] = {
+        ...current,
+        status: "COMPLETED",
+        stars: Math.max(current.stars || 0, result.stars || 0),
+      };
+
+      // Unlock next challenge immediately if backend returned it.
+      if (result.next_level_slug) {
+        const nextIdx = next.findIndex((c) => c.slug === result.next_level_slug);
+        if (nextIdx !== -1 && next[nextIdx].status === "LOCKED") {
+          next[nextIdx] = { ...next[nextIdx], status: "UNLOCKED" };
+        }
       }
 
-      return result;
-    } catch (error) {
-      console.error("Submission error:", error);
-      throw error;
-    }
+      return { challenges: next };
+    });
   },
 
-  // Polling methods removed
+  /**
+   * Optimistically sync AI hint purchase count for a challenge.
+   */
+  setChallengeHintsPurchased: (slug, hintsPurchased) => {
+    if (!slug || typeof hintsPurchased !== "number") return;
+    set((state) => ({
+      challenges: state.challenges.map((challenge) =>
+        challenge.slug === slug
+          ? { ...challenge, ai_hints_purchased: hintsPurchased }
+          : challenge,
+      ),
+    }));
+  },
 
   /**
    * Clear all cached data.
@@ -122,21 +155,11 @@ const useChallengesStore = create((set, get) => ({
   clearCache: () => {
     set({
       challenges: [],
-      currentChallenge: null,
       lastFetched: null,
       error: null,
+      isRefreshing: false,
+      _fetchPromise: null,
     });
-  },
-
-  /**
-   * Update current challenge (for real-time updates like hints purchased).
-   */
-  updateCurrentChallenge: (updates) => {
-    set((state) => ({
-      currentChallenge: state.currentChallenge
-        ? { ...state.currentChallenge, ...updates }
-        : null,
-    }));
   },
 }));
 

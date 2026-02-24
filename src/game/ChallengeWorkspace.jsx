@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import useAuthStore from "../stores/useAuthStore";
+import useChallengesStore from "../stores/useChallengesStore";
 import { motion as Motion } from "framer-motion";
 import CursorEffects from "./CursorEffects";
 import VictoryAnimation from "./VictoryAnimation";
@@ -79,23 +80,31 @@ const ChallengeWorkspace = () => {
       const { challengesApi } = await import("../services/challengesApi");
       const data = await challengesApi.purchaseAIHint(challenge.slug);
 
-      // Update local state to reflect purchase
+      // Update User XP locally
+      if (data.remaining_xp !== undefined) {
+        const { setUser } = useAuthStore.getState();
+        const currentUser = useAuthStore.getState().user;
+        if (currentUser) {
+          setUser({
+            ...currentUser,
+            profile: {
+              ...currentUser.profile,
+              xp: data.remaining_xp,
+            },
+          });
+        }
+      }
+
+      // Sync global challenge cache immediately for responsive UI.
+      useChallengesStore
+        .getState()
+        .setChallengeHintsPurchased(challenge.slug, data.hints_purchased);
+
+      // Update workspace-local state to reflect purchase
       setChallenge((prev) => ({
         ...prev,
         ai_hints_purchased: data.hints_purchased,
       }));
-
-      // Update User XP locally
-      if (data.remaining_xp !== undefined) {
-        const { setUser } = useAuthStore.getState();
-        setUser({
-          ...user,
-          profile: {
-            ...user.profile,
-            xp: data.remaining_xp,
-          },
-        });
-      }
 
       setOutput((prev) => [
         ...prev,
@@ -260,6 +269,7 @@ const ChallengeWorkspace = () => {
         const data = await challengesApi.getBySlug(id);
         setChallenge(data);
         setCode(data.initial_code || "");
+        useChallengesStore.getState().upsertChallenge(data);
       } catch (error) {
         console.error("Failed to load challenge:", error);
         setChallenge(null);
@@ -293,16 +303,57 @@ const ChallengeWorkspace = () => {
     fetchChallenge();
   }, [id, navigate]);
 
-  // Refs for accessing fresh state inside Worker callback
-  const challengeRef = useRef(challenge);
-  const idRef = useRef(id);
-
-  useEffect(() => {
-    challengeRef.current = challenge;
-    idRef.current = id;
-  }, [challenge, id]);
-
   const workerRef = useRef(null);
+
+  const submitCode = useCallback(
+    async () => {
+      const { challengesApi } = await import("../services/challengesApi");
+      const result = await challengesApi.submit(id);
+
+      if (result.xp_earned && result.xp_earned > 0) {
+        const { setUser } = useAuthStore.getState();
+        const currentUser = useAuthStore.getState().user;
+        if (currentUser) {
+          setUser({
+            ...currentUser,
+            profile: {
+              ...currentUser.profile,
+              xp: (currentUser.profile.xp || 0) + result.xp_earned,
+            },
+          });
+        }
+      }
+
+      if (result.status === "completed" || result.status === "already_completed") {
+        // Sync challenge progression cache immediately for responsive navigation/map updates.
+        useChallengesStore.getState().applySubmissionResult(id, result);
+        // Background refresh to reconcile any derived backend annotations.
+        void useChallengesStore.getState().ensureFreshChallenges(0);
+        setChallenge((prev) =>
+          prev ? { ...prev, status: "COMPLETED", stars: result.stars || prev.stars } : prev,
+        );
+
+        const starText = "⭐".repeat(result.stars || 0);
+        setOutput([
+          {
+            type: "success",
+            content: `🎉 Challenge Completed! ${starText}`,
+          },
+        ]);
+        if (result.xp_earned > 0) {
+          setOutput((prev) => [
+            ...prev,
+            {
+              type: "success",
+              content: `💪 XP Earned: +${result.xp_earned}`,
+            },
+          ]);
+        }
+        setCompletionData(result);
+      }
+    },
+    [id],
+  );
 
   const onWorkerMessage = useCallback(async (event) => {
     const { type, content, passed } = event.data;
@@ -319,54 +370,16 @@ const ChallengeWorkspace = () => {
       setIsRunning(false);
       if (passed) {
         try {
-          const currentId = idRef.current;
-          const { challengesApi } = await import("../services/challengesApi");
-          const result = await challengesApi.submit(currentId, {
-            passed: true,
-          });
-
-          if (result.xp_earned && result.xp_earned > 0) {
-            const { setUser } = useAuthStore.getState();
-            const currentUser = useAuthStore.getState().user;
-            if (currentUser) {
-              setUser({
-                ...currentUser,
-                profile: {
-                  ...currentUser.profile,
-                  xp: (currentUser.profile.xp || 0) + result.xp_earned,
-                },
-              });
-            }
-          }
-
-          if (
-            result.status === "completed" ||
-            result.status === "already_completed"
-          ) {
-            const starText = "⭐".repeat(result.stars || 0);
-            setOutput([
-              {
-                type: "success",
-                content: `🎉 Challenge Completed! ${starText}`,
-              },
-            ]);
-            if (result.xp_earned > 0) {
-              setOutput((prev) => [
-                ...prev,
-                {
-                  type: "success",
-                  content: `💪 XP Earned: +${result.xp_earned}`,
-                },
-              ]);
-            }
-            setCompletionData(result);
-          }
+          await submitCode();
         } catch (err) {
           console.error("Submission error:", err);
+          const errorMsg =
+            err.response?.data?.error || "Submission failed. Please try again.";
+          setOutput((prev) => [...prev, { type: "error", content: errorMsg }]);
         }
       }
     }
-  }, []);
+  }, [submitCode]);
 
   const initWorker = useCallback(() => {
     if (workerRef.current) {
@@ -577,15 +590,34 @@ const ChallengeWorkspace = () => {
   }, [applyEditorPreferences]);
 
   const runCode = useCallback(() => {
-    if (!workerRef.current || isRunning) return;
+    if (isRunning) return;
 
     setIsRunning(true);
     setOutput([]);
-    // Send validate type to ensure tests are run
+
+    // Pyodide validation needs challenge test code on the client.
+    if (!challenge?.test_code) {
+      setOutput([
+        {
+          type: "error",
+          content: "No test code configured for this challenge.",
+        },
+      ]);
+      setIsRunning(false);
+      return;
+    }
+
+    // Run hidden tests client-side with Pyodide, then submit completion.
+    if (!workerRef.current) {
+      setIsRunning(false);
+      setOutput([{ type: "error", content: "Runtime not ready." }]);
+      return;
+    }
+
     workerRef.current.postMessage({
       type: "validate",
       code,
-      testCode: challenge?.test_code,
+      testCode: challenge.test_code,
     });
   }, [code, challenge, isRunning]);
 
@@ -788,22 +820,22 @@ const ChallengeWorkspace = () => {
       {/* MOBILE TAB BAR — only shown on mobile */}
       <div className="lg:hidden shrink-0 relative z-20 bg-[#0a1220]/95 backdrop-blur-xl border-t border-white/10 pb-[env(safe-area-inset-bottom,0px)]">
         <div className="flex items-stretch h-14">
-          {MOBILE_TABS.map(({ id, label, Icon }) => (
+          {MOBILE_TABS.map((tab) => (
             <button
-              key={id}
+              key={tab.id}
               type="button"
-              onClick={() => setMobileTab(id)}
-              className={`flex-1 flex flex-col items-center justify-center gap-1.5 transition-all duration-200 ${mobileTab === id
+              onClick={() => setMobileTab(tab.id)}
+              className={`flex-1 flex flex-col items-center justify-center gap-1.5 transition-all duration-200 ${mobileTab === tab.id
                 ? "text-[#10b981] bg-[#10b981]/5 relative after:absolute after:top-0 after:left-1/2 after:-translate-x-1/2 after:w-10 after:h-0.5 after:bg-[#10b981] after:rounded-full"
                 : "text-slate-500 hover:text-slate-300"
                 }`}
             >
-              <Icon
-                size={mobileTab === id ? 19 : 18}
-                strokeWidth={mobileTab === id ? 2.5 : 2}
+              <tab.Icon
+                size={mobileTab === tab.id ? 19 : 18}
+                strokeWidth={mobileTab === tab.id ? 2.5 : 2}
                 className="transition-transform duration-200"
               />
-              <span className={`text-[10px] font-bold uppercase tracking-wider ${mobileTab === id ? "opacity-100" : "opacity-70"}`}>{label}</span>
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${mobileTab === tab.id ? "opacity-100" : "opacity-70"}`}>{tab.label}</span>
             </button>
           ))}
         </div>

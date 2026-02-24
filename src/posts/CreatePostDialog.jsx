@@ -56,7 +56,17 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
   });
 };
 
-const CreatePostDialog = ({ open, onOpenChange, onPostCreated }) => {
+const CreatePostDialog = ({
+  open,
+  onOpenChange,
+  onPostCreated,
+  // Backward-compatible props used in some call sites.
+  isOpen,
+  onClose,
+}) => {
+  const isDialogOpen = typeof open === "boolean" ? open : !!isOpen;
+  const handleDialogOpenChange =
+    onOpenChange || ((nextOpen) => (nextOpen ? null : onClose?.()));
   const [image, setImage] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null); // The final blob
   const [preview, setPreview] = useState(null); // For display (object URL)
@@ -123,21 +133,25 @@ const CreatePostDialog = ({ open, onOpenChange, onPostCreated }) => {
     try {
       await postsAPI.createPost(formData);
       notify.success("Post created successfully!");
-      onPostCreated();
-      onOpenChange(false);
+      onPostCreated?.();
+      handleDialogOpenChange(false);
       // Reset state
       handleRemoveImage();
       setCaption("");
     } catch (error) {
       console.error(error);
-      notify.error("Failed to create post");
+      const message =
+        error?.response?.data?.detail ||
+        error?.response?.data?.error ||
+        "Failed to create post";
+      notify.error(message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
       <DialogContent
         showClose={false}
         className="bg-zinc-900 border border-white/10 text-white sm:max-w-[500px] gap-0 p-0 overflow-hidden"

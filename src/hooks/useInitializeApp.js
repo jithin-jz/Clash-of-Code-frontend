@@ -20,6 +20,7 @@ export const useInitializeApp = () => {
     );
     const initNotifications = useNotificationStore((s) => s.initNotifications);
     const authInitRef = useRef(false);
+    const notifInitUserIdRef = useRef(null);
 
     useEffect(() => {
         if (authInitRef.current) return;
@@ -28,7 +29,13 @@ export const useInitializeApp = () => {
     }, [checkAuth]);
 
     useEffect(() => {
-        if (user) {
+        const userId = user?.id;
+        if (!userId) {
+            notifInitUserIdRef.current = null;
+            return;
+        }
+        if (notifInitUserIdRef.current !== userId) {
+            notifInitUserIdRef.current = userId;
             initNotifications();
         }
     }, [user, initNotifications]);

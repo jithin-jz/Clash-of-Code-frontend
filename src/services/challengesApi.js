@@ -8,21 +8,16 @@ export const challengesApi = {
         const response = await api.get('/challenges/');
         return response.data;
     },
-    getById: async (id) => {
-        const response = await api.get(`/challenges/${id}/`);
-        return response.data;
-    },
     getBySlug: async (slug) => {
         const response = await api.get(`/challenges/${slug}/`);
         return response.data;
     },
-    submit: async (slug, data) => {
-        const response = await api.post(`/challenges/${slug}/submit/`, data);
-        return response.data;
-    },
-    // Backward-compatible alias: backend now handles hint access via purchase_ai_assist.
-    unlockHint: async (slug, hintOrder) => {
-        const response = await api.post(`/challenges/${slug}/purchase_ai_assist/`, { hint_order: hintOrder });
+    submit: async (slug, data = {}) => {
+        const payload = { ...(data || {}), passed: true };
+        const response = await api.post(
+            `/challenges/${slug}/submit/?passed=true`,
+            payload,
+        );
         return response.data;
     },
     purchaseAIHint: async (slug) => {

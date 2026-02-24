@@ -6,18 +6,7 @@ import { notify } from "../services/notification";
 import { AdminPageSkeleton } from "./AdminSkeletons";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
-
-import {
-  Users,
-  Zap,
-  Lock,
-  Gem,
-  AlertTriangle,
-  Shield,
-  Database,
-  Activity,
-  Terminal,
-} from "lucide-react";
+import { Shield } from "lucide-react";
 
 // Components
 import AdminSidebar from "./AdminSidebar";
@@ -27,12 +16,18 @@ import ChallengeAnalytics from "./ChallengeAnalytics";
 import StoreAnalytics from "./StoreAnalytics";
 import AdminBroadcast from "./AdminBroadcast";
 import AdminAuditLogs from "./AdminAuditLogs";
-import AdminIntelligence from "./AdminIntelligence";
-
 import AdminStore from "./AdminStore";
 import AppBackdrop from "../components/AppBackdrop";
 
 const normalizeText = (value) => String(value || "").toLowerCase();
+const validAdminTabs = new Set([
+  "users",
+  "analytics",
+  "tasks",
+  "store",
+  "broadcast",
+  "audit",
+]);
 
 const userMatchesQuery = (user, query) => {
   const search = normalizeText(query?.search).trim();
@@ -67,7 +62,8 @@ const AdminDashboard = () => {
   const { user, isAuthenticated, logout, checkAuth } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(() => {
-    return localStorage.getItem("admin_active_tab") || "users";
+    const savedTab = localStorage.getItem("admin_active_tab");
+    return validAdminTabs.has(savedTab) ? savedTab : "users";
   });
 
   useEffect(() => {
@@ -89,7 +85,6 @@ const AdminDashboard = () => {
     status: "",
   });
   const [integrity, setIntegrity] = useState(null);
-  const [intelligenceData, setIntelligenceData] = useState(null);
   const usersRequestRef = useRef(0);
 
   useEffect(() => {
@@ -111,7 +106,6 @@ const AdminDashboard = () => {
         fetchUsers();
         fetchStats();
         fetchIntegrity();
-        fetchIntelligence();
       }
     }
   }, [loading, isAuthenticated, user, navigate, activeTab]);
@@ -194,15 +188,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchIntelligence = async () => {
-    try {
-      const response = await authAPI.getIntelligence();
-      setIntelligenceData(response.data);
-    } catch (error) {
-      console.error("Failed to fetch intelligence data", error);
-    }
-  };
-
   const handleBlockToggle = (username) => {
     const currentUserData = userList.find((u) => u.username === username);
     const action = currentUserData?.is_active ? "ban" : "unban";
@@ -267,12 +252,12 @@ const AdminDashboard = () => {
   };
 
   if (loading) return <AdminPageSkeleton />;
-  if (!user?.is_staff && !user?.is_superuser) return null;
+  if (!user?.is_staff && !user?.is_superuser) return <AdminPageSkeleton />;
 
   return (
     <div className="relative h-screen overflow-hidden font-sans antialiased text-slate-200 bg-[#0b1119]">
       <AppBackdrop />
-      <div className="relative z-10 flex h-full">
+      <div className="relative z-10 flex h-full flex-col md:flex-row">
         <AdminSidebar
           user={user}
           activeTab={activeTab}
@@ -280,8 +265,8 @@ const AdminDashboard = () => {
           handleLogout={handleLogout}
         />
 
-        <main className="flex-1 h-full overflow-y-auto custom-scrollbar">
-          <div className="p-8 max-w-7xl mx-auto space-y-6">
+        <main className="flex-1 min-h-0 h-full overflow-y-auto custom-scrollbar">
+          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
             {activeTab === "users" && (
               <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
                 <div className="space-y-6">
@@ -350,7 +335,7 @@ const AdminDashboard = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/10">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-6 pt-4 border-t border-white/10">
                         <div className="flex items-center gap-2">
                           <Shield className="text-[#00af9b]" size={12} />
                           <span className="text-[9px] font-medium text-slate-500 uppercase tracking-wider">
@@ -411,17 +396,6 @@ const AdminDashboard = () => {
             {activeTab === "audit" && (
               <div className="animate-in slide-in-from-bottom-4 duration-500">
                 <AdminAuditLogs />
-              </div>
-            )}
-
-            {activeTab === "intelligence" && (
-              <div className="animate-in slide-in-from-bottom-4 duration-500">
-                <AdminIntelligence
-                  stats={rawStats}
-                  integrity={integrity}
-                  userList={userList}
-                  data={intelligenceData}
-                />
               </div>
             )}
           </div>

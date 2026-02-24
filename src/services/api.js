@@ -160,10 +160,7 @@ export const authAPI = {
   getAdminStats: () => api.get("/admin/stats/"),
   getChallengeAnalytics: () => api.get("/admin/analytics/challenges/"),
   getStoreAnalytics: () => api.get("/admin/analytics/store/"),
-  getIntelligence: () => api.get("/admin/analytics/intelligence/"),
   getSystemIntegrity: () => api.get("/admin/system/integrity/"),
-  getSystemSettings: () => api.get("/admin/system/settings/"),
-  updateSystemSettings: (data) => api.post("/admin/system/settings/", data),
   sendBroadcast: (message) => api.post("/admin/notifications/broadcast/", { message }),
   getAuditLogs: (params = {}) => api.get("/admin/audit-logs/", { params }),
 };

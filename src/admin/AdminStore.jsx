@@ -167,7 +167,7 @@ const AdminStore = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <h2 className="text-xl font-semibold text-slate-100 tracking-tight">
           Store Management
         </h2>
@@ -181,7 +181,7 @@ const AdminStore = () => {
       </div>
 
       <div className="rounded-lg border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl overflow-hidden">
-        <Table>
+        <Table className="min-w-[760px]">
           <TableHeader>
             <TableRow className="border-white/10 hover:bg-transparent bg-[#111d30]/85">
               <TableHead className="w-[80px] text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3 px-6">
@@ -271,8 +271,8 @@ const AdminStore = () => {
         </Table>
       </div>
       {!loading && (
-        <div className="flex items-center justify-between text-xs text-slate-500">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-slate-500">
+          <div className="flex flex-wrap items-center gap-2">
             <span>
               Showing {totalCount === 0 ? 0 : (page - 1) * pageSize + 1}-
               {Math.min(page * pageSize, totalCount)} of {totalCount}
@@ -318,14 +318,14 @@ const AdminStore = () => {
 
       {/* Edit/Create Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-[#0f1b2e] border-white/15 text-white max-w-md">
+        <DialogContent className="bg-[#0f1b2e] border-white/15 text-white max-w-[calc(100vw-2rem)] sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold text-slate-100">
               {currentItem ? "Edit Item" : "New Item"}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-slate-500">
                   Name
@@ -371,7 +371,7 @@ const AdminStore = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-slate-500">
                   Cost (XP)
@@ -419,7 +419,7 @@ const AdminStore = () => {
               <label className="text-xs font-medium text-slate-500">
                 Asset URL
               </label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Input
                   value={formData.image}
                   onChange={(e) =>

@@ -45,9 +45,10 @@ The **Clash of Code Frontend** is a modern, interactive web application built wi
    npm install
    ```
 3. **Environment Variables:**
-   Create a `.env` file based on `.env.example`:
+   Configure `.env` with:
    - `VITE_API_URL`: URL of the Core service.
    - `VITE_CHAT_URL` (or `VITE_WS_URL`): WebSocket URL of the Chat service.
+   - `VITE_NOTIFICATIONS_WS_URL`: WebSocket URL for notifications.
    - `VITE_AI_URL`: URL of the AI tutor service.
 
 4. **Start the development server:**

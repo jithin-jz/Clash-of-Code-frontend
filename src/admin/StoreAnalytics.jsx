@@ -89,7 +89,7 @@ const StoreAnalytics = () => {
         </h2>
 
         <div className="rounded-lg border border-[#7ea3d9]/20 bg-[#0f1b2e]/70 backdrop-blur-xl overflow-hidden">
-          <Table>
+          <Table className="min-w-[720px]">
             <TableHeader>
               <TableRow className="border-white/10 hover:bg-transparent bg-[#111d30]/85">
                 <TableHead className="text-[10px] font-medium uppercase tracking-wider text-slate-400 py-3 px-6">
@@ -154,8 +154,8 @@ const StoreAnalytics = () => {
           </Table>
         </div>
         {!loading && (
-          <div className="flex items-center justify-between text-xs text-slate-500">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center gap-2">
               <span>
                 Showing {totalCount === 0 ? 0 : (page - 1) * pageSize + 1}-
                 {Math.min(page * pageSize, totalCount)} of {totalCount}

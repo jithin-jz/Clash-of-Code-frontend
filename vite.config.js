@@ -2,9 +2,50 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 
+function getPackageName(id) {
+  const match = id.split(/node_modules[\\/]/)[1];
+  if (!match) return null;
+  const parts = match.split(/[\\/]/);
+  if (parts[0]?.startsWith("@")) {
+    return `${parts[0]}/${parts[1]}`;
+  }
+  return parts[0];
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  build: {
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          const pkg = getPackageName(id);
+          if (!pkg) return "vendor";
+
+          if (pkg === "react" || pkg === "react-dom" || pkg === "scheduler") {
+            return "vendor-react-core";
+          }
+          if (pkg.startsWith("react-router")) return "vendor-router";
+          if (pkg === "firebase" || pkg.startsWith("@firebase/")) {
+            return "vendor-firebase";
+          }
+          if (pkg === "monaco-editor" || pkg === "@monaco-editor/react") {
+            return "vendor-monaco";
+          }
+          if (pkg === "framer-motion") return "vendor-motion";
+          if (pkg.startsWith("@radix-ui/")) return "vendor-radix";
+          if (pkg === "lucide-react") return "vendor-icons";
+          if (pkg === "emoji-picker-react") return "vendor-emoji";
+          if (pkg === "react-markdown" || pkg.startsWith("remark-") || pkg.startsWith("rehype-")) {
+            return "vendor-markdown";
+          }
+          return "vendor";
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     strictPort: false, // Allow fallback if 5173 is busy

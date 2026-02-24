@@ -28,11 +28,15 @@ const MainLayout = memo(({ children }) => {
     const navigate = useNavigate();
 
     // ---- Zustand Selectors (shallow) ----
-    const { user, logout } = useAuthStore(
-        useShallow((s) => ({ user: s.user, logout: s.logout }))
+    const { user, userId, logout } = useAuthStore(
+        useShallow((s) => ({ user: s.user, userId: s.user?.id, logout: s.logout }))
     );
-    const { apiLevels, fetchChallenges } = useChallengesStore(
-        useShallow((s) => ({ apiLevels: s.challenges, fetchChallenges: s.fetchChallenges }))
+    const { apiLevels, fetchChallenges, ensureFreshChallenges } = useChallengesStore(
+        useShallow((s) => ({
+            apiLevels: s.challenges,
+            fetchChallenges: s.fetchChallenges,
+            ensureFreshChallenges: s.ensureFreshChallenges,
+        }))
     );
 
     // ---- Local UI State ----
@@ -47,14 +51,47 @@ const MainLayout = memo(({ children }) => {
         location.pathname.startsWith("/level/") || location.pathname.startsWith("/admin/"),
         [location.pathname]);
     const showFooter = useMemo(() => location.pathname === "/", [location.pathname]);
+    const isPublicLanding = useMemo(
+        () => location.pathname === "/" && !user,
+        [location.pathname, user],
+    );
 
     // ---- Data Fetching ----
     useEffect(() => {
-        if (user) fetchChallenges();
-    }, [user, fetchChallenges]);
+        if (userId) fetchChallenges();
+    }, [userId, fetchChallenges]);
 
     useEffect(() => {
-        if (!user) return;
+        if (!userId) return undefined;
+
+        const refreshIfNeeded = () => {
+            ensureFreshChallenges(20000);
+        };
+
+        const onVisible = () => {
+            if (document.visibilityState === "visible") {
+                refreshIfNeeded();
+            }
+        };
+
+        window.addEventListener("focus", refreshIfNeeded);
+        document.addEventListener("visibilitychange", onVisible);
+
+        const intervalId = setInterval(() => {
+            if (document.visibilityState === "visible") {
+                refreshIfNeeded();
+            }
+        }, 30000);
+
+        return () => {
+            window.removeEventListener("focus", refreshIfNeeded);
+            document.removeEventListener("visibilitychange", onVisible);
+            clearInterval(intervalId);
+        };
+    }, [userId, ensureFreshChallenges]);
+
+    useEffect(() => {
+        if (!userId) return;
         let cancelled = false;
         (async () => {
             try {
@@ -65,7 +102,7 @@ const MainLayout = memo(({ children }) => {
             }
         })();
         return () => { cancelled = true; };
-    }, [user]);
+    }, [userId]);
 
     // ---- Stable Callbacks ----
     const handleLogout = useCallback(async () => {
@@ -130,7 +167,22 @@ const MainLayout = memo(({ children }) => {
                 }}
             />
 
-            <div className="relative z-10">
+            {isPublicLanding && (
+                <div className="fixed inset-x-0 bottom-0 top-14 z-0 pointer-events-none bg-[radial-gradient(circle_at_18%_20%,rgba(20,184,166,0.18),transparent_45%),radial-gradient(circle_at_78%_84%,rgba(14,165,233,0.12),transparent_42%)]" />
+            )}
+
+            {isPublicLanding && (
+                <div
+                    className="fixed inset-x-0 bottom-0 top-14 z-0 pointer-events-none opacity-[0.06]"
+                    style={{
+                        backgroundImage:
+                            "linear-gradient(to right, rgba(148,163,184,0.16) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,184,0.16) 1px, transparent 1px)",
+                        backgroundSize: "56px 56px",
+                    }}
+                />
+            )}
+
+            <div className="relative z-10 flex min-h-screen flex-col">
                 <HomeTopNav
                     user={user}
                     levels={apiLevels}
@@ -167,12 +219,12 @@ const MainLayout = memo(({ children }) => {
                     onClaim={handleClaimReward}
                 />
 
-                <main className="pt-14">
+                <main className="flex-1 pt-14">
                     {children}
                 </main>
 
                 {showFooter && (
-                    <div className="pb-16 sm:pb-0">
+                    <div className={user ? "pb-16 sm:pb-0" : ""}>
                         <SiteFooter />
                     </div>
                 )}

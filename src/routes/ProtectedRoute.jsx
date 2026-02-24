@@ -1,15 +1,16 @@
 import { Navigate } from 'react-router-dom';
 import useAuthStore from '../stores/useAuthStore';
+import { SkeletonGenericPage } from '../common/SkeletonPrimitives';
 
 /**
  * ProtectedRoute - Requires authentication
  * Redirects unauthenticated users to home page
  */
 const ProtectedRoute = ({ children }) => {
-    const { isAuthenticated, isInitialized } = useAuthStore();
+    const { isAuthenticated, isInitialized, loading } = useAuthStore();
 
-    if (!isInitialized) {
-        return null;
+    if (!isInitialized || loading) {
+        return <SkeletonGenericPage />;
     }
 
     if (!isAuthenticated) {

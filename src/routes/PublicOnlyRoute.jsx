@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import useAuthStore from '../stores/useAuthStore';
+import LoginSkeleton from '../auth/LoginSkeleton';
 
 /**
  * PublicOnlyRoute - For login/register pages
@@ -8,11 +9,11 @@ import useAuthStore from '../stores/useAuthStore';
  * - Regular users → /
  */
 const PublicOnlyRoute = ({ children }) => {
-    const { isAuthenticated, isInitialized, user } = useAuthStore();
+    const { isAuthenticated, isInitialized, user, loading } = useAuthStore();
 
     // Wait for auth check to complete before rendering
-    if (!isInitialized) {
-        return null;
+    if (!isInitialized || loading) {
+        return <LoginSkeleton />;
     }
 
     if (isAuthenticated) {

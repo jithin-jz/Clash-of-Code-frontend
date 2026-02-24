@@ -71,7 +71,9 @@ const useAuthStore = create((set, get) => ({
       !force &&
       state.isInitialized &&
       state.lastAuthCheck &&
-      now - state.lastAuthCheck < 30000
+      now - state.lastAuthCheck < 30000 &&
+      state.isAuthenticated &&
+      state.user
     ) {
       return state.user;
     }
@@ -216,6 +218,8 @@ const useAuthStore = create((set, get) => ({
       set({
         user,
         isAuthenticated: true,
+        isInitialized: true,
+        lastAuthCheck: Date.now(),
         loading: false,
         error: null,
       });
@@ -253,7 +257,7 @@ const useAuthStore = create((set, get) => ({
 
     const { type, provider, error } = event.data;
     if (type === "oauth-success") {
-      await checkAuth();
+      await checkAuth(true);
     } else if (type === "oauth-error") {
       console.error(`OAuth error from ${provider}:`, error);
       if (error === "User account is disabled.") {
@@ -316,6 +320,9 @@ const useAuthStore = create((set, get) => ({
       set({
         user,
         isAuthenticated: true,
+        isInitialized: true,
+        loading: false,
+        lastAuthCheck: Date.now(),
         isOtpLoading: false,
         error: null,
       });

@@ -19,14 +19,17 @@ const useNotificationStore = create((set, get) => ({
   permission: typeof Notification !== 'undefined' ? Notification.permission : 'default',
   _listenerSetup: false,
   _fetchPromise: null,
+  _realtimeSyncTimer: null,
   socket: null,
   isWSConnected: false,
+  wsShouldReconnect: false,
 
   /**
    * Initialize Real-time Notifications (FCM + WebSocket).
    */
   initNotifications: async () => {
     const { initFCM, connectWS } = get();
+    set({ wsShouldReconnect: true });
     await initFCM();
     connectWS();
   },
@@ -36,6 +39,7 @@ const useNotificationStore = create((set, get) => ({
    */
   connectWS: () => {
     const state = get();
+    if (!state.wsShouldReconnect) return;
     if (state.socket) {
       if (state.socket.readyState === WebSocket.OPEN || state.socket.readyState === WebSocket.CONNECTING) {
         return;
@@ -43,7 +47,31 @@ const useNotificationStore = create((set, get) => ({
       state.socket.close();
     }
 
-    const WS_URL = import.meta.env.VITE_WS_URL || `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/ws/notifications`;
+    const explicitWS =
+      import.meta.env.VITE_NOTIFICATIONS_WS_URL ||
+      import.meta.env.VITE_WS_NOTIFICATIONS_URL;
+
+    const WS_URL = (() => {
+      if (explicitWS) return explicitWS;
+
+      const apiUrl = import.meta.env.VITE_API_URL;
+      if (apiUrl) {
+        if (apiUrl.startsWith("/")) {
+          const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+          return `${wsProtocol}://${window.location.hostname}/ws/notifications`;
+        }
+        try {
+          const parsed = new URL(apiUrl, window.location.origin);
+          const wsProtocol = parsed.protocol === "https:" ? "wss" : "ws";
+          return `${wsProtocol}://${parsed.host}/ws/notifications`;
+        } catch (err) {
+          console.warn("[Notifications] Failed to parse VITE_API_URL:", err);
+        }
+      }
+
+      const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+      return `${wsProtocol}://${window.location.hostname}/ws/notifications`;
+    })();
     const socket = new WebSocket(WS_URL);
 
     socket.onopen = () => {
@@ -61,8 +89,8 @@ const useNotificationStore = create((set, get) => ({
             duration: 5000,
           });
 
-          // Refetch to sync state
-          get().fetchNotifications(true);
+          // Debounced sync keeps UI near real-time without request bursts.
+          get().scheduleRealtimeSync();
         }
       } catch (err) {
         console.error("[Notifications] Failed to parse socket message", err);
@@ -71,8 +99,10 @@ const useNotificationStore = create((set, get) => ({
 
     socket.onclose = () => {
       set({ isWSConnected: false, socket: null });
-      console.warn("[Notifications] WebSocket closed. Retrying in 5s...");
-      setTimeout(() => get().connectWS(), 5000);
+      if (get().wsShouldReconnect) {
+        console.warn("[Notifications] WebSocket closed. Retrying in 5s...");
+        setTimeout(() => get().connectWS(), 5000);
+      }
     };
 
     socket.onerror = (error) => {
@@ -158,8 +188,8 @@ const useNotificationStore = create((set, get) => ({
           });
         }
 
-        // Always refetch to update the red dot/count
-        get().fetchNotifications(true);
+        // Debounced sync keeps badge/list up to date.
+        get().scheduleRealtimeSync();
       });
 
 
@@ -235,6 +265,21 @@ const useNotificationStore = create((set, get) => ({
 
   // Cache duration (2 minutes for real-time feel)
   CACHE_DURATION: 2 * 60 * 1000,
+
+  /**
+   * Debounced forced-sync for realtime events.
+   */
+  scheduleRealtimeSync: (delayMs = 300) => {
+    const existing = get()._realtimeSyncTimer;
+    if (existing) clearTimeout(existing);
+
+    const timerId = setTimeout(() => {
+      set({ _realtimeSyncTimer: null });
+      get().fetchNotifications(true);
+    }, delayMs);
+
+    set({ _realtimeSyncTimer: timerId });
+  },
 
   /**
    * Fetch all notifications with caching.
@@ -378,8 +423,9 @@ const useNotificationStore = create((set, get) => ({
    * Clear cache and reset state.
    */
   clearCache: () => {
-    const { socket } = get();
+    const { socket, _realtimeSyncTimer } = get();
     if (socket) socket.close();
+    if (_realtimeSyncTimer) clearTimeout(_realtimeSyncTimer);
 
     set({
       notifications: [],
@@ -390,8 +436,10 @@ const useNotificationStore = create((set, get) => ({
       _deniedWarned: false,
       _promptShown: false,
       _fetchPromise: null,
+      _realtimeSyncTimer: null,
       socket: null,
       isWSConnected: false,
+      wsShouldReconnect: false,
     });
   },
 }));

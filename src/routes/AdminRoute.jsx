@@ -7,9 +7,9 @@ import { AdminPageSkeleton } from "../admin/AdminSkeletons";
  * Requires user to be authenticated AND be staff/superuser
  */
 const AdminRoute = ({ children }) => {
-    const { isAuthenticated, user, loading } = useAuthStore();
+    const { isAuthenticated, user, loading, isInitialized } = useAuthStore();
 
-    if (loading) {
+    if (loading || !isInitialized) {
         return <AdminPageSkeleton />;
     }
 
