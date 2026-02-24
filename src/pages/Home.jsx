@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AnimatePresence, motion as Motion } from "framer-motion";
 import useAuthStore from "../stores/useAuthStore";
 import { useHomeData } from "../hooks/useHomeData";
 
@@ -47,50 +46,37 @@ const Home = () => {
   };
 
   // Removed internal user check as routing is now handled in App.jsx
+  if (isLoading) {
+    return (
+      <div className="relative select-none text-white min-h-screen">
+        <HomeSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div className="relative select-none text-white min-h-screen">
-      <AnimatePresence mode="wait">
-        {isLoading ? (
-          <Motion.div
-            key="skeleton"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="w-full relative"
-          >
-            <HomeSkeleton />
-          </Motion.div>
-        ) : (
-          <Motion.div
-            key="content"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="w-full relative"
-          >
-            <ChallengeMap
-              user={user}
-              levels={levels}
-              handleLevelClick={handleLevelClick}
-            />
+      <div className="w-full relative">
+        <ChallengeMap
+          user={user}
+          levels={levels}
+          handleLevelClick={handleLevelClick}
+        />
 
-            {selectedLevel && (
-              <LevelModal
-                selectedLevel={selectedLevel}
-                onClose={() => setSelectedLevel(null)}
-              />
-            )}
-
-            <CertificateModal
-              isOpen={certificateModalOpen}
-              onClose={() => setCertificateModalOpen(false)}
-              certificate={userCertificate}
-              isLoading={isCertificateLoading}
-            />
-          </Motion.div>
+        {selectedLevel && (
+          <LevelModal
+            selectedLevel={selectedLevel}
+            onClose={() => setSelectedLevel(null)}
+          />
         )}
-      </AnimatePresence>
+
+        <CertificateModal
+          isOpen={certificateModalOpen}
+          onClose={() => setCertificateModalOpen(false)}
+          certificate={userCertificate}
+          isLoading={isCertificateLoading}
+        />
+      </div>
     </div>
   );
 };

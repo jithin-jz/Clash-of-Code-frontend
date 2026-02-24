@@ -59,7 +59,11 @@ const AppContent = memo(() => {
   // Root application loader (skeleton-only)
   if (authLoading) {
     if (location.pathname === "/") {
-      return <HomeSkeleton />;
+      return (
+        <MainLayout>
+          <HomeSkeleton />
+        </MainLayout>
+      );
     }
     if (location.pathname === "/login") {
       return <LoginSkeleton />;

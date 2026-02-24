@@ -74,29 +74,21 @@ const ChallengeMap = ({ levels, handleLevelClick }) => {
           {TRACK_ORDER.map((track) => {
             const trackLevels = grouped[track] || [];
             if (!trackLevels.length) return null;
+            const solved = trackProgress[track]?.solved || 0;
 
             return (
               <section
                 key={track}
                 className="px-4 py-2 sm:p-4"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+                <div className="mb-4">
                   <div>
                     <h3 className="text-sm font-semibold text-white">
                       {track}
                     </h3>
                     <p className="text-[11px] text-slate-500 mt-0.5">
-                      {trackProgress[track]?.solved || 0} / {trackLevels.length} completed
+                      {solved} / {trackLevels.length} completed
                     </p>
-                  </div>
-
-                  <div className="w-full sm:w-36">
-                    <div className="h-1 rounded-full bg-white/[0.07] overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-[#3b82f6] to-[#38bdf8] transition-all duration-500"
-                        style={{ width: `${trackProgress[track]?.percent || 0}%` }}
-                      />
-                    </div>
                   </div>
                 </div>
 
