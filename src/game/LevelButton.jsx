@@ -1,11 +1,29 @@
 import React from "react";
 import { motion as Motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, Lock, Star, Trophy } from "lucide-react";
-import { getDifficultyMeta } from "../utils/challengeMeta";
+import { ArrowRight, CheckCircle2, Lock, Star, Trophy, Gem, Code2, Layers, Zap, FunctionSquare, Library, Box } from "lucide-react";
+import { getDifficultyMeta, getTrackMeta } from "../utils/challengeMeta";
 
 const LevelButton = ({ level, isCurrentLevel, onClick, motionIndex = 0 }) => {
   const isCertificate = level.type === "CERTIFICATE" || level.slug === "certificate";
   const difficulty = getDifficultyMeta(level.order);
+  const track = getTrackMeta(level.order);
+  const getLevelIcon = () => {
+    if (isCertificate) return <Trophy size={18} className={level.unlocked ? "text-black" : "text-slate-500"} fill={level.unlocked ? "currentColor" : "none"} />;
+
+    // Check for provided icon
+    if (level.icon && React.isValidElement(level.icon)) return level.icon;
+
+    // Fallback based on track
+    switch (track.key) {
+      case "basics": return <Code2 size={18} />;
+      case "ds": return <Layers size={18} />;
+      case "flow": return <Zap size={18} />;
+      case "functions": return <FunctionSquare size={18} />;
+      case "stdlib": return <Library size={18} />;
+      case "oop": return <Box size={18} />;
+      default: return <Code2 size={18} />;
+    }
+  };
 
   const statusTone = level.completed
     ? "bg-[#0f1b2e]/70 border-[#7ea3d9]/30 border-t-emerald-400/50 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
@@ -18,9 +36,9 @@ const LevelButton = ({ level, isCurrentLevel, onClick, motionIndex = 0 }) => {
       onClick={onClick}
       disabled={!level.unlocked}
       className={`w-full text-left rounded-xl border p-3 sm:p-3.5 min-h-[160px] transition-all duration-300 ${statusTone} ${level.unlocked
-        ? "cursor-pointer hover:border-[#7ea3d9]/50 hover:bg-[#162338]/80 hover:shadow-[0_12px_40px_-15px_rgba(126,163,217,0.2)]"
-        : "cursor-not-allowed opacity-60"
-        } group`}
+        ? "cursor-pointer hover:border-[#7ea3d9]/40 hover:bg-[#162338]/80 hover:shadow-[0_12px_40px_-15px_rgba(126,163,217,0.3)]"
+        : "cursor-not-allowed opacity-70"
+        } group relative overflow-hidden`}
       initial={{ opacity: 0, y: 10, scale: 0.985 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{
@@ -39,28 +57,37 @@ const LevelButton = ({ level, isCurrentLevel, onClick, motionIndex = 0 }) => {
       }
       whileTap={level.unlocked ? { scale: 0.992 } : {}}
     >
-      <div className="flex items-start justify-between gap-2.5">
+      {/* Decorative background icon for unlocked cards */}
+      {level.unlocked && !isCertificate && (
+        <div className="absolute -right-4 -bottom-4 opacity-[0.03] rotate-12 pointer-events-none group-hover:scale-110 transition-transform duration-500">
+          {React.cloneElement(getLevelIcon(), { size: 100 })}
+        </div>
+      )}
+
+      <div className="flex items-start justify-between gap-2.5 relative z-10">
         <div className="flex items-center gap-2.5 min-w-0">
           <div
-            className={`w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${isCertificate
-              ? "bg-linear-to-br from-[#facc15] to-[#f59e0b] border-[#fde68a] text-black"
-              : "bg-[#162338]/80 border-[#7ea3d9]/20 text-[#d3deee]"
+            className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 transition-all duration-300 ${isCertificate
+              ? level.unlocked
+                ? "bg-linear-to-br from-[#facc15] to-[#f59e0b] border-[#fde68a] text-black shadow-[0_0_15px_rgba(250,204,21,0.3)]"
+                : "bg-white/[0.05] border-white/10 text-slate-500"
+              : level.unlocked
+                ? "bg-primary/10 border-primary/20 text-primary shadow-[0_0_15px_rgba(0,175,155,0.15)] group-hover:bg-primary/20"
+                : "bg-white/[0.03] border-white/5 text-slate-600"
               }`}
           >
             {level.unlocked ? (
-              isCertificate ? (
-                <Trophy size={17} className="text-black" fill="currentColor" />
-              ) : (
-                React.isValidElement(level.icon)
-                  ? React.cloneElement(level.icon, {
-                    size: 18,
-                    strokeWidth: 1.7,
-                    className: "text-[#d3deee]",
-                  })
-                  : level.icon
-              )
+              React.cloneElement(getLevelIcon(), {
+                size: 19,
+                strokeWidth: 2,
+              })
             ) : (
-              <Lock size={15} className="text-slate-500" />
+              <div className="relative">
+                <div className="opacity-30">
+                  {React.cloneElement(getLevelIcon(), { size: 16, strokeWidth: 1.5 })}
+                </div>
+                <Lock size={10} className="absolute -bottom-1 -right-1 text-slate-500 bg-[#0f1b2e] rounded-full p-0.5" />
+              </div>
             )}
           </div>
 
@@ -99,10 +126,13 @@ const LevelButton = ({ level, isCurrentLevel, onClick, motionIndex = 0 }) => {
       </div>
 
       {!isCertificate && (
-        <div className="mt-2.5 flex items-center justify-between">
-          <p className="text-xs text-slate-400">
-            {(level.xp_reward || 0).toLocaleString()}
-          </p>
+        <div className="mt-3 flex items-center justify-between relative z-10">
+          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-white/[0.03] border border-white/[0.05] group-hover:bg-primary/5 group-hover:border-primary/20 transition-colors">
+            <Gem size={11} className={`${level.unlocked ? "text-accent" : "text-slate-600"} transition-colors`} />
+            <p className={`text-[11px] font-black ${level.unlocked ? "text-white" : "text-slate-500"} tracking-tight`}>
+              {(level.xp_reward || 0).toLocaleString()}
+            </p>
+          </div>
           <div className="flex gap-1">
             {[1, 2, 3].map((star) => (
               <Star

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&family=Source+Code+Pro:wght@300;400;500;600;700&family=Victor+Mono:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @layer base {
@@ -38,8 +38,8 @@
     --app-bg: #03070c;
     --app-surface: #0a0f18;
     --app-border: rgba(255, 255, 255, 0.08);
-    --glass-bg: rgba(10, 15, 24, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-bg: rgba(10, 15, 24, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.08);
   }
 
   html {
@@ -55,12 +55,13 @@
   body, #root {
     min-height: 100vh;
     min-height: 100dvh;
+    background: var(--app-bg);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: "Outfit", sans-serif;
     font-weight: 700;
-    tracking: -0.02em;
+    letter-spacing: -0.02em;
   }
 
   button, [role="button"] {
@@ -82,7 +83,7 @@
     color: hsl(var(--foreground));
   }
 
-  /* Mobile Tap Highlight */
+  /* Mobile Tap Highlight Override */
   * {
     -webkit-tap-highlight-color: transparent;
   }
@@ -113,15 +114,15 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
   
-  --shadow-premium: 0 20px 50px -12px rgba(0, 0, 0, 0.5);
+  --shadow-premium: 0 20px 50px -12px rgba(0, 0, 0, 0.6);
   --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
 @layer utilities {
   .bg-glass {
     background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
   }
 
   .border-glass {
@@ -129,7 +130,12 @@
   }
 
   .glass-card {
-    @apply bg-glass border-glass shadow-premium rounded-2xl;
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-premium);
+    border-radius: var(--radius-lg);
   }
 
   .industrial-border {
@@ -140,14 +146,15 @@
     display: none;
   }
 
+  /* Selection reset for firefox */
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
@@ -155,20 +162,27 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    border: 1px solid transparent;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
   }
 
   .text-gradient-primary {
-    @apply bg-clip-text text-transparent bg-linear-to-r from-[#00af9b] to-[#00d4bd];
+    background-image: linear-gradient(to right, #00af9b, #00d4bd);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   .text-gradient-accent {
-    @apply bg-clip-text text-transparent bg-linear-to-r from-[#ffa116] to-[#ffc569];
+    background-image: linear-gradient(to right, #ffa116, #ffc569);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   .pb-safe {
@@ -201,6 +215,12 @@
 
 /* Sonner Overrides for Industrial Standard */
 .sonner-toast {
-  @apply glass-card p-4 !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--shadow-premium) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 1rem !important;
   font-family: "Sora", sans-serif !important;
 }

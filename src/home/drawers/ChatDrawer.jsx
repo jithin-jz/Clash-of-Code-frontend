@@ -1,217 +1,164 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import useChatStore from "../../stores/useChatStore";
-import useAuthStore from "../../stores/useAuthStore";
-import { MessageSquare, Users, X } from "lucide-react";
+import React, { useState, useEffect, useRef, memo, useCallback } from "react";
+import { X, MessageSquare, Users, Sparkles, Send } from "lucide-react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
-
-// Subcomponents
+import useChatStore from "../../stores/useChatStore";
 import ChatInput from "../components/ChatInput";
 import MessageList from "../components/MessageList";
 
-const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
-  // ... refs and state ...
-  const inputRef = useRef(null);
+const ChatDrawer = ({ isOpen, setOpen, user }) => {
+  const { messages, sendMessage, onlineCount, connect } = useChatStore();
+  const [showPicker, setShowPicker] = useState(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+
   const pickerRef = useRef(null);
   const emojiButtonRef = useRef(null);
+  const inputRef = useRef(null);
+  const drawerRef = useRef(null);
 
-  const {
-    messages,
-    onlineCount,
-    isConnected,
-    error,
-    connect,
-    sendMessage: sendStoreMessage,
-  } = useChatStore();
+  // Close picker on outside click
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (
+        showPicker &&
+        pickerRef.current &&
+        !pickerRef.current.contains(e.target) &&
+        !emojiButtonRef.current.contains(e.target)
+      ) {
+        setShowPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showPicker]);
 
-  const [showPicker, setShowPicker] = useState(false);
-  const [viewportHeight, setViewportHeight] = useState(typeof window !== "undefined" ? window.innerHeight - 56 : 0);
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-
-  // Handle mobile keyboard resize using VisualViewport API
+  // Visual Viewport API for flexible mobile heights (prevents keyboard hiding input)
   useEffect(() => {
     if (!window.visualViewport) return;
 
     const handleResize = () => {
-      const currentHeight = window.visualViewport.height;
-      // We subtract the header height (56px)
-      setViewportHeight(currentHeight - 56);
-      
-      // If visible height is significantly less than window height, keyboard is probably open
-      setKeyboardVisible(currentHeight < window.innerHeight * 0.85);
+      const vh = window.visualViewport.height;
+      setViewportHeight(vh);
+      const isVisible = vh < window.innerHeight * 0.85;
+      setIsKeyboardVisible(isVisible);
     };
 
     window.visualViewport.addEventListener("resize", handleResize);
     window.visualViewport.addEventListener("scroll", handleResize);
-    handleResize();
-
     return () => {
       window.visualViewport.removeEventListener("resize", handleResize);
       window.visualViewport.removeEventListener("scroll", handleResize);
     };
   }, []);
 
-  // Auto-focus input when chat opens
+  // Connect to websocket when drawer is open
   useEffect(() => {
-    if (isChatOpen && user && inputRef.current) {
-      setTimeout(() => {
-        inputRef.current.focus();
-      }, 100);
+    if (isOpen) {
+      connect();
     }
-  }, [isChatOpen, user]);
+    // We don't disconnect immediately on close to keep history/messages
+    // and because users might toggle it frequently.
+  }, [isOpen, connect]);
 
-  // Close picker when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Don't close if clicking on the emoji button itself
-      if (
-        emojiButtonRef.current &&
-        emojiButtonRef.current.contains(event.target)
-      ) {
-        return;
-      }
-      if (pickerRef.current && !pickerRef.current.contains(event.target)) {
-        setShowPicker(false);
-      }
-    };
+  const handleSendMessage = useCallback((content) => {
+    sendMessage(content);
+    setShowPicker(false);
+  }, [sendMessage]);
 
-    if (showPicker) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showPicker]);
-
-  /* --------------------------- websocket connect --------------------------- */
-
-  /* --------------------------- websocket connect --------------------------- */
-  useEffect(() => {
-    let timeoutId;
-
-    if (isChatOpen && user) {
-      // Slight delay to ensure state is settled
-      timeoutId = setTimeout(() => {
-        connect();
-      }, 100);
-    }
-
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [isChatOpen, user, connect]);
-
-  // Handle Auth Error (Token Expiry)
-  useEffect(() => {
-    if (error === "Authentication failed" && isChatOpen && user) {
-      useAuthStore
-        .getState()
-        .checkAuth()
-        .then(() => {
-          connect();
-        });
-    }
-  }, [error, isChatOpen, user, connect]);
-
-  /* ----------------------------- send message ------------------------------ */
-  const sendMessage = useCallback(
-    (message) => {
-      if (!message?.trim() || !isConnected) return;
-
-      sendStoreMessage(message.trim());
-      setShowPicker(false);
-    },
-    [isConnected, sendStoreMessage],
-  );
+  // Removed unread/markRead logic as it's not in the store yet
+  // If needed, it should be implemented in useChatStore first.
 
   return (
     <AnimatePresence>
-      {isChatOpen && (
-        <Motion.div
-          className="fixed top-14 left-0 z-40 w-full sm:w-[390px]"
-          style={{ 
-            height: window.innerWidth < 640 ? `${viewportHeight}px` : "calc(100vh - 56px)"
-          }}
-          initial={{ x: "-100%" }}
-          animate={{ x: 0 }}
-          exit={{ x: "-100%" }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        >
-          <div className={`w-full h-full bg-linear-to-b from-[#111d30]/95 via-[#0f1b2e]/95 to-[#0c1627]/95 backdrop-blur-3xl border-r border-white/15 flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative ${isKeyboardVisible ? "pb-0" : "pb-16 sm:pb-0"}`}>
-        {/* Decorative gradient orb */}
-        <div className="absolute -top-20 -left-20 w-44 h-44 bg-[#3b82f6]/12 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 -right-12 w-36 h-36 bg-[#00af9b]/10 rounded-full blur-3xl pointer-events-none" />
+      {isOpen && (
+        <>
+          {/* Backdrop (Glass) */}
+          <Motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => {
+              setOpen(false);
+              setShowPicker(false);
+            }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md"
+          />
 
-        {/* Header */}
-        <div className="relative h-14 border-b border-white/10 flex items-center justify-between px-5 bg-[#111d30]/90">
-          {/* Header glow line */}
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#7ea3d9]/30 to-transparent" />
+          {/* Drawer Wrapper (Flexible Height Control) */}
+          <Motion.div
+            ref={drawerRef}
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            style={{
+              height: isKeyboardVisible ? `${viewportHeight}px` : "100dvh",
+              bottom: 0,
+            }}
+            className="fixed right-0 z-[60] w-full max-w-[440px] bg-[#03070c] shadow-2xl flex flex-col border-l border-white/[0.08]"
+          >
+            {/* Glossy Header */}
+            <header className="relative shrink-0 h-14 bg-[#0a0f18]/95 backdrop-blur-2xl flex items-center justify-between px-6 border-b border-white/[0.08] group">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-primary/30 to-transparent" />
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setChatOpen(false)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
-              title="Close Chat"
-            >
-              <X size={18} />
-            </button>
-            <div className="w-8 h-8 rounded-lg bg-[#162338] border border-white/15 flex items-center justify-center">
-              <MessageSquare size={15} className="text-[#00af9b]" />
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center relative overflow-hidden">
+                  <MessageSquare size={18} className="text-primary animate-pulse" />
+                  <div className="absolute inset-0 bg-primary/20 blur-xl opacity-20" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-black tracking-widest text-white uppercase font-sans">
+                    Live Forge
+                  </h2>
+                  <div className="flex items-center gap-1.5 leading-none mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(0,175,155,0.6)]" />
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                      {onlineCount || 0} online
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="h-9 w-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/[0.06] transition-all"
+              >
+                <X size={20} strokeWidth={2.5} />
+              </button>
+            </header>
+
+            {/* Messages Area - Constrained for scrolling */}
+            <main className="flex-1 min-h-0 relative flex flex-col bg-[#03070c]">
+              {/* Ambient background glow */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
+              <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.1) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+
+              <div className="relative z-10 flex-1 min-h-0 h-full">
+                <MessageList user={user} messages={messages} viewportHeight={viewportHeight} />
+              </div>
+            </main>
+
+            {/* Input Hook */}
+            <div className="shrink-0 relative z-20">
+              <ChatInput
+                user={user}
+                sendMessage={handleSendMessage}
+                showPicker={showPicker}
+                setShowPicker={setShowPicker}
+                inputRef={inputRef}
+                pickerRef={pickerRef}
+                emojiButtonRef={emojiButtonRef}
+              />
             </div>
-            <span className="text-white font-semibold text-sm tracking-wide">
-              Chat
-            </span>
-          </div>
 
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#162338] border border-white/15 rounded-lg">
-            <div className="relative">
-              <div className="w-1.5 h-1.5 bg-[#00af9b] rounded-full" />
-              <div className="absolute inset-0 w-1.5 h-1.5 bg-[#00af9b] rounded-full animate-ping" />
-            </div>
-            <Users size={12} className="text-slate-200" />
-            <span className="text-slate-200 text-xs font-semibold">
-              {onlineCount}
-            </span>
-          </div>
-        </div>
-
-        {/* Connection Status */}
-        {!isConnected && !error && (
-          <div className="px-4 py-2 bg-[#ffa116]/10 border-b border-[#ffa116]/20 flex items-center gap-2">
-            <div className="w-2 h-2 bg-[#ffa116] rounded-full animate-pulse" />
-            <span className="text-[#ffa116] text-xs font-medium">
-              Connecting...
-            </span>
-          </div>
-        )}
-
-        {/* Rate Limit / Error Banner */}
-        {error && (
-          <div className="px-4 py-2 bg-red-500/10 border-b border-red-500/20">
-            <span className="text-red-400 text-sm font-medium">{error}</span>
-          </div>
-        )}
-
-        {/* Messages Area */}
-        <MessageList
-          user={user}
-          messages={messages}
-          setChatOpen={setChatOpen}
-          viewportHeight={viewportHeight}
-        />
-
-        {/* Input Area */}
-        <ChatInput
-          user={user}
-          sendMessage={sendMessage}
-          showPicker={showPicker}
-          setShowPicker={setShowPicker}
-          inputRef={inputRef}
-          pickerRef={pickerRef}
-          emojiButtonRef={emojiButtonRef}
-        />
-          </div>
-        </Motion.div>
+            {/* Safety padding for non-keyboard mobile states */}
+            {!isKeyboardVisible && <div className="h-safe sm:h-0 bg-[#03070c]" />}
+          </Motion.div>
+        </>
       )}
     </AnimatePresence>
   );
 };
 
-export default ChatDrawer;
+export default memo(ChatDrawer);

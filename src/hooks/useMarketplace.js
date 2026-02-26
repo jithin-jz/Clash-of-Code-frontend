@@ -45,12 +45,6 @@ export const useMarketplace = () => {
         fetchItems();
     }, [fetchItems]);
 
-    useEffect(() => {
-        if (error) {
-            toast.error(error);
-        }
-    }, [error]);
-
     const handleBuy = useCallback(async (item) => {
         if (!user || user.profile.xp < item.cost) return;
 
