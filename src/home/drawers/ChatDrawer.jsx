@@ -14,7 +14,6 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
   const pickerRef = useRef(null);
   const emojiButtonRef = useRef(null);
 
-  // Use global store
   const {
     messages,
     onlineCount,
@@ -25,6 +24,31 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
   } = useChatStore();
 
   const [showPicker, setShowPicker] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState(typeof window !== "undefined" ? window.innerHeight - 56 : 0);
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  // Handle mobile keyboard resize using VisualViewport API
+  useEffect(() => {
+    if (!window.visualViewport) return;
+
+    const handleResize = () => {
+      const currentHeight = window.visualViewport.height;
+      // We subtract the header height (56px)
+      setViewportHeight(currentHeight - 56);
+      
+      // If visible height is significantly less than window height, keyboard is probably open
+      setKeyboardVisible(currentHeight < window.innerHeight * 0.85);
+    };
+
+    window.visualViewport.addEventListener("resize", handleResize);
+    window.visualViewport.addEventListener("scroll", handleResize);
+    handleResize();
+
+    return () => {
+      window.visualViewport.removeEventListener("resize", handleResize);
+      window.visualViewport.removeEventListener("scroll", handleResize);
+    };
+  }, []);
 
   // Auto-focus input when chat opens
   useEffect(() => {
@@ -101,13 +125,16 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
     <AnimatePresence>
       {isChatOpen && (
         <Motion.div
-          className="fixed top-14 left-0 h-[calc(100vh-56px)] z-40 w-full sm:w-[390px]"
+          className="fixed top-14 left-0 z-40 w-full sm:w-[390px]"
+          style={{ 
+            height: window.innerWidth < 640 ? `${viewportHeight}px` : "calc(100vh - 56px)"
+          }}
           initial={{ x: "-100%" }}
           animate={{ x: 0 }}
           exit={{ x: "-100%" }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
-          <div className="w-full h-full bg-linear-to-b from-[#111d30]/95 via-[#0f1b2e]/95 to-[#0c1627]/95 backdrop-blur-3xl border-r border-white/15 flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative pb-16 sm:pb-0">
+          <div className={`w-full h-full bg-linear-to-b from-[#111d30]/95 via-[#0f1b2e]/95 to-[#0c1627]/95 backdrop-blur-3xl border-r border-white/15 flex flex-col pointer-events-auto shadow-2xl shadow-black/50 relative ${isKeyboardVisible ? "pb-0" : "pb-16 sm:pb-0"}`}>
         {/* Decorative gradient orb */}
         <div className="absolute -top-20 -left-20 w-44 h-44 bg-[#3b82f6]/12 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 -right-12 w-36 h-36 bg-[#00af9b]/10 rounded-full blur-3xl pointer-events-none" />
@@ -167,6 +194,7 @@ const ChatDrawer = ({ isChatOpen, setChatOpen, user }) => {
           user={user}
           messages={messages}
           setChatOpen={setChatOpen}
+          viewportHeight={viewportHeight}
         />
 
         {/* Input Area */}

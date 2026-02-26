@@ -1,4 +1,4 @@
-import React, { memo, useState, useMemo } from "react";
+import React, { memo, useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Lock, MessageCircle } from "lucide-react";
 
@@ -31,7 +31,7 @@ const ChatAvatar = ({ isOwn, avatarUrl, username }) => {
   );
 };
 
-const MessageList = ({ user, messages, setChatOpen }) => {
+const MessageList = ({ user, messages, setChatOpen, viewportHeight }) => {
   const scrollRef = React.useRef(null);
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
 
@@ -42,14 +42,14 @@ const MessageList = ({ user, messages, setChatOpen }) => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (shouldScrollToBottom) {
       scrollToBottom();
     }
-  }, [messages, shouldScrollToBottom]);
+  }, [messages, shouldScrollToBottom, viewportHeight]);
 
   // Initial scroll when component mounts or user changes
-  React.useEffect(() => {
+  useEffect(() => {
     scrollToBottom();
     // Second attempt to catch any layout shifts
     const timer = setTimeout(scrollToBottom, 100);
