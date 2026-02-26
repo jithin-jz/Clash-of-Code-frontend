@@ -130,6 +130,7 @@ export const Keyboard = adapt(DialpadIcon);
 export const Layers = adapt(LayersIcon);
 export const LayoutTemplate = adapt(LayoutDashboardIcon);
 export const Linkedin = adapt(LinkedinIcon);
+export const Library = adapt(LibraryIcon);
 export const List = adapt(UnorderedListIcon);
 export const Lock = adapt(LockIcon);
 export const LogOut = adapt(LogoutIcon);

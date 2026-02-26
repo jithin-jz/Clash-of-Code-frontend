@@ -1,74 +1,69 @@
-import React, { memo, useState, useMemo } from "react";
+import React, { memo, useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Lock, MessageCircle } from "lucide-react";
+import { Lock, MessageCircle, User } from "lucide-react";
+import { motion as Motion } from "framer-motion";
 
 const ChatAvatar = ({ isOwn, avatarUrl, username }) => {
   const [hasError, setHasError] = useState(false);
   const showPlaceholder = !avatarUrl || hasError;
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full relative group">
       {avatarUrl && !hasError && (
         <img
           src={avatarUrl}
           alt={username}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           onError={() => setHasError(true)}
         />
       )}
       {showPlaceholder && (
         <div
-          className={`w-full h-full flex items-center justify-center text-xs font-bold ${
-            isOwn
-              ? "bg-linear-to-br from-[#00af9b]/30 to-[#00af9b]/10 text-[#00af9b]"
-              : "bg-linear-to-br from-[#ffa116]/30 to-[#ffa116]/10 text-[#ffa116]"
-          }`}
+          className={`w-full h-full flex items-center justify-center text-[10px] font-black tracking-tighter ${isOwn
+            ? "bg-primary/20 text-primary"
+            : "bg-accent/20 text-accent"
+            }`}
         >
-          {username?.charAt(0).toUpperCase() || "?"}
+          {username?.charAt(0).toUpperCase() || <User size={12} />}
         </div>
       )}
+      <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-full" />
     </div>
   );
 };
 
-const MessageList = ({ user, messages, setChatOpen }) => {
+const MessageList = ({ user, messages, viewportHeight }) => {
   const scrollRef = React.useRef(null);
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
 
-  // Auto-scroll logic
   const scrollToBottom = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (shouldScrollToBottom) {
       scrollToBottom();
     }
-  }, [messages, shouldScrollToBottom]);
+  }, [messages, shouldScrollToBottom, viewportHeight]);
 
-  // Initial scroll when component mounts or user changes
-  React.useEffect(() => {
+  useEffect(() => {
     scrollToBottom();
-    // Second attempt to catch any layout shifts
-    const timer = setTimeout(scrollToBottom, 100);
+    const timer = setTimeout(scrollToBottom, 150);
     return () => clearTimeout(timer);
   }, [user]);
 
   const handleScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
-    // If user is within 100px of bottom, auto-scroll remains active
     const isAtBottom = scrollHeight - scrollTop - clientHeight < 100;
     setShouldScrollToBottom(isAtBottom);
   };
-  // Create a map of user_id -> latest metadata (username, avatar_url)
+
   const userMetadata = useMemo(() => {
     const map = {};
     messages.forEach((msg) => {
       if (msg.user_id) {
-        // Since messages are in chronological order, later messages from the same user
-        // will overwrite earlier ones with more recent profile data.
         map[msg.user_id] = {
           username: msg.username,
           avatar_url: msg.avatar_url,
@@ -80,24 +75,30 @@ const MessageList = ({ user, messages, setChatOpen }) => {
 
   if (!user) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-center p-8">
-        <div className="relative">
-          <div className="w-20 h-20 bg-linear-to-br from-[#00af9b]/20 to-[#00af9b]/5 rounded-2xl flex items-center justify-center mb-6 border border-[#00af9b]/20">
-            <Lock size={28} className="text-[#00af9b]" />
+      <div className="h-full flex flex-col items-center justify-center text-center p-8 bg-[#03070c]">
+        <Motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="relative mb-8"
+        >
+          <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center border border-primary/20 shadow-[0_0_40px_rgba(0,175,155,0.15)] relative z-10">
+            <Lock size={32} className="text-primary" />
           </div>
-          <div className="absolute -inset-4 bg-[#00af9b]/10 rounded-3xl blur-xl -z-10" />
-        </div>
-        <p className="text-white font-bold text-lg mb-2">
-          Join the Conversation
+          <div className="absolute -inset-6 bg-primary/10 rounded-full blur-[40px] opacity-50" />
+        </Motion.div>
+
+        <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-widest">
+          Secure Forge
+        </h3>
+        <p className="text-slate-500 text-sm mb-8 max-w-[240px] leading-relaxed font-medium">
+          The inner circle is restricted. Authenticate to join the real-time transmission.
         </p>
-        <p className="text-gray-500 text-sm mb-6 max-w-[220px] leading-relaxed">
-          Connect with fellow coders and share your journey!
-        </p>
+
         <Link
           to="/login"
-          className="px-6 py-3 bg-linear-to-r from-[#00af9b] to-[#008f7a] hover:from-[#008f7a] hover:to-[#00af9b] text-white rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[#008f7a]/30"
+          className="px-8 py-3.5 bg-primary text-primary-foreground rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:brightness-110 active:scale-95 shadow-[0_10px_30px_rgba(0,175,155,0.3)]"
         >
-          Sign In to Chat
+          Initiate Access
         </Link>
       </div>
     );
@@ -107,147 +108,112 @@ const MessageList = ({ user, messages, setChatOpen }) => {
     <div
       ref={scrollRef}
       onScroll={handleScroll}
-      className="flex-1 overflow-y-auto px-4 py-4 space-y-3 no-scrollbar"
+      className="h-full overflow-y-auto px-4 py-8 space-y-6 custom-scrollbar bg-transparent scroll-smooth"
     >
       {messages.length === 0 && (
         <div className="flex flex-col items-center justify-center h-full text-center">
-          <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-4 border border-white/5">
-            <MessageCircle size={24} className="text-gray-600" />
+          <div className="w-16 h-16 bg-white/[0.03] rounded-3xl flex items-center justify-center mb-5 border border-white/[0.06] shadow-inner">
+            <MessageCircle size={28} className="text-slate-700" />
           </div>
-          <p className="text-gray-500 text-sm font-medium">No messages yet</p>
-          <p className="text-gray-600 text-xs mt-1">
-            Be the first to say hello!
+          <p className="text-slate-400 text-sm font-bold uppercase tracking-widest">Quiet in the forge</p>
+          <p className="text-slate-600 text-[10px] mt-2 font-mono uppercase tracking-tighter">
+            Waiting for transmission...
           </p>
         </div>
       )}
 
       {messages.map((msg, idx) => {
         const isOwn = msg.user_id === user?.id;
-        // Use the latest known metadata for this user
         const metadata = userMetadata[msg.user_id] || {
           username: msg.username,
           avatar_url: msg.avatar_url,
         };
 
+        const apiURL = import.meta.env.VITE_API_URL || "http://localhost/api";
+        const baseUrl = apiURL.replace("/api", "");
+        const formattedAvatar = (() => {
+          const rawUrl = isOwn ? user?.profile?.avatar_url : metadata.avatar_url;
+          if (!rawUrl) return null;
+          if (rawUrl.startsWith("http")) return rawUrl;
+          return `${baseUrl}${rawUrl}`;
+        })();
+
         return (
-          <div
+          <Motion.div
             key={idx}
-            className={`flex gap-2.5 ${isOwn ? "flex-row-reverse" : "flex-row"} group animate-in fade-in slide-in-from-bottom-2 duration-200`}
+            initial={{ opacity: 0, y: 10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            className={`flex gap-3.5 ${isOwn ? "flex-row-reverse" : "flex-row"} group`}
           >
             {/* Avatar */}
             <Link
               to={`/profile/${metadata.username}`}
-              onClick={() => setChatOpen(false)}
-              className={`relative shrink-0 w-8 h-8 rounded-full overflow-hidden ring-2 transition-all duration-200 cursor-pointer hover:scale-110 ${
-                isOwn
-                  ? "ring-[#00af9b]/30 hover:ring-[#00af9b]"
-                  : "ring-white/10 hover:ring-white/30"
-              }`}
+              className={`relative shrink-0 w-9 h-9 rounded-full overflow-hidden border-2 transition-all duration-300 shadow-xl ${isOwn ? "border-primary/20 hover:border-primary" : "border-white/5 hover:border-white/20"
+                }`}
             >
-              <ChatAvatar
-                isOwn={isOwn}
-                avatarUrl={(() => {
-                  const rawUrl = isOwn
-                    ? user?.profile?.avatar_url
-                    : metadata.avatar_url;
-                  if (!rawUrl) return null;
-                  if (rawUrl.startsWith("http")) return rawUrl;
-
-                  const apiURL =
-                    import.meta.env.VITE_API_URL || "http://localhost/api";
-                  const baseUrl = apiURL.replace("/api", "");
-                  return `${baseUrl}${rawUrl}`;
-                })()}
-                username={metadata.username}
-              />
+              <ChatAvatar isOwn={isOwn} avatarUrl={formattedAvatar} username={metadata.username} />
             </Link>
 
             {/* Message Content */}
-            <div
-              className={`flex flex-col gap-0.5 max-w-[75%] ${isOwn ? "items-end" : "items-start"}`}
-            >
-              {/* Username */}
-              <Link
-                to={`/profile/${metadata.username}`}
-                onClick={() => setChatOpen(false)}
-                className={`text-[11px] font-semibold tracking-wide hover:underline cursor-pointer transition-colors px-1 ${
-                  isOwn
-                    ? "text-[#00af9b]/80 hover:text-[#00af9b]"
-                    : "text-[#ffa116]/80 hover:text-[#ffa116]"
-                }`}
-              >
-                {isOwn ? "You" : metadata.username}
-              </Link>
+            <div className={`flex flex-col gap-1.5 max-w-[80%] ${isOwn ? "items-end" : "items-start"}`}>
+              {/* Username & Time */}
+              <div className={`flex items-center gap-2 px-1 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
+                <Link
+                  to={`/profile/${metadata.username}`}
+                  className={`text-[10px] font-black uppercase tracking-widest transition-colors ${isOwn ? "text-primary/70 hover:text-primary" : "text-accent/70 hover:text-accent"
+                    }`}
+                >
+                  {isOwn ? "You" : metadata.username}
+                </Link>
+                <span className="text-[9px] font-mono font-bold text-slate-600 tracking-tighter">
+                  {new Date(msg.timestamp).toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false
+                  })}
+                </span>
+              </div>
 
               {/* Message Bubble */}
               <div
                 className={`
-                                px-3.5 py-2.5 text-[13px] leading-relaxed transition-all duration-200
-                                ${
-                                  isOwn
-                                    ? "bg-linear-to-br from-[#00af9b]/20 to-[#00af9b]/5 border border-[#00af9b]/25 text-white rounded-2xl rounded-tr-md"
-                                    : "bg-[#2b2b2b]/70 border border-[#3a3a3a] text-slate-200 rounded-2xl rounded-tl-md group-hover:bg-[#313131] group-hover:border-[#444444]"
-                                }
-                                ${msg.message?.startsWith("IMAGE:") ? "p-1.5" : ""}
-                            `}
+                  relative px-3.5 py-2.5 text-[13px] leading-relaxed transition-all duration-300 rounded-2xl
+                  ${isOwn
+                    ? "bg-primary/20 border border-primary/30 text-white shadow-[0_4px_15px_rgba(0,175,155,0.1)] rounded-tr-sm"
+                    : "bg-white/[0.05] border border-white/[0.1] text-slate-100 shadow-sm rounded-tl-sm hover:bg-white/[0.08]"
+                  }
+                  ${msg.message?.startsWith("IMAGE:") ? "p-1.5" : ""}
+                `}
               >
                 {msg.message?.startsWith("IMAGE:") ? (
                   (() => {
-                    const [imageUrl, ownerUsername] = msg.message
-                      .replace("IMAGE:", "")
-                      .split("|");
+                    const [imageUrl, ownerUsername] = msg.message.replace("IMAGE:", "").split("|");
                     return (
-                      <div className="space-y-2">
-                        <Link
-                          to={`/profile/${ownerUsername}`}
-                          onClick={() => setChatOpen(false)}
-                          className="block overflow-hidden rounded-lg group/img"
-                        >
-                          <img
-                            src={imageUrl}
-                            alt="Shared post"
-                            className="w-full h-auto border border-white/10 group-hover/img:scale-[1.05] transition-transform duration-500 rounded-lg shadow-2xl"
-                          />
+                      <div className="space-y-2.5">
+                        <Link to={`/profile/${ownerUsername}`} className="block overflow-hidden rounded-xl border border-white/5 shadow-2xl">
+                          <img src={imageUrl} alt="" className="w-full h-auto transition-transform duration-700 hover:scale-105" />
                         </Link>
-                        <div className="flex items-center justify-between px-1">
-                          <p className="text-[10px] text-gray-500 italic">
-                            Shared a post
-                          </p>
-                          <Link
-                            to={`/profile/${ownerUsername}`}
-                            onClick={() => setChatOpen(false)}
-                            className="text-[10px] text-[#00af9b] hover:underline font-medium"
-                          >
-                            View Profile
-                          </Link>
+                        <div className="flex items-center justify-between px-1.5 py-0.5">
+                          <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Shared Transmission</p>
+                          <Link to={`/profile/${ownerUsername}`} className="text-[9px] font-black uppercase tracking-widest text-primary hover:underline">Verify</Link>
                         </div>
                       </div>
                     );
                   })()
                 ) : (
-                  <p className="wrap-break-word">{msg.message}</p>
+                  <p className="break-words font-medium">{msg.message}</p>
                 )}
 
-                {/* Timestamp */}
-                {msg.timestamp && (
-                  <div
-                    className={`text-[9px] font-medium mt-1.5 ${
-                      isOwn ? "text-[#00af9b]/60" : "text-slate-400"
-                    }`}
-                  >
-                    {new Date(msg.timestamp).toLocaleTimeString("en-US", {
-                      timeZone: "Asia/Kolkata",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
+                {/* Glassy reflection for own messages */}
+                {isOwn && (
+                  <div className="absolute inset-0 bg-linear-to-tr from-white/5 to-transparent rounded-2xl pointer-events-none" />
                 )}
               </div>
             </div>
-          </div>
+          </Motion.div>
         );
       })}
-      <div className="h-2 w-full shrink-0" />
+      <div className="h-4 w-full shrink-0" />
     </div>
   );
 };

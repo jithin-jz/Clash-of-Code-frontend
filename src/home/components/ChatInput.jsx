@@ -27,17 +27,17 @@ const ChatInput = ({
   };
 
   return (
-    <div className="relative p-3 bg-[#111d30]/95 border-t border-white/10">
-      {/* Top gradient line */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[#7ea3d9]/30 to-transparent" />
+    <div className="relative px-6 py-5 bg-[#03070c]/95 backdrop-blur-3xl border-t border-white/[0.08] group">
+      {/* Dynamic glow line */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-linear-to-r from-transparent via-primary/30 to-transparent transition-opacity duration-500 opacity-30 group-focus-within:opacity-100" />
 
       {/* Emoji Picker */}
       {showPicker && (
         <div
           ref={pickerRef}
-          className="absolute bottom-full left-0 w-full p-3 mb-1 z-50 animate-in fade-in zoom-in-95 duration-200"
+          className="absolute bottom-full left-0 w-full p-4 mb-2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300"
         >
-          <div className="bg-[#162338] rounded-xl border border-white/15 shadow-2xl shadow-black/50 overflow-hidden h-[350px] flex">
+          <div className="bg-[#0a0f18] rounded-2xl border border-white/[0.1] shadow-2xl shadow-black/80 overflow-hidden h-[380px] flex">
             <EmojiPicker
               onEmojiClick={handleEmojiClick}
               theme="dark"
@@ -45,50 +45,58 @@ const ChatInput = ({
               height="100%"
               lazyLoadEmojis={true}
               previewConfig={{ showPreview: false }}
+              searchDisabled={false}
+              skinTonesDisabled={true}
             />
           </div>
         </div>
       )}
 
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-2.5 items-center">
         {/* Emoji Button */}
-        <Button
+        <button
           ref={emojiButtonRef}
-          variant="ghost"
+          type="button"
           onClick={() => setShowPicker(!showPicker)}
           disabled={!user}
-          className={`p-2.5 rounded-xl transition-all duration-200 ${showPicker
-              ? "bg-[#ffa116] text-white shadow-lg shadow-[#ffa116]/35"
-              : "bg-[#162338] text-slate-300 hover:text-[#ffa116] hover:bg-[#1e2f47]"
-            } disabled:opacity-30 border-0 h-10 w-10`}
+          className={`flex items-center justify-center h-10 w-10 min-w-10 rounded-xl transition-all duration-300 ${showPicker
+              ? "bg-accent/20 text-accent shadow-[0_0_15px_rgba(255,161,22,0.15)] ring-1 ring-accent/30"
+              : "bg-white/[0.04] text-slate-400 hover:text-white hover:bg-white/[0.08] hover:scale-105 active:scale-95"
+            } disabled:opacity-20`}
         >
-          {showPicker ? <X size={18} /> : <Smile size={18} />}
-        </Button>
+          {showPicker ? <X size={20} strokeWidth={2.5} /> : <Smile size={20} strokeWidth={2} />}
+        </button>
 
-        {/* Input Field */}
-        <Input
-          ref={inputRef}
-          type="text"
-          placeholder={user ? "Type a message..." : "Login to chat..."}
-          disabled={!user}
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          className="flex-1 bg-[#162338] border border-white/15 rounded-xl px-4 h-10 text-white text-sm focus-visible:ring-1 focus-visible:ring-[#00af9b]/40 focus-visible:bg-[#1a2d44] transition-all disabled:opacity-30 placeholder:text-slate-500"
-        />
+        {/* Input Wrapper */}
+        <div className="relative flex-1 group/input">
+          <Input
+            ref={inputRef}
+            type="text"
+            placeholder={user ? "Type a message..." : "Login to chat..."}
+            disabled={!user}
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            className="w-full bg-white/[0.03] border-white/[0.1] focus-visible:border-primary/50 focus-visible:bg-white/[0.08] rounded-2xl px-5 h-11 text-white text-[13px] transition-all duration-300 placeholder:text-slate-500 focus-visible:ring-0 focus-visible:ring-offset-0"
+          />
+          <div className="absolute bottom-0 left-4 right-4 h-px bg-primary/40 scale-x-0 group-focus-within/input:scale-x-100 transition-transform duration-500 origin-center" />
+        </div>
 
         {/* Send Button */}
-        <Button
+        <button
           disabled={!user || !inputMessage.trim()}
           onClick={handleSend}
-          className={`p-2.5 rounded-xl transition-all duration-200 h-10 w-10 ${inputMessage.trim()
-              ? "bg-[#00af9b] text-white shadow-lg shadow-[#00af9b]/30 hover:bg-[#00c4ad] hover:scale-105 active:scale-95"
-              : "bg-[#162338] text-slate-500 hover:text-slate-400"
-            } disabled:opacity-30 disabled:cursor-not-allowed border-0`}
+          className={`flex items-center justify-center h-11 w-11 min-w-11 rounded-2xl transition-all duration-300 ${inputMessage.trim()
+              ? "bg-primary text-primary-foreground shadow-[0_8px_25px_rgba(0,175,155,0.4)] hover:brightness-110 active:scale-90"
+              : "bg-white/[0.03] text-slate-600"
+            } disabled:opacity-20 disabled:cursor-not-allowed`}
         >
-          <Send size={16} />
-        </Button>
+          <Send size={20} strokeWidth={2.5} className={inputMessage.trim() ? "translate-x-0.5" : ""} />
+        </button>
       </div>
+
+      {/* Bottom safety margin for mobile */}
+      <div className="h-2 w-full sm:hidden" />
     </div>
   );
 };
