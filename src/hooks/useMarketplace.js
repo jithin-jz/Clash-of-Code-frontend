@@ -20,7 +20,6 @@ export const useMarketplace = () => {
         isLoading,
         isMutating,
         activeMutationItemId,
-        error,
         fetchItems,
         purchaseItem,
         equipItem,
@@ -31,7 +30,6 @@ export const useMarketplace = () => {
             isLoading: s.isLoading,
             isMutating: s.isMutating,
             activeMutationItemId: s.activeMutationItemId,
-            error: s.error,
             fetchItems: s.fetchItems,
             purchaseItem: s.purchaseItem,
             equipItem: s.equipItem,
@@ -44,12 +42,6 @@ export const useMarketplace = () => {
     useEffect(() => {
         fetchItems();
     }, [fetchItems]);
-
-    useEffect(() => {
-        if (error) {
-            toast.error(error);
-        }
-    }, [error]);
 
     const handleBuy = useCallback(async (item) => {
         if (!user || user.profile.xp < item.cost) return;

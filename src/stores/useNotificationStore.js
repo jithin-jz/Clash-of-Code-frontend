@@ -17,12 +17,29 @@ const useNotificationStore = create((set, get) => ({
   lastFetched: null,
   fcmToken: null,
   permission: typeof Notification !== 'undefined' ? Notification.permission : 'default',
-  _listenerSetup: false,
-  _fetchPromise: null,
-  _realtimeSyncTimer: null,
-  socket: null,
-  isWSConnected: false,
-  wsShouldReconnect: false,
+  _recentToasts: new Set(),
+
+  /**
+   * Helper to show de-duplicated toast.
+   */
+  _showToast: (title, body) => {
+    const key = `${title}:${body}`;
+    const recent = get()._recentToasts;
+    if (recent.has(key)) return;
+    
+    recent.add(key);
+    // Keep only last 10 to avoid memory leak
+    if (recent.size > 10) {
+      const first = recent.values().next().value;
+      recent.delete(first);
+    }
+
+    notify.info(title || "New Notification", {
+      description: body,
+      duration: 5000,
+    });
+    get().scheduleRealtimeSync();
+  },
 
   /**
    * Initialize Real-time Notifications (FCM + WebSocket).
@@ -83,14 +100,7 @@ const useNotificationStore = create((set, get) => ({
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'notification') {
-          // Show toast
-          notify.info(data.title || "New Notification", {
-            description: data.body,
-            duration: 5000,
-          });
-
-          // Debounced sync keeps UI near real-time without request bursts.
-          get().scheduleRealtimeSync();
+          get()._showToast(data.title, data.body);
         }
       } catch (err) {
         console.error("[Notifications] Failed to parse socket message", err);
@@ -176,18 +186,12 @@ const useNotificationStore = create((set, get) => ({
     try {
       const { onMessageListener } = await import("../services/firebase");
       onMessageListener((payload) => {
-        // Show toast notification - try accessing data if notification is missing
         const title = payload.notification?.title || payload.data?.title || "New Notification";
         const body = payload.notification?.body || payload.data?.body || "You have a new message.";
 
-        // Only show if we have some content
         if (payload.notification || payload.data) {
-          notify.info(title, {
-            description: body,
-            duration: 5000,
-          });
+          get()._showToast(title, body);
         }
-
         // Debounced sync keeps badge/list up to date.
         get().scheduleRealtimeSync();
       });

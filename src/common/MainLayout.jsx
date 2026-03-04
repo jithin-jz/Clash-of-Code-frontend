@@ -180,17 +180,15 @@ const MainLayout = memo(({ children }) => {
                     handleLogout={handleLogout}
                     setChatOpen={setChatOpen}
                     isChatOpen={isChatOpen}
-                    checkInOpen={checkInOpen}
                     setCheckInOpen={setCheckInOpen}
                     setLeaderboardOpen={setLeaderboardOpen}
                     setNotificationOpen={setNotificationOpen}
-                    notificationOpen={isNotificationOpen}
                     hasUnclaimedReward={hasUnclaimedReward}
                 />
 
                 <ChatDrawer
-                    isChatOpen={isChatOpen}
-                    setChatOpen={setChatOpen}
+                    isOpen={isChatOpen}
+                    setOpen={setChatOpen}
                     user={user}
                 />
 
