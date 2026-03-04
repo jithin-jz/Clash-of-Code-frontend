@@ -22,7 +22,7 @@ const OAuthCallback = ({ provider }) => {
     if (userData?.is_staff || userData?.is_superuser) {
       return "/admin/dashboard";
     }
-    return "/";
+    return "/home";
   };
 
   useEffect(() => {

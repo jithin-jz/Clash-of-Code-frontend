@@ -15,7 +15,7 @@ const HeaderBar = ({
       <div className="flex items-center gap-2 sm:gap-4 relative z-10 min-w-0">
         <button
           type="button"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/home")}
           className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl border border-white/15 bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center shrink-0"
         >
           <ArrowLeft size={14} className="sm:w-4 sm:h-4" />

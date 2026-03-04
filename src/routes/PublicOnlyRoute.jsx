@@ -6,7 +6,7 @@ import LoginSkeleton from '../auth/LoginSkeleton';
  * PublicOnlyRoute - For login/register pages
  * Redirects authenticated users based on role:
  * - Admins → /admin/dashboard
- * - Regular users → /
+ * - Regular users → /home
  */
 const PublicOnlyRoute = ({ children }) => {
     const { isAuthenticated, isInitialized, user, loading } = useAuthStore();
@@ -20,7 +20,7 @@ const PublicOnlyRoute = ({ children }) => {
         if (user?.is_staff || user?.is_superuser) {
             return <Navigate to="/admin/dashboard" replace />;
         }
-        return <Navigate to="/" replace />;
+        return <Navigate to="/home" replace />;
     }
 
     return children;

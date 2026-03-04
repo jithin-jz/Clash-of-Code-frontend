@@ -50,7 +50,10 @@ const MainLayout = memo(({ children }) => {
     const hideNav = useMemo(() =>
         location.pathname.startsWith("/level/") || location.pathname.startsWith("/admin/"),
         [location.pathname]);
-    const showFooter = useMemo(() => location.pathname === "/", [location.pathname]);
+    const showFooter = useMemo(
+        () => location.pathname === "/" || location.pathname === "/home",
+        [location.pathname],
+    );
     const isPublicLanding = useMemo(
         () => location.pathname === "/" && !user,
         [location.pathname, user],
@@ -155,32 +158,19 @@ const MainLayout = memo(({ children }) => {
     if (hideNav) return children;
 
     return (
-        <div className="min-h-screen relative overflow-x-hidden w-full max-w-[100vw] bg-[#0a0f18] text-white selection:bg-[#38bdf8]/30">
-            {/* Global Fixed Background */}
-            <div className="fixed inset-0 z-0 pointer-events-none bg-[#0a0f18]" />
+        <div className="relative min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-background text-foreground selection:bg-primary/30">
+            {/* Global fixed background */}
+            <div className="fixed inset-0 z-0 pointer-events-none bg-[linear-gradient(180deg,#060b13_0%,#070d17_100%)]" />
 
-            {/* Noise texture overlay */}
-            <div
-                className="fixed inset-0 z-0 pointer-events-none opacity-[0.015] mix-blend-overlay"
-                style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                    backgroundSize: '150px 150px'
-                }}
-            />
+            {/* Subtle texture overlay */}
+            <div className="app-noise-overlay fixed inset-0 z-0 pointer-events-none opacity-[0.018] mix-blend-overlay" />
 
             {isPublicLanding && (
-                <div className="fixed inset-x-0 bottom-0 top-14 z-0 pointer-events-none bg-[radial-gradient(circle_at_18%_20%,rgba(20,184,166,0.18),transparent_45%),radial-gradient(circle_at_78%_84%,rgba(14,165,233,0.12),transparent_42%)]" />
+                <div className="fixed inset-x-0 bottom-0 top-14 z-0 pointer-events-none bg-[radial-gradient(circle_at_18%_20%,rgba(34,211,238,0.18),transparent_45%),radial-gradient(circle_at_78%_84%,rgba(14,165,233,0.12),transparent_42%)]" />
             )}
 
             {isPublicLanding && (
-                <div
-                    className="fixed inset-x-0 bottom-0 top-14 z-0 pointer-events-none opacity-[0.06]"
-                    style={{
-                        backgroundImage:
-                            "linear-gradient(to right, rgba(148,163,184,0.16) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,184,0.16) 1px, transparent 1px)",
-                        backgroundSize: "56px 56px",
-                    }}
-                />
+                <div className="app-grid-overlay fixed inset-x-0 bottom-0 top-14 z-0 pointer-events-none opacity-[0.07]" />
             )}
 
             <div className="relative z-10 flex min-h-screen flex-col">
@@ -190,9 +180,10 @@ const MainLayout = memo(({ children }) => {
                     handleLogout={handleLogout}
                     setChatOpen={setChatOpen}
                     isChatOpen={isChatOpen}
+                    setCheckInOpen={setCheckInOpen}
                     setLeaderboardOpen={setLeaderboardOpen}
                     setNotificationOpen={setNotificationOpen}
-                    notificationOpen={isNotificationOpen}
+                    hasUnclaimedReward={hasUnclaimedReward}
                 />
 
                 <ChatDrawer

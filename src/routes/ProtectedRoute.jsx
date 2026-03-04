@@ -4,7 +4,7 @@ import { SkeletonGenericPage } from '../common/SkeletonPrimitives';
 
 /**
  * ProtectedRoute - Requires authentication
- * Redirects unauthenticated users to home page
+ * Redirects unauthenticated users to landing page
  */
 const ProtectedRoute = ({ children }) => {
     const { isAuthenticated, isInitialized, loading } = useAuthStore();

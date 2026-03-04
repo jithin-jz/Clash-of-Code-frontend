@@ -286,7 +286,7 @@ const ChallengeWorkspace = () => {
           ]);
           // Redirect to dashboard after a short delay
           setTimeout(() => {
-            navigate("/");
+            navigate("/home");
           }, 2000);
         } else {
           setOutput([
@@ -720,7 +720,7 @@ const ChallengeWorkspace = () => {
 
                 <button
                   type="button"
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/home")}
                   className="w-full h-10 rounded-xl border border-white/10 bg-white/5 text-gray-300 hover:text-white hover:bg-white/10 font-bold uppercase text-xs transition-colors"
                 >
                   Dashboard

@@ -33,7 +33,7 @@ const Login = () => {
     if (userData?.is_staff || userData?.is_superuser) {
       return "/admin/dashboard";
     }
-    return "/";
+    return "/home";
   };
 
   useEffect(() => {

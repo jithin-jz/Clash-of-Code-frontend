@@ -18,7 +18,7 @@ const AdminRoute = ({ children }) => {
     }
 
     if (!user?.is_staff && !user?.is_superuser) {
-        return <Navigate to="/" replace />;
+        return <Navigate to="/home" replace />;
     }
 
     return children;
