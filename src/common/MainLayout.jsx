@@ -50,7 +50,10 @@ const MainLayout = memo(({ children }) => {
     const hideNav = useMemo(() =>
         location.pathname.startsWith("/level/") || location.pathname.startsWith("/admin/"),
         [location.pathname]);
-    const showFooter = useMemo(() => location.pathname === "/", [location.pathname]);
+    const showFooter = useMemo(
+        () => location.pathname === "/" || location.pathname === "/home",
+        [location.pathname],
+    );
     const isPublicLanding = useMemo(
         () => location.pathname === "/" && !user,
         [location.pathname, user],

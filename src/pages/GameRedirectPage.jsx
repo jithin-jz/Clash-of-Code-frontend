@@ -5,7 +5,7 @@ import { SkeletonGenericPage } from '../common/SkeletonPrimitives';
 const GameRedirectPage = () => {
     const navigate = useNavigate();
     useEffect(() => {
-        navigate('/');
+        navigate('/home');
     }, [navigate]);
     return <SkeletonGenericPage />;
 };

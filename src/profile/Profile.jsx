@@ -405,7 +405,7 @@ const Profile = () => {
             This user may have changed their username or doesn't exist.
           </p>
           <Button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/home")}
             className="bg-white text-black hover:bg-zinc-200"
           >
             Back to Home

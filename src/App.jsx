@@ -58,12 +58,15 @@ const AppContent = memo(() => {
 
   // Root application loader (skeleton-only)
   if (authLoading) {
-    if (location.pathname === "/") {
+    if (location.pathname === "/home") {
       return (
         <MainLayout>
           <HomeSkeleton />
         </MainLayout>
       );
+    }
+    if (location.pathname === "/") {
+      return <SkeletonGenericPage />;
     }
     if (location.pathname === "/login") {
       return <LoginSkeleton />;
@@ -91,19 +94,29 @@ const AppContent = memo(() => {
       <Toaster />
       <MainLayout>
         <Routes>
-          {/* Public Landing (Game Map) - Visible to all */}
+          {/* Public Landing */}
           <Route
             path="/"
             element={
               user ? (
-                <Suspense fallback={<HomeSkeleton />}>
-                  <Home />
-                </Suspense>
+                <Navigate to="/home" replace />
               ) : (
                 <Suspense fallback={<SkeletonGenericPage />}>
                   <LandingPage />
                 </Suspense>
               )
+            }
+          />
+
+          {/* Authenticated Home */}
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<HomeSkeleton />}>
+                  <Home />
+                </Suspense>
+              </ProtectedRoute>
             }
           />
 
@@ -118,9 +131,6 @@ const AppContent = memo(() => {
               </PublicOnlyRoute>
             }
           />
-
-          {/* Redirect legacy routes to / */}
-          <Route path="/home" element={<Navigate to="/" replace />} />
 
           {/* OAuth Callbacks */}
           <Route

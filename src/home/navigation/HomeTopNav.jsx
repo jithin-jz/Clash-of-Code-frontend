@@ -292,7 +292,7 @@ const HomeTopNav = ({
               {/* Home */}
               <button
                 type="button"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/home")}
                 className="flex h-12 w-12 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-slate-800/55 hover:text-slate-300"
                 title="Home"
               >
