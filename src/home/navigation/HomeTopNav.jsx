@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Gem, User, LogOut, Calendar, Trophy, Bell, Play, ShoppingBag, MessageSquare, Menu, X, Home } from "lucide-react";
+import { Gem, User, LogOut, Calendar, Trophy, Bell, Play, ShoppingBag, MessageSquare, Home } from "lucide-react";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import useNotificationStore from "../../stores/useNotificationStore";
 
@@ -15,7 +15,7 @@ const NavIcon = ({
     type="button"
     onClick={onClick}
     title={title}
-    className={`group relative h-9 w-9 rounded-lg bg-transparent hover:bg-white/[0.08] transition-all duration-200 inline-flex items-center justify-center text-slate-400 hover:text-slate-100 shrink-0 ${className}`}
+    className={`group relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-transparent bg-transparent text-slate-400 transition-all duration-200 hover:border-slate-500/35 hover:bg-slate-800/55 hover:text-slate-100 ${className}`}
   >
     <span className="inline-flex items-center justify-center">{icon}</span>
     {badge}
@@ -92,7 +92,7 @@ const HomeTopNav = ({
         <Motion.nav
           initial={{ y: -10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="pointer-events-auto h-14 w-full border-b border-white/[0.04] bg-[#0a0f18]/80 backdrop-blur-xl px-4 sm:px-6 flex sm:grid sm:grid-cols-[1fr_auto_1fr] items-center justify-between gap-3"
+          className="app-top-nav pointer-events-auto flex h-14 w-full items-center justify-between gap-3 px-4 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:px-6"
         >
           <div className="flex items-center justify-start gap-1 sm:gap-1.5 flex-1">
             {user ? (
@@ -101,11 +101,11 @@ const HomeTopNav = ({
                 <button
                   type="button"
                   onClick={() => setNotificationOpen((prev) => !prev)}
-                  className="sm:hidden h-8 w-8 rounded-lg bg-white/[0.04] flex items-center justify-center relative text-slate-400"
+                  className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-slate-500/25 bg-slate-900/65 text-slate-400 sm:hidden"
                 >
-                  <Bell size={18} className={unreadCount > 0 ? "text-[#f59e0b]" : ""} />
+                  <Bell size={18} className={unreadCount > 0 ? "text-amber-300" : ""} />
                   {unreadCount > 0 && (
-                    <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-[#f59e0b] ring-2 ring-[#0a1220]" />
+                    <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-amber-300 ring-2 ring-slate-950" />
                   )}
                 </button>
 
@@ -114,9 +114,9 @@ const HomeTopNav = ({
                   type="button"
                   onClick={() => navigate("/shop")}
                   title="Buy XP"
-                  className="h-8 px-2.5 rounded-lg border border-[#a78bfa]/25 bg-[#a78bfa]/[0.08] hover:bg-[#a78bfa]/15 transition-colors inline-flex items-center gap-1.5 shrink-0"
+                  className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-cyan-400/35 bg-cyan-400/10 px-2.5 transition-colors hover:bg-cyan-400/16"
                 >
-                  <Gem size={13} className="text-[#a78bfa]" />
+                  <Gem size={13} className="text-cyan-300" />
                   <span className="text-white font-bold text-xs">{xp.toLocaleString()}</span>
                 </button>
 
@@ -128,7 +128,7 @@ const HomeTopNav = ({
                     icon={<Calendar size={16} />}
                     badge={
                       hasUnclaimedReward ? (
-                        <span className="pointer-events-none absolute -top-0.5 -right-0.5 z-10 h-2 w-2 rounded-full bg-[#f59e0b] ring-2 ring-[#0a1220] animate-pulse" />
+                        <span className="pointer-events-none absolute -right-0.5 -top-0.5 z-10 h-2 w-2 animate-pulse rounded-full bg-amber-300 ring-2 ring-slate-950" />
                       ) : null
                     }
                   />
@@ -145,7 +145,7 @@ const HomeTopNav = ({
 
           {/* CENTER: Title */}
           <div className="flex items-center justify-center shrink-0">
-            <h1 className="text-sm sm:text-base font-bold tracking-[0.1em] sm:tracking-[0.18em] text-slate-100 truncate px-2 text-center">
+            <h1 className="app-title truncate px-2 text-center text-[0.7rem] font-semibold text-slate-100 sm:text-xs lg:text-sm">
               CLASH OF CODE
             </h1>
           </div>
@@ -158,7 +158,9 @@ const HomeTopNav = ({
                 <button
                   type="button"
                   onClick={() => setChatOpen((prev) => !prev)}
-                  className={`sm:hidden h-8 w-8 rounded-lg flex items-center justify-center relative transition-colors ${isChatOpen ? "bg-[#00af9b]/15 text-[#00af9b]" : "bg-white/[0.04] text-slate-400"
+                  className={`relative flex h-8 w-8 items-center justify-center rounded-lg border transition-colors sm:hidden ${isChatOpen
+                      ? "border-cyan-300/35 bg-cyan-400/15 text-cyan-300"
+                      : "border-slate-500/25 bg-slate-900/65 text-slate-400"
                     }`}
                 >
                   <MessageSquare size={18} strokeWidth={isChatOpen ? 2.5 : 1.75} />
@@ -170,7 +172,7 @@ const HomeTopNav = ({
                     onClick={() => setChatOpen((prev) => !prev)}
                     title="Chat"
                     icon={<MessageSquare size={16} />}
-                    className={isChatOpen ? "text-[#00af9b] bg-[#00af9b]/10" : ""}
+                    className={isChatOpen ? "border-cyan-300/30 bg-cyan-400/10 text-cyan-300" : ""}
                   />
 
                   <NavIcon
@@ -196,10 +198,10 @@ const HomeTopNav = ({
                         }
                         transition={{ duration: 0.5 }}
                       >
-                        <Bell size={16} className={unreadCount > 0 ? "text-[#f59e0b]" : ""} />
+                        <Bell size={16} className={unreadCount > 0 ? "text-amber-300" : ""} />
                       </Motion.div>
                     }
-                    className={unreadCount > 0 ? "text-[#f59e0b]" : ""}
+                    className={unreadCount > 0 ? "text-amber-300" : ""}
                     badge={
                       unreadCount > 0 ? (
                         <AnimatePresence>
@@ -207,21 +209,21 @@ const HomeTopNav = ({
                             initial={{ scale: 0, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0, opacity: 0 }}
-                            className="pointer-events-none absolute -top-0.5 -right-0.5 z-10 h-2 w-2 rounded-full bg-[#f59e0b] ring-2 ring-[#0a1220]"
+                            className="pointer-events-none absolute -right-0.5 -top-0.5 z-10 h-2 w-2 rounded-full bg-amber-300 ring-2 ring-slate-950"
                           />
                         </AnimatePresence>
                       ) : null
                     }
                   />
 
-                  <div className="w-px h-5 bg-white/10 mx-1" />
+                  <div className="mx-1 h-5 w-px bg-slate-500/35" />
 
                   {/* Profile */}
                   <button
                     type="button"
                     onClick={() => navigate("/profile")}
                     title="Profile"
-                    className="h-8 w-8 rounded-lg overflow-hidden border border-white/15 hover:border-white/40 transition-all shrink-0"
+                    className="h-8 w-8 rounded-lg overflow-hidden border border-slate-500/35 hover:border-slate-200/55 transition-all shrink-0 bg-slate-900/55"
                   >
                     {user?.profile?.avatar_url ? (
                       <img
@@ -230,7 +232,7 @@ const HomeTopNav = ({
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-white/[0.06] flex items-center justify-center">
+                      <div className="flex h-full w-full items-center justify-center bg-slate-800/65">
                         <User size={14} className="text-slate-400" />
                       </div>
                     )}
@@ -240,10 +242,10 @@ const HomeTopNav = ({
                     onClick={handleLogout}
                     title="Logout"
                     icon={<LogOut size={14} />}
-                    className="text-slate-500 hover:text-rose-400"
+                    className="text-slate-500 hover:text-rose-300"
                   />
 
-                  <div className="w-px h-5 bg-white/10 mx-1" />
+                  <div className="mx-1 h-5 w-px bg-slate-500/35" />
                 </div>
 
                 {/* Play CTA — hidden on mobile */}
@@ -255,7 +257,7 @@ const HomeTopNav = ({
                     }
                   }}
                   title="Play"
-                  className="hidden sm:inline-flex h-8 px-3 rounded-lg bg-[#10b981] hover:bg-[#059669] text-white text-xs font-semibold tracking-wide transition-all duration-200 items-center gap-1.5 shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.3)]"
+                  className="hidden h-8 shrink-0 items-center gap-1.5 rounded-lg border border-emerald-300/35 bg-emerald-400/18 px-3 text-xs font-semibold tracking-wide text-emerald-50 transition-all duration-200 hover:bg-emerald-400/26 sm:inline-flex"
                 >
                   <Play size={12} fill="currentColor" />
                   Play
@@ -265,7 +267,7 @@ const HomeTopNav = ({
               <button
                 type="button"
                 onClick={() => navigate("/login")}
-                className="h-8 px-3 rounded-lg text-slate-300 hover:text-white text-xs font-medium transition-colors"
+                className="h-8 rounded-lg border border-slate-500/25 bg-slate-900/50 px-3 text-xs font-medium text-slate-300 transition-colors hover:border-slate-300/40 hover:text-white"
               >
                 Log in
               </button>
@@ -283,15 +285,15 @@ const HomeTopNav = ({
           className="sm:hidden fixed bottom-0 left-0 right-0 z-50 pointer-events-auto"
         >
           {/* Top border line */}
-          <div className="absolute top-0 left-0 right-0 h-px bg-white/[0.08]" />
-          <div className="bg-[#070d18]/95 backdrop-blur-2xl px-2 pb-safe">
+          <div className="absolute left-0 right-0 top-0 h-px bg-slate-400/20" />
+          <div className="app-top-nav px-2 pb-safe">
             <div className="flex items-center justify-around h-16">
 
               {/* Home */}
               <button
                 type="button"
                 onClick={() => navigate("/")}
-                className="flex items-center justify-center h-12 w-12 text-slate-500 hover:text-slate-300 transition-colors"
+                className="flex h-12 w-12 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-slate-800/55 hover:text-slate-300"
                 title="Home"
               >
                 <Home size={24} strokeWidth={1.75} />
@@ -301,7 +303,7 @@ const HomeTopNav = ({
               <button
                 type="button"
                 onClick={() => setLeaderboardOpen((prev) => !prev)}
-                className="flex items-center justify-center h-12 w-12 text-slate-500 hover:text-slate-300 transition-colors"
+                className="flex h-12 w-12 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-slate-800/55 hover:text-slate-300"
                 title="Ranks"
               >
                 <Trophy size={24} strokeWidth={1.75} />
@@ -313,7 +315,7 @@ const HomeTopNav = ({
                 onClick={() => {
                   if (currentLevel?.slug) navigate(`/level/${currentLevel.slug}`);
                 }}
-                className="flex flex-col items-center justify-center h-12 w-12 text-slate-500 hover:text-[#10b981] transition-colors"
+                className="flex h-12 w-12 flex-col items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-emerald-400/12 hover:text-emerald-300"
                 title="Play"
               >
                 <Play size={24} fill="none" strokeWidth={1.75} />
@@ -323,7 +325,7 @@ const HomeTopNav = ({
               <button
                 type="button"
                 onClick={() => navigate("/store")}
-                className="flex items-center justify-center h-12 w-12 text-slate-400 hover:text-slate-300 transition-colors"
+                className="flex h-12 w-12 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-800/55 hover:text-slate-300"
                 title="Store"
               >
                 <ShoppingBag size={24} strokeWidth={1.75} />
@@ -333,11 +335,11 @@ const HomeTopNav = ({
               <button
                 type="button"
                 onClick={() => navigate("/profile")}
-                className="flex items-center justify-center h-12 w-12 text-slate-500 hover:text-slate-300 transition-colors"
+                className="flex h-12 w-12 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-slate-800/55 hover:text-slate-300"
                 title="Profile"
               >
                 {user?.profile?.avatar_url ? (
-                  <img src={user.profile.avatar_url} alt="profile" className="w-6 h-6 rounded-full object-cover ring-1 ring-white/20" />
+                  <img src={user.profile.avatar_url} alt="profile" className="h-6 w-6 rounded-full object-cover ring-1 ring-slate-200/30" />
                 ) : (
                   <User size={24} strokeWidth={1.75} />
                 )}

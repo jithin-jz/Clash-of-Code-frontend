@@ -3,34 +3,49 @@
 
 @layer base {
   :root {
-    --app-bg: #1a1a1a;
-    --app-bg-elevated: #262626;
-    --background: 0 0% 10%;
-    --foreground: 0 0% 96%;
-    --card: 0 0% 15%;
-    --card-foreground: 0 0% 96%;
-    --popover: 0 0% 15%;
-    --popover-foreground: 0 0% 96%;
-    --primary: 36 100% 53%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 20%;
-    --secondary-foreground: 0 0% 96%;
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 36 100% 53%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
+    --app-bg: #060b13;
+    --app-bg-elevated: #0b111d;
+    --app-surface: #0f1826;
+    --app-surface-elevated: #172235;
+    --app-text: #f1f5f9;
+    --app-muted-text: #94a3b8;
+    --app-accent: #22d3ee;
+    --app-accent-strong: #06b6d4;
+    --app-success: #34d399;
+    --app-danger: #fb7185;
+    --app-shadow-soft: 0 16px 40px rgba(3, 8, 17, 0.42);
+    --app-shadow-hard: 0 22px 60px rgba(2, 6, 15, 0.58);
+
+    --background: 218 44% 7%;
+    --foreground: 210 40% 96%;
+    --card: 220 40% 11%;
+    --card-foreground: 210 40% 96%;
+    --popover: 219 38% 11%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 188 94% 54%;
+    --primary-foreground: 220 45% 10%;
+    --secondary: 217 25% 18%;
+    --secondary-foreground: 210 38% 92%;
+    --muted: 218 22% 18%;
+    --muted-foreground: 216 20% 70%;
+    --accent: 188 94% 54%;
+    --accent-foreground: 220 45% 10%;
+    --destructive: 350 89% 66%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 24%;
-    --input: 0 0% 24%;
-    --ring: 36 100% 53%;
-    --radius: 0.9rem;
+    --border: 217 28% 24%;
+    --input: 218 28% 22%;
+    --ring: 188 94% 54%;
+    --radius: 0.85rem;
+  }
+
+  * {
+    border-color: hsl(var(--border));
   }
 
   html {
     background-color: var(--app-bg);
-    color: #f5f5f5;
-    font-family: "Outfit", "Sora", sans-serif;
+    color: var(--app-text);
+    font-family: "Sora", "Outfit", sans-serif;
     overflow-x: hidden;
     scroll-behavior: smooth;
   }
@@ -41,7 +56,29 @@
   }
 
   body {
-    background: var(--app-bg);
+    margin: 0;
+    background:
+      radial-gradient(circle at 14% 16%, rgba(34, 211, 238, 0.12), transparent 34%),
+      radial-gradient(circle at 84% 82%, rgba(14, 165, 233, 0.12), transparent 32%),
+      linear-gradient(180deg, #060b13 0%, #070d17 100%);
+    color: var(--app-text);
+    line-height: 1.55;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "Outfit", "Sora", sans-serif;
+    letter-spacing: -0.018em;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.28);
+    color: hsl(var(--foreground));
   }
 
   button,
@@ -67,9 +104,11 @@
     will-change: auto;
   }
 
-  /* Scrollbar settings removed to allow default browser scrollbars */
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.45);
+  }
 
-  /* Remove 300ms tap delay on mobile */
   a,
   button,
   [role="button"],
@@ -110,6 +149,8 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+  --color-success: var(--app-success);
+  --color-danger: var(--app-danger);
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -118,13 +159,82 @@
 
 @layer utilities {
   .bg-glass {
-    background: rgba(38, 38, 38, 0.85);
+    background: linear-gradient(
+      180deg,
+      rgba(15, 24, 38, 0.9) 0%,
+      rgba(10, 18, 30, 0.86) 100%
+    );
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
   }
 
   .border-glass {
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+  }
+
+  .app-surface {
+    background: linear-gradient(
+      180deg,
+      rgba(24, 36, 54, 0.86) 0%,
+      rgba(15, 24, 38, 0.94) 100%
+    );
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: var(--app-shadow-soft);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+  }
+
+  .app-panel {
+    background: linear-gradient(
+      180deg,
+      rgba(14, 22, 34, 0.94) 0%,
+      rgba(9, 14, 24, 0.98) 100%
+    );
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 1rem;
+    box-shadow: var(--app-shadow-hard);
+  }
+
+  .app-top-nav {
+    background: linear-gradient(
+      180deg,
+      rgba(10, 16, 27, 0.94) 0%,
+      rgba(8, 13, 23, 0.88) 100%
+    );
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+  }
+
+  .app-hairline {
+    border-color: rgba(148, 163, 184, 0.15);
+  }
+
+  .app-title {
+    font-family: "Outfit", "Sora", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .app-page-width {
+    width: min(100%, 76rem);
+    margin-inline: auto;
+  }
+
+  .app-grid-overlay {
+    background-image:
+      linear-gradient(to right, rgba(148, 163, 184, 0.13) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(148, 163, 184, 0.13) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .app-noise-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-size: 150px 150px;
+  }
+
+  .app-ring {
+    box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.24);
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -141,58 +251,77 @@
   .custom-scrollbar {
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.45) rgba(15, 23, 42, 0.32);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.3);
+    border-radius: 9999px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.5);
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background-clip: padding-box;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.72);
+    background-clip: padding-box;
+  }
+
+  .custom-scrollbar-thin,
+  .custom-scrollbar-thin::-webkit-scrollbar {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
   }
 
   .custom-scrollbar-thin {
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
-    scrollbar-width: thin !important;
-    scrollbar-color: rgba(148, 163, 184, 0.55) rgba(15, 23, 42, 0.35) !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.55) rgba(15, 23, 42, 0.35);
   }
 
   .custom-scrollbar-thin::-webkit-scrollbar {
-    width: 8px !important;
-    height: 8px !important;
-    display: block !important;
+    width: 8px;
+    height: 8px;
+    display: block;
   }
 
   .custom-scrollbar-thin::-webkit-scrollbar-track {
-    background: rgba(15, 23, 42, 0.35) !important;
+    background: rgba(15, 23, 42, 0.35);
     border-radius: 9999px;
   }
 
   .custom-scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.55) !important;
+    background: rgba(148, 163, 184, 0.55);
     border: 2px solid transparent;
     border-radius: 9999px;
     background-clip: padding-box;
   }
 
   .custom-scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: rgba(148, 163, 184, 0.75) !important;
+    background: rgba(148, 163, 184, 0.75);
     background-clip: padding-box;
   }
 
   .custom-scrollbar-none {
-    -ms-overflow-style: none !important;
-    scrollbar-width: none !important;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   .custom-scrollbar-none::-webkit-scrollbar {
-    width: 0 !important;
-    height: 0 !important;
-    display: none !important;
+    width: 0;
+    height: 0;
+    display: none;
   }
 
-  .app-surface {
-    background: #262626;
-    border: 1px solid #3a3a3a;
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(14px);
-  }
-
-  /* Safe area padding for iOS home indicator */
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
@@ -222,7 +351,6 @@
   animation: fade-in-down 0.3s ease-out;
 }
 
-/* Animations */
 @keyframes slide-in-right {
   from {
     transform: translateX(100px);

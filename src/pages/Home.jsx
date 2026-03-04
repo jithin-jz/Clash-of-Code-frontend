@@ -48,14 +48,14 @@ const Home = () => {
   // Removed internal user check as routing is now handled in App.jsx
   if (isLoading) {
     return (
-      <div className="relative select-none text-white min-h-screen">
+      <div className="relative min-h-screen select-none text-foreground">
         <HomeSkeleton />
       </div>
     );
   }
 
   return (
-    <div className="relative select-none text-white min-h-screen">
+    <div className="relative min-h-screen select-none text-foreground">
       <div className="w-full relative">
         <ChallengeMap
           user={user}

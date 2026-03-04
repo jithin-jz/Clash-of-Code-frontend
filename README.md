@@ -21,6 +21,11 @@ The **Clash of Code Frontend** is a modern, interactive web application built wi
 - `src/services/`: API client and WebSocket integration layers.
 - `src/admin/`: Administrative dashboard components.
 
+## 🧱 UI Architecture
+
+- Professional frontend architecture guide: [`docs/UI_ARCHITECTURE.md`](./docs/UI_ARCHITECTURE.md)
+- Recommended approach: **Feature-First + Design System** (tokens -> primitives -> layout -> feature UI -> page composition)
+
 ## 🛠️ Key Features
 
 - **Interactive Code Arena:** Real-time code editing and execution validation.
