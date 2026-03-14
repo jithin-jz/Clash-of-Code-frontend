@@ -35,23 +35,27 @@ if (messaging) {
       payload,
     );
 
-    // If the message has a notification property, the browser will likely
-    // display it automatically (FCM default behavior).
-    // Manually calling showNotification here can cause double notifications.
-    if (payload.notification) {
-      console.log(
-        "[firebase-messaging-sw.js] Notification already present in payload, bypassing manual show.",
-      );
-      return;
-    }
+    // We now use data-only messages for 100% control over display and
+    // to prevent the browser from showing its own "automatic" notification.
+    const data = payload.data || {};
+    const title = data.title || "New Notification";
+    const body = data.body || "";
 
-    const notificationTitle = payload.data?.title || "New Notification";
+    // Ensure icon URL is absolute so it shows up on mobile
+    const iconPath = data.icon || data.image || "/favicon.png";
+    const absoluteIcon = iconPath.startsWith("http")
+      ? iconPath
+      : `${self.location.origin}${iconPath}`;
+
     const notificationOptions = {
-      body: payload.data?.body || "",
-      icon: payload.data?.image || "/favicon.png",
-      data: payload.data,
+      body: body,
+      icon: absoluteIcon,
+      badge: absoluteIcon, // small icon in status bar on Android
+      data: data,
+      tag: "clash-of-code-notif", // Collapses rapid notifications
+      renotify: true, // Vibrate/sound again even if tag is same
     };
 
-    self.registration.showNotification(notificationTitle, notificationOptions);
+    self.registration.showNotification(title, notificationOptions);
   });
 }
