@@ -8,10 +8,10 @@ const legalLinks = [
 ];
 
 const socialLinks = [
-  { label: "GitHub", href: "https://github.com", Icon: Github },
-  { label: "LinkedIn", href: "https://linkedin.com", Icon: Linkedin },
-  { label: "Twitter", href: "https://x.com", Icon: Twitter },
-  { label: "YouTube", href: "https://youtube.com", Icon: Youtube },
+  { label: "GitHub", href: "https://github.com/jithin-jz", Icon: Github },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/jithin-kr/", Icon: Linkedin },
+  { label: "Twitter", href: "https://x.com/jithin_jz", Icon: Twitter },
+  { label: "YouTube", href: "https://www.youtube.com/@jithinjz", Icon: Youtube },
 ];
 
 const SiteFooter = () => {
