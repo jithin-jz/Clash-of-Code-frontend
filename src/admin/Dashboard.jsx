@@ -258,8 +258,8 @@ const AdminDashboard = () => {
   if (!user?.is_staff && !user?.is_superuser) return <AdminPageSkeleton />;
 
   return (
-    <div className="relative h-screen overflow-hidden bg-background font-sans antialiased text-foreground">
-      <AppBackdrop />
+    <div className="relative h-screen overflow-hidden bg-black font-sans antialiased text-foreground">
+      <AppBackdrop variant="admin" />
       <div className="relative z-10 flex h-full flex-col md:flex-row">
         <AdminSidebar
           user={user}
@@ -269,67 +269,67 @@ const AdminDashboard = () => {
         />
 
         <main className="flex-1 min-h-0 h-full overflow-y-auto custom-scrollbar">
-          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+          <div className="mx-auto max-w-7xl space-y-6 p-3 sm:p-6 lg:p-8">
             {activeTab === "users" && (
               <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 gap-6">
-                    <div className="app-panel flex flex-col justify-between p-6">
+                    <div className="admin-panel flex flex-col justify-between p-4 sm:p-6">
                       <div>
-                        <div className="flex items-center justify-between mb-2">
+                        <div className="mb-2 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
                           <h3 className="text-sm font-semibold text-slate-100">
                             System Overview
                           </h3>
                           <Badge
                             variant="outline"
-                            className="h-5 border-cyan-300/25 bg-cyan-400/10 text-[9px] font-medium uppercase tracking-wider text-cyan-200"
+                            className="admin-muted-badge h-6 px-2.5 text-[9px] font-medium uppercase tracking-[0.18em]"
                           >
                             Operational
                           </Badge>
                         </div>
-                        <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 mt-6">
-                          <div className="rounded-lg border border-border/70 bg-secondary/45 p-3 text-center">
-                            <p className="mb-1 text-[9px] font-semibold uppercase text-slate-500">
+                        <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-6">
+                          <div className="admin-subpanel p-3 text-center">
+                            <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                               Users
                             </p>
                             <p className="text-xl font-bold tracking-tight text-slate-100">
                               {integrity?.users || 0}
                             </p>
                           </div>
-                          <div className="rounded-lg border border-border/70 bg-secondary/45 p-3 text-center">
-                            <p className="mb-1 text-[9px] font-semibold uppercase text-slate-500">
+                          <div className="admin-subpanel p-3 text-center">
+                            <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                               Sessions
                             </p>
                             <p className="text-xl font-bold tracking-tight text-slate-100">
                               {rawStats.active_sessions || 0}
                             </p>
                           </div>
-                          <div className="rounded-lg border border-border/70 bg-secondary/45 p-3 text-center">
-                            <p className="mb-1 text-[9px] font-semibold uppercase text-slate-500">
+                          <div className="admin-subpanel p-3 text-center">
+                            <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                               Challenges
                             </p>
                             <p className="text-xl font-bold tracking-tight text-slate-100">
                               {integrity?.challenges || 0}
                             </p>
                           </div>
-                          <div className="rounded-lg border border-border/70 bg-secondary/45 p-3 text-center">
-                            <p className="mb-1 text-[9px] font-semibold uppercase text-slate-500">
+                          <div className="admin-subpanel p-3 text-center">
+                            <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                               Inventory
                             </p>
                             <p className="text-xl font-bold tracking-tight text-slate-100">
                               {integrity?.store_items || 0}
                             </p>
                           </div>
-                          <div className="rounded-lg border border-border/70 bg-secondary/45 p-3 text-center">
-                            <p className="mb-1 text-[9px] font-semibold uppercase text-slate-500">
+                          <div className="admin-subpanel p-3 text-center">
+                            <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                               Audit Logs
                             </p>
                             <p className="text-xl font-bold tracking-tight text-slate-100">
                               {integrity?.audit_logs || 0}
                             </p>
                           </div>
-                          <div className="rounded-lg border border-border/70 bg-secondary/45 p-3 text-center">
-                            <p className="mb-1 text-[9px] font-semibold uppercase text-slate-500">
+                          <div className="admin-subpanel p-3 text-center">
+                            <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                               XP Spent
                             </p>
                             <p className="text-xl font-bold tracking-tight text-slate-100">
@@ -338,9 +338,9 @@ const AdminDashboard = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="mt-6 flex flex-col gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="mt-6 flex flex-col gap-3 border-t border-white/8 pt-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center gap-2">
-                          <Shield className="text-cyan-300" size={12} />
+                          <Shield className="text-slate-300" size={12} />
                           <span className="text-[9px] font-medium uppercase tracking-wider text-slate-500">
                             Real-time synchronization active
                           </span>
@@ -349,7 +349,7 @@ const AdminDashboard = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => setActiveTab("audit")}
-                          className="h-7 rounded-md px-3 text-[9px] font-medium uppercase tracking-wider text-slate-400 hover:bg-slate-800/65 hover:text-white"
+                          className="h-8 w-full rounded-md px-3 text-[9px] font-medium uppercase tracking-wider text-slate-400 hover:bg-white/5 hover:text-white sm:h-7 sm:w-auto"
                         >
                           View Logs
                         </Button>

@@ -116,7 +116,7 @@ const AdminAuditLogs = () => {
         return (
           <Badge
             variant="outline"
-            className="bg-white/[0.04] border-white/10 text-neutral-300 text-[9px] uppercase tracking-wider"
+            className="admin-muted-badge text-[9px] uppercase tracking-wider"
           >
             Moderation
           </Badge>
@@ -134,7 +134,7 @@ const AdminAuditLogs = () => {
         return (
           <Badge
             variant="outline"
-            className="bg-white/[0.04] border-white/10 text-neutral-300 text-[9px] uppercase tracking-wider"
+            className="admin-muted-badge text-[9px] uppercase tracking-wider"
           >
             Broadcast
           </Badge>
@@ -143,7 +143,7 @@ const AdminAuditLogs = () => {
         return (
           <Badge
             variant="outline"
-            className="bg-white/[0.04] border-white/10 text-neutral-400 text-[9px] uppercase tracking-wider"
+            className="admin-muted-badge text-[9px] uppercase tracking-wider text-neutral-400"
           >
             System
           </Badge>
@@ -193,7 +193,7 @@ const AdminAuditLogs = () => {
             size="sm"
             onClick={() => fetchLogs(query)}
             disabled={loading}
-            className="h-8 gap-2 bg-white/[0.04] border-white/10 text-neutral-300 hover:text-white hover:bg-white/10 transition-colors rounded-md"
+            className="h-9 w-full gap-2 rounded-md border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:w-auto"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             <span className="text-xs font-medium">
@@ -207,12 +207,12 @@ const AdminAuditLogs = () => {
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Search action/admin/target/request id..."
-            className="h-8 w-full sm:w-80 bg-white/[0.04] border-white/10 text-neutral-200 placeholder:text-neutral-500"
+            className="admin-control h-9 w-full sm:w-80 text-neutral-200"
           />
           <select
             value={query.action || ""}
             onChange={(e) => fetchLogs({ action: e.target.value, page: 1 })}
-            className="h-8 w-full sm:w-auto rounded-md bg-white/[0.04] border border-white/10 text-neutral-300 text-xs px-2"
+            className="admin-control h-9 w-full sm:w-auto rounded-md text-xs px-3"
           >
             <option value="">All Actions</option>
             <option value="TOGGLE_USER_BLOCK">Toggle User Block</option>
@@ -222,7 +222,7 @@ const AdminAuditLogs = () => {
           <select
             value={query.ordering || "-timestamp"}
             onChange={(e) => fetchLogs({ ordering: e.target.value, page: 1 })}
-            className="h-8 w-full sm:w-auto rounded-md bg-white/[0.04] border border-white/10 text-neutral-300 text-xs px-2"
+            className="admin-control h-9 w-full sm:w-auto rounded-md text-xs px-3"
           >
             <option value="-timestamp">Newest</option>
             <option value="timestamp">Oldest</option>
@@ -234,7 +234,7 @@ const AdminAuditLogs = () => {
             onChange={(e) =>
               fetchLogs({ page_size: Number(e.target.value), page: 1 })
             }
-            className="h-8 w-full sm:w-auto rounded-md bg-white/[0.04] border border-white/10 text-neutral-300 text-xs px-2"
+            className="admin-control h-9 w-full sm:w-auto rounded-md text-xs px-3"
           >
             <option value="10">10 / page</option>
             <option value="25">25 / page</option>
@@ -244,23 +244,93 @@ const AdminAuditLogs = () => {
         </div>
       </div>
 
-      <div className="rounded-lg border border-white/5 bg-[#0a0a0a] shadow-sm overflow-hidden">
+      <div className="space-y-3 md:hidden">
+        {loading ? (
+          [...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className="admin-panel h-36 animate-pulse bg-white/[0.02]"
+            />
+          ))
+        ) : logs.length === 0 ? (
+          <div className="admin-panel px-4 py-10 text-center text-sm italic text-neutral-500">
+            No logs recorded.
+          </div>
+        ) : (
+          logs.map((log, idx) => (
+            <div
+              key={
+                log.request_id ||
+                `${log.timestamp}-${log.admin}-${log.action}-${log.target}-${idx}`
+              }
+              className="admin-panel p-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-[10px] font-bold text-neutral-500">
+                      {log.admin ? log.admin[0].toUpperCase() : "S"}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium text-neutral-100">
+                        {log.admin || "System"}
+                      </div>
+                      <div className="truncate text-[11px] text-neutral-500">
+                        {log.target}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="shrink-0">{getActionBadge(log.action)}</div>
+              </div>
+              <div className="mt-3 rounded-lg border border-white/8 bg-white/[0.02] px-3 py-2 text-[10px] font-mono text-neutral-400">
+                {renderDetails(log.details)}
+              </div>
+              <div className="mt-3 flex items-center justify-between gap-3 text-[11px]">
+                <div className="flex items-center gap-1.5 text-neutral-400">
+                  <UserIcon size={12} className="text-neutral-500" />
+                  <span className="truncate">{log.target}</span>
+                </div>
+                <div className="text-right">
+                  <div className="text-neutral-300">
+                    {log.timestamp
+                      ? formatDistanceToNow(new Date(log.timestamp), {
+                          addSuffix: true,
+                        })
+                      : "Unknown"}
+                  </div>
+                  <div className="text-[9px] uppercase text-neutral-600">
+                    {log.timestamp
+                      ? new Date(log.timestamp).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : ""}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="hidden overflow-hidden md:block admin-panel">
         <Table className="min-w-[980px]">
           <TableHeader>
             <TableRow className="border-white/10 hover:bg-transparent bg-white/[0.02]">
-              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3 px-6">
+              <TableHead className="px-6 py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Admin
               </TableHead>
-              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3">
+              <TableHead className="py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Action
               </TableHead>
-              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3">
+              <TableHead className="py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Subject
               </TableHead>
-              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3 w-1/3">
+              <TableHead className="w-1/3 py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Details
               </TableHead>
-              <TableHead className="text-right text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3 px-6">
+              <TableHead className="px-6 py-3 text-right text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Timestamp
               </TableHead>
             </TableRow>
@@ -290,7 +360,7 @@ const AdminAuditLogs = () => {
                 >
                   <TableCell className="py-3 px-6">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-md bg-white/[0.04] border border-white/10 flex items-center justify-center text-[10px] font-bold text-neutral-500">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-[10px] font-bold text-neutral-500">
                         {log.admin ? log.admin[0].toUpperCase() : "S"}
                       </div>
                       <span className="text-sm font-medium text-neutral-100 tracking-tight">
@@ -340,7 +410,7 @@ const AdminAuditLogs = () => {
           </TableBody>
         </Table>
       </div>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-neutral-500">
+      <div className="flex flex-col gap-3 text-xs text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
         <span>
           Showing {start}-{end} of {count}
         </span>
@@ -348,19 +418,19 @@ const AdminAuditLogs = () => {
           <Button
             variant="outline"
             size="sm"
-            className="h-7 px-2 border-white/10 bg-white/[0.04] text-neutral-300 hover:text-white hover:bg-white/10"
+            className="h-8 flex-1 px-3 border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:flex-none"
             disabled={page <= 1 || loading}
             onClick={() => fetchLogs({ page: page - 1 })}
           >
             Prev
           </Button>
-          <span className="text-neutral-400">
+          <span className="min-w-0 text-center text-neutral-400">
             Page {page} / {Math.max(totalPages, 1)}
           </span>
           <Button
             variant="outline"
             size="sm"
-            className="h-7 px-2 border-white/10 bg-white/[0.04] text-neutral-300 hover:text-white hover:bg-white/10"
+            className="h-8 flex-1 px-3 border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:flex-none"
             disabled={page >= totalPages || loading}
             onClick={() => fetchLogs({ page: page + 1 })}
           >
@@ -369,7 +439,7 @@ const AdminAuditLogs = () => {
         </div>
       </div>
       <div className="flex items-center gap-2 px-1">
-        <div className="w-1 h-1 rounded-full bg-[#00af9b]/30" />
+        <div className="h-1 w-1 rounded-full bg-white/30" />
         <p className="text-[9px] text-neutral-600 font-medium uppercase tracking-wider">
           Audit records are immutable.
         </p>

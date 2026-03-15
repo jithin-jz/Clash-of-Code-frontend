@@ -3,7 +3,6 @@ import { authAPI } from "../services/api";
 import { notify } from "../services/notification";
 import {
   Users,
-  TrendingUp,
   Box,
   ShoppingBag,
   Gem,
@@ -65,33 +64,33 @@ const Analytics = () => {
           value={overview.total_users}
           sub={`+${overview.active_24h} Active (24h)`}
           icon={<Users size={16} />}
-          color="text-blue-400"
+          color="text-neutral-200"
         />
         <StatCard
           title="Revenue"
           value={`${economy_pulse.total_store_revenue.toLocaleString()} XP`}
           sub="Total Revenue"
           icon={<Gem size={16} />}
-          color="text-emerald-400"
+          color="text-neutral-200"
         />
         <StatCard
           title="Store Items"
           value={overview.store_catalog}
           sub="Active Items"
           icon={<ShoppingBag size={16} />}
-          color="text-amber-400"
+          color="text-neutral-200"
         />
         <StatCard
           title="Challenges"
           value={overview.total_challenges}
           sub="Total Challenges"
           icon={<Trophy size={16} />}
-          color="text-purple-400"
+          color="text-neutral-200"
         />
       </div>
 
       {/* 2. Growth Visualizer */}
-      <div className="p-6 rounded-2xl border border-white/5 bg-[#0a0a0a] shadow-sm">
+      <div className="admin-panel p-6">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-xl font-bold text-neutral-100 tracking-tight">
@@ -103,7 +102,7 @@ const Analytics = () => {
           </div>
           <Badge
             variant="outline"
-            className="border-white/10 text-neutral-400 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest"
+            className="admin-muted-badge px-3 py-1 text-[10px] font-bold uppercase tracking-widest"
           >
             New Users
           </Badge>
@@ -130,7 +129,7 @@ const Analytics = () => {
                 <div
                   className={`w-full transition-all duration-300 rounded-t-sm ${
                     hasData
-                      ? "bg-blue-600 shadow-sm"
+                      ? "bg-white/80"
                       : "bg-white/5 group-hover/bar:bg-white/10"
                   }`}
                   style={{
@@ -138,7 +137,7 @@ const Analytics = () => {
                     opacity: hasData ? 1 : 0.5,
                   }}
                 >
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#1a1a1a] border border-white/10 text-[10px] px-2.5 py-1.5 rounded shadow-xl opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none font-medium text-white">
+                  <div className="absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 whitespace-nowrap rounded border border-white/10 bg-[#121212] px-2.5 py-1.5 text-[10px] font-medium text-white opacity-0 shadow-xl transition-opacity pointer-events-none group-hover/bar:opacity-100">
                     {item.date}: {item.count} users
                   </div>
                 </div>
@@ -149,7 +148,7 @@ const Analytics = () => {
         <div className="mt-6 flex justify-between text-[10px] font-bold text-neutral-500 uppercase tracking-widest border-t border-white/5 pt-4">
           <span>{growth_trends[0]?.date}</span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+            <span className="h-2 w-2 rounded-full bg-white/70 animate-pulse" />
             Active Growth
           </span>
           <span>Today</span>
@@ -159,10 +158,10 @@ const Analytics = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 3. Competitive Performance */}
         <CardSection
-          icon={<Trophy size={18} className="text-purple-400" />}
+          icon={<Trophy size={18} className="text-neutral-200" />}
           title="Popular Challenges"
         >
-          <div className="rounded-xl border border-white/5 bg-[#0a1220]/50 overflow-hidden">
+          <div className="overflow-hidden rounded-xl border border-white/8 bg-white/[0.02]">
             <Table>
               <TableHeader>
                 <TableRow className="border-white/5 bg-white/[0.02]">
@@ -193,7 +192,7 @@ const Analytics = () => {
                       </div>
                     </TableCell>
                     <TableCell className="py-3 text-right px-4">
-                      <div className="flex items-center justify-end gap-1 text-amber-400 font-mono text-xs font-bold">
+                      <div className="flex items-center justify-end gap-1 text-neutral-200 font-mono text-xs font-bold">
                         <Star size={10} fill="currentColor" />
                         {c.avg_stars.toFixed(1)}
                       </div>
@@ -207,10 +206,10 @@ const Analytics = () => {
 
         {/* 4. Economy Champions */}
         <CardSection
-          icon={<Box size={18} className="text-emerald-400" />}
+          icon={<Box size={18} className="text-neutral-200" />}
           title="Top Selling Items"
         >
-          <div className="rounded-xl border border-white/5 bg-[#0a1220]/50 overflow-hidden">
+          <div className="overflow-hidden rounded-xl border border-white/8 bg-white/[0.02]">
             <Table>
               <TableHeader>
                 <TableRow className="border-white/5 bg-white/[0.02]">
@@ -237,7 +236,7 @@ const Analytics = () => {
                     <TableCell className="py-3 text-right text-xs text-neutral-400 font-mono">
                       {item.sales} Units
                     </TableCell>
-                    <TableCell className="py-3 text-right px-4 text-xs font-bold text-[#00af9b] font-mono">
+                    <TableCell className="py-3 text-right px-4 text-xs font-bold text-neutral-200 font-mono">
                       {item.revenue.toLocaleString()} XP
                     </TableCell>
                   </TableRow>
@@ -252,15 +251,15 @@ const Analytics = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-orange-500/10 text-orange-400">
+            <div className="rounded-xl bg-white/[0.04] p-2 text-neutral-200">
               <Trophy size={18} />
             </div>
             <h2 className="text-xl font-bold text-neutral-100 tracking-tight">
               Top Ranking Users
             </h2>
           </div>
-          <div className="flex items-center gap-2 bg-indigo-500/10 px-3 py-1.5 rounded-lg border border-indigo-500/20">
-            <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">
+          <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">
               In Circulation
             </span>
             <span className="text-sm font-bold text-white font-mono">
@@ -273,7 +272,7 @@ const Analytics = () => {
           {community_leaders.map((user, idx) => (
             <div
               key={user.username}
-              className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-[#0a1220]/40 group hover:border-white/10 hover:bg-[#0a1220]/60 transition-all"
+              className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.02] p-4 transition-all group hover:border-white/12 hover:bg-white/[0.04]"
             >
               <div className="flex items-center gap-4">
                 <span className="text-xs font-bold text-neutral-500 font-mono w-4">
@@ -289,7 +288,7 @@ const Analytics = () => {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-sm font-bold text-[#00af9b] font-mono">
+                <div className="text-sm font-bold text-neutral-100 font-mono">
                   {user.xp.toLocaleString()}
                 </div>
                 <div className="text-[8px] font-bold text-neutral-600 uppercase tracking-widest">
@@ -307,12 +306,12 @@ const Analytics = () => {
 // --- Helper Components ---
 
 const StatCard = ({ title, value, sub, icon, color }) => (
-  <div className="p-5 rounded-xl border border-white/5 bg-[#0a0a0a] hover:border-white/10 transition-colors shadow-sm cursor-default">
+  <div className="admin-panel cursor-default p-5 transition-colors hover:border-white/12">
     <div className="flex items-center justify-between mb-4">
       <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">
         {title}
       </span>
-      <div className={`p-1.5 rounded bg-white/5 ${color}`}>{icon}</div>
+      <div className={`rounded bg-white/[0.04] p-1.5 ${color}`}>{icon}</div>
     </div>
     <div className="space-y-0.5">
       <h3 className="text-2xl font-bold text-neutral-100 tracking-tight">
@@ -326,9 +325,9 @@ const StatCard = ({ title, value, sub, icon, color }) => (
 );
 
 const CardSection = ({ title, icon, children }) => (
-  <div className="p-6 rounded-xl border border-white/5 bg-[#0a0a0a] shadow-sm space-y-5">
+  <div className="admin-panel space-y-5 p-6">
     <div className="flex items-center gap-2.5">
-      <div className="p-1.5 rounded bg-white/5">{icon}</div>
+      <div className="rounded bg-white/[0.04] p-1.5">{icon}</div>
       <h2 className="text-lg font-bold text-neutral-100 tracking-tight">
         {title}
       </h2>

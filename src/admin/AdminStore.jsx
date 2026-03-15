@@ -168,30 +168,102 @@ const AdminStore = () => {
         </h2>
         <Button
           onClick={() => handleOpenDialog()}
-          className="h-8 gap-2 bg-white text-black hover:bg-zinc-200 font-medium px-3 rounded-md transition-colors"
+          className="h-8 w-full gap-2 rounded-md bg-white px-3 font-medium text-black transition-colors hover:bg-zinc-200 sm:w-auto"
         >
           <Plus size={16} />
           <span className="text-xs">Add Item</span>
         </Button>
       </div>
 
-      <div className="rounded-lg border border-white/5 bg-[#0a0a0a] shadow-sm overflow-hidden">
+      <div className="space-y-3 md:hidden">
+        {loading ? (
+          [...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className="admin-panel h-32 animate-pulse bg-white/[0.02]"
+            />
+          ))
+        ) : paginatedItems.length === 0 ? (
+          <div className="admin-panel px-4 py-10 text-center text-sm italic text-neutral-500">
+            No store items found.
+          </div>
+        ) : (
+          paginatedItems.map((item) => (
+            <div key={item.id} className="admin-panel p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-white/[0.04]">
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <ImageIcon size={18} className="text-neutral-600" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium text-neutral-100">
+                    {item.name}
+                  </div>
+                  <div className="mt-1 line-clamp-2 text-[11px] text-neutral-500">
+                    {item.description}
+                  </div>
+                  <div className="mt-3 flex items-center justify-between gap-3">
+                    <Badge
+                      variant="outline"
+                      className="admin-muted-badge rounded-md px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider"
+                    >
+                      {item.category}
+                    </Badge>
+                    <div className="text-xs font-mono text-neutral-200">
+                      {item.cost} XP
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 flex gap-2 border-t border-white/8 pt-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleOpenDialog(item)}
+                  className="h-9 flex-1 border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white"
+                >
+                  <Pencil size={16} />
+                  Edit
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDelete(item.id)}
+                  className="h-9 flex-1 border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-red-500/10 hover:text-red-400"
+                >
+                  <Trash2 size={16} />
+                  Delete
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="hidden overflow-hidden md:block admin-panel">
         <Table className="min-w-[760px]">
           <TableHeader>
             <TableRow className="border-white/10 hover:bg-transparent bg-white/[0.02]">
-              <TableHead className="w-[80px] text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3 px-6">
+              <TableHead className="w-[80px] px-6 py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Icon
               </TableHead>
-              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3">
+              <TableHead className="py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Item Details
               </TableHead>
-              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3">
+              <TableHead className="py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Category
               </TableHead>
-              <TableHead className="text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3">
+              <TableHead className="py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Price
               </TableHead>
-              <TableHead className="text-right text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3 px-6">
+              <TableHead className="px-6 py-3 text-right text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Actions
               </TableHead>
             </TableRow>
@@ -232,7 +304,7 @@ const AdminStore = () => {
                     <TableCell className="py-3">
                       <Badge
                         variant="outline"
-                        className="bg-white/[0.04]/60 border-white/10 text-[9px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md text-neutral-300"
+                        className="admin-muted-badge rounded-md px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider"
                       >
                         {item.category}
                       </Badge>
@@ -266,7 +338,7 @@ const AdminStore = () => {
         </Table>
       </div>
       {!loading && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-neutral-500">
+        <div className="flex flex-col gap-3 text-xs text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-2">
             <span>
               Showing {totalCount === 0 ? 0 : (page - 1) * pageSize + 1}-
@@ -278,7 +350,7 @@ const AdminStore = () => {
                 setPageSize(Number(e.target.value));
                 setPage(1);
               }}
-              className="h-7 rounded-md bg-white/[0.04] border border-white/10 text-neutral-300 text-xs px-2"
+              className="admin-control h-8 rounded-md text-xs px-3"
             >
               <option value="10">10 / page</option>
               <option value="25">25 / page</option>
@@ -289,7 +361,7 @@ const AdminStore = () => {
             <Button
               variant="outline"
               size="sm"
-              className="h-7 px-2 border-white/10 bg-white/[0.04] text-neutral-300 hover:text-white hover:bg-white/10"
+              className="h-8 flex-1 px-3 border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:flex-none"
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
@@ -301,7 +373,7 @@ const AdminStore = () => {
             <Button
               variant="outline"
               size="sm"
-              className="h-7 px-2 border-white/10 bg-white/[0.04] text-neutral-300 hover:text-white hover:bg-white/10"
+              className="h-8 flex-1 px-3 border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:flex-none"
               disabled={page >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             >
@@ -313,7 +385,7 @@ const AdminStore = () => {
 
       {/* Edit/Create Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-[#0a0a0a] border-white/10 text-white max-w-[calc(100vw-2rem)] sm:max-w-md shadow-2xl">
+        <DialogContent className="border-white/10 bg-[#050505] text-white max-w-[calc(100vw-2rem)] sm:max-w-md shadow-2xl">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold text-neutral-100">
               {currentItem ? "Edit Item" : "New Item"}
@@ -330,7 +402,7 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="bg-white/[0.04] border-white/10 h-9 text-sm"
+                  className="admin-control h-9 text-sm"
                   required
                 />
               </div>
@@ -343,7 +415,7 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  className="w-full h-9 px-3 rounded-md bg-white/[0.04] border border-white/10 text-sm text-white focus:outline-none focus:ring-1 focus:ring-white/20"
+                  className="admin-control h-9 w-full rounded-md px-3 text-sm text-white focus:outline-none"
                 >
                   <option value="THEME">Theme</option>
                   <option value="FONT">Font</option>
@@ -362,7 +434,7 @@ const AdminStore = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="bg-white/[0.04] border-white/10 h-20 text-sm resize-none"
+                className="admin-control h-20 text-sm resize-none"
               />
             </div>
 
@@ -377,7 +449,7 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, cost: parseInt(e.target.value) })
                   }
-                  className="bg-white/[0.04] border-white/10 h-9 text-sm"
+                  className="admin-control h-9 text-sm"
                   required
                 />
               </div>
@@ -390,7 +462,7 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, icon_name: e.target.value })
                   }
-                  className="bg-white/[0.04] border-white/10 h-9 text-sm"
+                  className="admin-control h-9 text-sm"
                   placeholder="e.g. Palette"
                 />
               </div>
@@ -405,7 +477,7 @@ const AdminStore = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, item_data: e.target.value })
                 }
-                className="bg-white/[0.04] border-white/10 h-24 font-mono text-[10px] resize-none"
+                className="admin-control h-24 font-mono text-[10px] resize-none"
                 placeholder='{"theme_key": "dracula"}'
               />
             </div>
@@ -420,7 +492,7 @@ const AdminStore = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, image: e.target.value })
                   }
-                  className="bg-white/[0.04] border-white/10 h-9 text-sm flex-1"
+                  className="admin-control h-9 flex-1 text-sm"
                   placeholder="/assets/item.png"
                 />
                 <Input
@@ -453,7 +525,7 @@ const AdminStore = () => {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-9 border-white/10 bg-white/[0.04] text-neutral-300 hover:text-white hover:bg-white/10"
+                  className="h-9 border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white"
                   onClick={() =>
                     document.getElementById("image-upload").click()
                   }

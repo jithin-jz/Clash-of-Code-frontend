@@ -1,6 +1,15 @@
 import React from "react";
 
-const AppBackdrop = () => {
+const AppBackdrop = ({ variant = "default" }) => {
+  if (variant === "admin") {
+    return (
+      <>
+        <div className="admin-shell absolute inset-0 pointer-events-none" />
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.04),transparent_34%)]" />
+      </>
+    );
+  }
+
   return (
     <>
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(180deg,#060b13_0%,#070d17_100%)]" />

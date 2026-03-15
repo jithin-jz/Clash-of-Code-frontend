@@ -19,11 +19,11 @@ const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
   ];
 
   return (
-    <aside className="app-surface w-full shrink-0 border-b border-border/70 md:h-full md:w-64 md:border-b-0 md:border-r">
+    <aside className="w-full shrink-0 border-b border-white/8 bg-black/95 md:h-full md:w-64 md:border-b-0 md:border-r">
       {/* Header */}
-      <div className="app-top-nav flex h-14 items-center justify-between border-b border-border/65 px-4 md:px-6">
+      <div className="flex h-14 items-center justify-between border-b border-white/8 bg-black px-4 md:px-6">
         <div className="flex items-center gap-2 min-w-0">
-          <Shield className="text-cyan-300" size={18} />
+          <Shield className="text-slate-200" size={18} />
           <span className="truncate text-sm font-semibold tracking-tight text-slate-100">
             Admin Panel
           </span>
@@ -31,7 +31,7 @@ const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
         <Button
           onClick={handleLogout}
           variant="ghost"
-          className="h-8 gap-2 rounded-md px-2 text-xs text-slate-300 hover:bg-slate-800/65 hover:text-white md:hidden"
+          className="h-8 gap-2 rounded-md px-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white md:hidden"
         >
           <LogOut size={14} />
           <span>Logout</span>
@@ -52,13 +52,13 @@ const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
               onClick={() => setActiveTab(item.id)}
               className={`shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs md:text-sm transition-all duration-200 ${
                 activeTab === item.id
-                  ? "border border-cyan-300/25 bg-cyan-400/10 text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
-                  : "text-slate-300 hover:text-white hover:bg-slate-800/55 hover:border hover:border-border/55"
+                  ? "border border-white/12 bg-white/[0.045] text-white"
+                  : "border border-transparent text-slate-300 hover:border-white/8 hover:bg-white/[0.03] hover:text-white"
               }`}
             >
               <span
                 className={`${
-                  activeTab === item.id ? "text-cyan-300" : "text-slate-500"
+                  activeTab === item.id ? "text-slate-100" : "text-slate-500"
                 }`}
               >
                 {item.icon}
@@ -70,9 +70,9 @@ const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
       </nav>
 
       {/* Profile Section */}
-      <div className="hidden border-t border-border/65 p-4 md:block">
+      <div className="hidden border-t border-white/8 p-4 md:block">
         <div className="flex items-center gap-3 mb-4 px-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-secondary/70 text-white">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white">
             {user?.profile?.avatar_url ? (
               <img
                 src={user.profile.avatar_url}
@@ -96,7 +96,7 @@ const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
         <Button
           onClick={handleLogout}
           variant="ghost"
-          className="h-9 w-full justify-start gap-2.5 rounded-md px-2 text-xs text-slate-300 hover:bg-slate-800/65 hover:text-white"
+          className="h-9 w-full justify-start gap-2.5 rounded-md px-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white"
         >
           <LogOut size={14} />
           <span>Logout</span>

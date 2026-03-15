@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Plus, Edit, Trash2, X, RefreshCw, Layers } from "lucide-react";
+import { Plus, Edit, Trash2, X, RefreshCw } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
 import {
   Table,
   TableBody,
@@ -108,7 +107,7 @@ const AdminTasks = () => {
     };
 
     return (
-      <div className="bg-[#0a0a0a] rounded-xl p-6 border border-white/5 shadow-sm">
+      <div className="admin-panel p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-neutral-100">
             {task ? "Edit Challenge" : "New Challenge"}
@@ -133,7 +132,7 @@ const AdminTasks = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full bg-white/[0.04] border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white placeholder-slate-600"
+                className="admin-control w-full rounded-md px-3 py-2 text-sm text-white outline-none"
                 placeholder="FizzBuzz"
                 required
               />
@@ -146,7 +145,7 @@ const AdminTasks = () => {
                 name="slug"
                 value={formData.slug}
                 onChange={handleChange}
-                className="w-full bg-white/[0.04] border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white font-mono placeholder-slate-600"
+                className="admin-control w-full rounded-md px-3 py-2 text-sm text-white font-mono outline-none"
                 placeholder="fizz-buzz"
                 required
               />
@@ -161,7 +160,7 @@ const AdminTasks = () => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full h-32 bg-white/[0.04] border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white font-mono placeholder-slate-600 resize-none"
+              className="admin-control h-32 w-full rounded-md px-3 py-2 text-sm text-white font-mono outline-none resize-none"
               required
             />
           </div>
@@ -176,7 +175,7 @@ const AdminTasks = () => {
                 name="order"
                 value={formData.order}
                 onChange={handleChange}
-                className="w-full bg-white/[0.04] border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white"
+                className="admin-control w-full rounded-md px-3 py-2 text-sm text-white outline-none"
               />
             </div>
             <div className="space-y-1.5">
@@ -188,7 +187,7 @@ const AdminTasks = () => {
                 name="xp_reward"
                 value={formData.xp_reward}
                 onChange={handleChange}
-                className="w-full bg-white/[0.04] border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white"
+                className="admin-control w-full rounded-md px-3 py-2 text-sm text-white outline-none"
               />
             </div>
             <div className="space-y-1.5">
@@ -200,7 +199,7 @@ const AdminTasks = () => {
                 name="time_limit"
                 value={formData.time_limit}
                 onChange={handleChange}
-                className="w-full bg-white/[0.04] border border-white/10 rounded-md px-3 py-2 text-sm focus:border-white/25 outline-none text-white"
+                className="admin-control w-full rounded-md px-3 py-2 text-sm text-white outline-none"
               />
             </div>
           </div>
@@ -210,7 +209,7 @@ const AdminTasks = () => {
               <label className="text-xs font-medium text-neutral-500">
                 Initial Code
               </label>
-              <div className="h-56 lg:h-full border border-white/10 rounded-md overflow-hidden bg-[#0a1220]">
+              <div className="h-56 overflow-hidden rounded-md border border-white/10 bg-[#050505] lg:h-full">
                 <Editor
                   height="100%"
                   defaultLanguage="python"
@@ -223,7 +222,7 @@ const AdminTasks = () => {
                     minimap: { enabled: false },
                     fontSize: 12,
                     padding: { top: 10 },
-                    background: "#0a1220",
+                    background: "#050505",
                   }}
                 />
               </div>
@@ -232,7 +231,7 @@ const AdminTasks = () => {
               <label className="text-xs font-medium text-neutral-500">
                 Validation Code
               </label>
-              <div className="h-56 lg:h-full border border-white/10 rounded-md overflow-hidden bg-[#0a1220]">
+              <div className="h-56 overflow-hidden rounded-md border border-white/10 bg-[#050505] lg:h-full">
                 <Editor
                   height="100%"
                   defaultLanguage="python"
@@ -245,7 +244,7 @@ const AdminTasks = () => {
                     minimap: { enabled: false },
                     fontSize: 12,
                     padding: { top: 10 },
-                    background: "#0a1220",
+                    background: "#050505",
                   }}
                 />
               </div>
@@ -274,7 +273,7 @@ const AdminTasks = () => {
   };
 
   return (
-    <div className="space-y-4">
+      <div className="space-y-4">
       {!editingTask ? (
         <>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -287,7 +286,7 @@ const AdminTasks = () => {
                 size="sm"
                 onClick={fetchTasks}
                 disabled={isLoading}
-                className="h-8 gap-2 bg-white/[0.04] border-white/10 text-neutral-300 hover:text-white hover:bg-white/10 transition-colors rounded-md"
+                className="h-8 w-full gap-2 rounded-md border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:w-auto"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
                 <span className="text-xs font-medium">
@@ -297,7 +296,7 @@ const AdminTasks = () => {
               <Button
                 size="sm"
                 onClick={() => setEditingTask({})}
-                className="h-8 gap-2 bg-white text-black hover:bg-zinc-200 font-medium px-3 rounded-md transition-colors"
+                className="h-8 w-full gap-2 rounded-md bg-white px-3 font-medium text-black transition-colors hover:bg-zinc-200 sm:w-auto"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span className="text-xs">Add Challenge</span>
@@ -305,23 +304,84 @@ const AdminTasks = () => {
             </div>
           </div>
 
-          <div className="rounded-lg border border-white/5 bg-[#0a0a0a] shadow-sm overflow-hidden">
+          <div className="space-y-3 md:hidden">
+            {isLoading ? (
+              [...Array(4)].map((_, i) => (
+                <div
+                  key={i}
+                  className="admin-panel h-32 animate-pulse bg-white/[0.02]"
+                />
+              ))
+            ) : paginatedTasks.length === 0 ? (
+              <div className="admin-panel px-4 py-10 text-center text-sm italic text-neutral-500">
+                No challenges found.
+              </div>
+            ) : (
+              paginatedTasks.map((task) => (
+                <div key={task.id} className="admin-panel p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-neutral-500">
+                        #{task.order.toString().padStart(2, "0")}
+                      </div>
+                      <div className="mt-1 truncate text-sm font-medium text-neutral-100">
+                        {task.title}
+                      </div>
+                      <div className="truncate text-[11px] font-mono text-neutral-500">
+                        /{task.slug}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs font-mono text-neutral-200">
+                        {task.xp_reward} XP
+                      </div>
+                      <div className="mt-1 text-[11px] text-neutral-500">
+                        {task.time_limit}s
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex gap-2 border-t border-white/8 pt-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditingTask(task)}
+                      className="h-9 flex-1 border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white"
+                    >
+                      <Edit className="h-3.5 w-3.5" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(task.slug)}
+                      className="h-9 flex-1 border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-red-500/10 hover:text-red-400"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="hidden overflow-hidden md:block admin-panel">
             <Table className="min-w-[760px]">
               <TableHeader>
                 <TableRow className="border-white/10 hover:bg-transparent bg-white/[0.02]">
-                  <TableHead className="w-[80px] text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3">
+                  <TableHead className="w-[80px] py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                     #
                   </TableHead>
-                  <TableHead className="text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3">
+                  <TableHead className="py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                     Challenge
                   </TableHead>
-                  <TableHead className="text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3">
+                  <TableHead className="py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                     XP Reward
                   </TableHead>
-                  <TableHead className="text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3">
+                  <TableHead className="py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                     Time Limit
                   </TableHead>
-                  <TableHead className="text-right text-[10px] font-medium uppercase tracking-wider text-neutral-400 py-3">
+                  <TableHead className="py-3 text-right text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -398,7 +458,7 @@ const AdminTasks = () => {
             </Table>
           </div>
           {!isLoading && (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-neutral-500">
+            <div className="flex flex-col gap-3 text-xs text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap items-center gap-2">
                 <span>
                   Showing {totalCount === 0 ? 0 : (page - 1) * pageSize + 1}-
@@ -410,7 +470,7 @@ const AdminTasks = () => {
                     setPageSize(Number(e.target.value));
                     setPage(1);
                   }}
-                  className="h-7 rounded-md bg-white/[0.04] border border-white/10 text-neutral-300 text-xs px-2"
+                  className="admin-control h-8 rounded-md text-xs px-3"
                 >
                   <option value="10">10 / page</option>
                   <option value="25">25 / page</option>
@@ -421,19 +481,19 @@ const AdminTasks = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 px-2 border-white/10 bg-white/[0.04] text-neutral-300 hover:text-white hover:bg-white/10"
+                  className="h-8 flex-1 px-3 border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:flex-none"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
                   Prev
                 </Button>
-                <span className="text-neutral-400">
+                <span className="min-w-0 text-center text-neutral-400">
                   Page {page} / {totalPages}
                 </span>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 px-2 border-white/10 bg-white/[0.04] text-neutral-300 hover:text-white hover:bg-white/10"
+                  className="h-8 flex-1 px-3 border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:flex-none"
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 >
