@@ -159,18 +159,42 @@ export const authAPI = {
 
   // Admin endpoints
   getUsers: (params = {}) => api.get("/admin/users/", { params }),
+  getUserDetails: (username) => api.get(`/admin/users/${username}/details/`),
+  updateUserRole: (username, role) =>
+    api.patch(`/admin/users/${username}/role/`, { role }),
+  getUserNotes: (username) => api.get(`/admin/users/${username}/notes/`),
+  createUserNote: (username, payload) =>
+    api.post(`/admin/users/${username}/notes/`, payload),
   toggleBlockUser: (username) =>
     api.post(`/admin/users/${username}/toggle-block/`),
   deleteUser: (username) => api.delete(`/admin/users/${username}/delete/`),
+  bulkUserAction: (payload) => api.post("/admin/users/bulk/", payload),
+  exportUsers: (params = {}) =>
+    api.get("/admin/users/export/", { params, responseType: "blob" }),
   getAdminStats: () => api.get("/admin/stats/"),
   getChallengeAnalytics: () => api.get("/admin/analytics/challenges/"),
   getStoreAnalytics: () => api.get("/admin/analytics/store/"),
   getSystemIntegrity: () => api.get("/admin/system/integrity/"),
-  sendBroadcast: (message) =>
-    api.post("/admin/notifications/broadcast/", { message }),
+  getSystemHealth: () => api.get("/admin/system/health/"),
+  sendBroadcast: (message, options = {}) =>
+    api.post("/admin/notifications/broadcast/", { message, ...options }),
+  getBroadcastHistory: () => api.get("/admin/notifications/history/"),
+  resendBroadcast: (requestId) =>
+    api.post(`/admin/notifications/history/${requestId}/resend/`),
   getAuditLogs: (params = {}) => api.get("/admin/audit-logs/", { params }),
+  exportAuditLogs: (params = {}) =>
+    api.get("/admin/audit-logs/", {
+      params: { ...params, format: "csv" },
+      responseType: "blob",
+    }),
   getUserEngagementAnalytics: () => api.get("/admin/analytics/engagement/"),
   getUltimateAnalytics: () => api.get("/admin/analytics/ultimate/"),
+  getReports: (params = {}) => api.get("/admin/reports/", { params }),
+  createReport: (payload) => api.post("/admin/reports/", payload),
+  updateReport: (reportId, payload) =>
+    api.patch(`/admin/reports/${reportId}/`, payload),
+  duplicateStoreItem: (itemId) =>
+    api.post(`/admin/store/items/${itemId}/duplicate/`),
 };
 
 // Payment endpoints

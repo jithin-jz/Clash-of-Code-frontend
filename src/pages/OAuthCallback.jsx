@@ -18,12 +18,7 @@ const OAuthCallback = ({ provider }) => {
   const [isPopup, setIsPopup] = useState(false);
 
   // Helper to determine redirect path based on user role
-  const getRedirectPath = (userData) => {
-    if (userData?.is_staff || userData?.is_superuser) {
-      return "/admin/dashboard";
-    }
-    return "/home";
-  };
+  const getRedirectPath = () => "/home";
 
   useEffect(() => {
     // Check if this is a popup window

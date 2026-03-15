@@ -44,9 +44,17 @@ const AdminAuditLogs = () => {
     page_size: 25,
     search: "",
     action: "",
+    admin: "",
+    target: "",
+    date_from: "",
+    date_to: "",
     ordering: "-timestamp",
   });
   const [searchValue, setSearchValue] = useState("");
+  const [adminValue, setAdminValue] = useState("");
+  const [targetValue, setTargetValue] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [pagination, setPagination] = useState({
     count: 0,
     page: 1,
@@ -109,6 +117,32 @@ const AdminAuditLogs = () => {
     }, 350);
     return () => clearTimeout(timeout);
   }, [searchValue, query.search, fetchLogs]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (adminValue !== query.admin || targetValue !== query.target) {
+        fetchLogs({ admin: adminValue, target: targetValue, page: 1 });
+      }
+    }, 350);
+    return () => clearTimeout(timeout);
+  }, [adminValue, targetValue, query.admin, query.target, fetchLogs]);
+
+  const handleExport = async () => {
+    try {
+      const response = await authAPI.exportAuditLogs(query);
+      const blob = new Blob([response.data], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "admin-audit-logs.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      notify.error("Failed to export audit logs");
+    }
+  };
 
   const getActionBadge = (action) => {
     switch (action) {
@@ -188,18 +222,28 @@ const AdminAuditLogs = () => {
           <h2 className="text-xl font-semibold text-neutral-100 tracking-tight">
             Audit Logs
           </h2>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fetchLogs(query)}
-            disabled={loading}
-            className="h-9 w-full gap-2 rounded-md border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:w-auto"
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-            <span className="text-xs font-medium">
-              {loading ? "Refreshing..." : "Refresh"}
-            </span>
-          </Button>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExport}
+              className="h-9 w-full rounded-md border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:w-auto"
+            >
+              Export CSV
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchLogs(query)}
+              disabled={loading}
+              className="h-9 w-full gap-2 rounded-md border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:w-auto"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              <span className="text-xs font-medium">
+                {loading ? "Refreshing..." : "Refresh"}
+              </span>
+            </Button>
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
@@ -208,6 +252,36 @@ const AdminAuditLogs = () => {
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Search action/admin/target/request id..."
             className="admin-control h-9 w-full sm:w-80 text-neutral-200"
+          />
+          <Input
+            value={adminValue}
+            onChange={(e) => setAdminValue(e.target.value)}
+            placeholder="Admin username"
+            className="admin-control h-9 w-full sm:w-44 text-neutral-200"
+          />
+          <Input
+            value={targetValue}
+            onChange={(e) => setTargetValue(e.target.value)}
+            placeholder="Target username"
+            className="admin-control h-9 w-full sm:w-44 text-neutral-200"
+          />
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => {
+              setDateFrom(e.target.value);
+              fetchLogs({ date_from: e.target.value, page: 1 });
+            }}
+            className="admin-control h-9 w-full rounded-md px-3 text-xs sm:w-auto"
+          />
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => {
+              setDateTo(e.target.value);
+              fetchLogs({ date_to: e.target.value, page: 1 });
+            }}
+            className="admin-control h-9 w-full rounded-md px-3 text-xs sm:w-auto"
           />
           <select
             value={query.action || ""}

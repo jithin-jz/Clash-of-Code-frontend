@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "../components/ui/dialog";
-import { Plus, Pencil, Trash2, Image as ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, Image as ImageIcon, Copy } from "lucide-react";
 import { notify } from "../services/notification";
 import { AdminTableLoadingRow } from "./AdminSkeletons";
 
@@ -27,7 +27,7 @@ import { AdminTableLoadingRow } from "./AdminSkeletons";
 // For now, I'll assume we can add these to storeAPI or use axios directly if needed,
 // but sticking to patterns, let's extend api.js first or use a local helper.
 
-import api from "../services/api";
+import api, { authAPI } from "../services/api";
 
 const AdminStore = () => {
   const [items, setItems] = useState([]);
@@ -160,6 +160,28 @@ const AdminStore = () => {
     }
   };
 
+  const toggleItemField = async (item, field) => {
+    try {
+      await api.patch(`/store/items/${item.id}/`, {
+        [field]: !item[field],
+      });
+      notify.success(`${field === "featured" ? "Featured" : "Visibility"} updated`);
+      fetchItems();
+    } catch {
+      notify.error("Failed to update item");
+    }
+  };
+
+  const duplicateItem = async (itemId) => {
+    try {
+      await authAPI.duplicateStoreItem(itemId);
+      notify.success("Item duplicated");
+      fetchItems();
+    } catch {
+      notify.error("Failed to duplicate item");
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -210,14 +232,29 @@ const AdminStore = () => {
                     {item.description}
                   </div>
                   <div className="mt-3 flex items-center justify-between gap-3">
-                    <Badge
-                      variant="outline"
-                      className="admin-muted-badge rounded-md px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider"
-                    >
-                      {item.category}
-                    </Badge>
-                    <div className="text-xs font-mono text-neutral-200">
-                      {item.cost} XP
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge
+                        variant="outline"
+                        className="admin-muted-badge rounded-md px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider"
+                      >
+                        {item.category}
+                      </Badge>
+                      {item.featured ? (
+                        <Badge
+                          variant="outline"
+                          className="admin-muted-badge rounded-md px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider"
+                        >
+                          Featured
+                        </Badge>
+                      ) : null}
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs font-mono text-neutral-200">
+                        {item.cost} XP
+                      </div>
+                      <div className="text-[10px] text-neutral-500">
+                        {item.is_active ? "Visible" : "Hidden"}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -231,6 +268,15 @@ const AdminStore = () => {
                 >
                   <Pencil size={16} />
                   Edit
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => duplicateItem(item.id)}
+                  className="h-9 flex-1 border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white"
+                >
+                  <Copy size={16} />
+                  Copy
                 </Button>
                 <Button
                   variant="outline"
@@ -263,6 +309,9 @@ const AdminStore = () => {
               <TableHead className="py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Price
               </TableHead>
+              <TableHead className="py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+                Flags
+              </TableHead>
               <TableHead className="px-6 py-3 text-right text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Actions
               </TableHead>
@@ -271,7 +320,7 @@ const AdminStore = () => {
           <TableBody>
             {loading
               ? [...Array(6)].map((_, i) => (
-                  <AdminTableLoadingRow key={i} colSpan={5} />
+                  <AdminTableLoadingRow key={i} colSpan={6} />
                 ))
               : paginatedItems.map((item) => (
                   <TableRow
@@ -312,8 +361,36 @@ const AdminStore = () => {
                     <TableCell className="py-3 font-mono text-xs text-neutral-300">
                       {item.cost} XP
                     </TableCell>
+                    <TableCell className="py-3">
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleItemField(item, "is_active")}
+                          className="h-7 border-white/10 bg-white/[0.03] px-2 text-[10px] uppercase tracking-wider text-neutral-300 hover:bg-white/[0.06] hover:text-white"
+                        >
+                          {item.is_active ? "Visible" : "Hidden"}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleItemField(item, "featured")}
+                          className="h-7 border-white/10 bg-white/[0.03] px-2 text-[10px] uppercase tracking-wider text-neutral-300 hover:bg-white/[0.06] hover:text-white"
+                        >
+                          {item.featured ? "Featured" : "Standard"}
+                        </Button>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right py-3 px-6">
                       <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => duplicateItem(item.id)}
+                          className="h-8 w-8 text-neutral-400 hover:text-white hover:bg-white/10 rounded-md"
+                        >
+                          <Copy size={16} />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"

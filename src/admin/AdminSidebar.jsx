@@ -5,10 +5,14 @@ import {
   Shield,
   Layers,
   ShoppingBag,
+  Flag,
+  Home,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
+  const navigate = useNavigate();
   const sidebarItems = [
     { id: "users", label: "Users", icon: <Users size={18} /> },
     { id: "analytics", label: "Analytics", icon: <BarChart size={18} /> },
@@ -16,6 +20,7 @@ const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
     { id: "store", label: "Store", icon: <ShoppingBag size={18} /> },
     { id: "broadcast", label: "Announcements", icon: <Shield size={18} /> },
     { id: "audit", label: "Audit Logs", icon: <Layers size={18} /> },
+    { id: "reports", label: "Reports", icon: <Flag size={18} /> },
   ];
 
   return (
@@ -28,6 +33,14 @@ const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
             Admin Panel
           </span>
         </div>
+        <Button
+          onClick={() => navigate("/home")}
+          variant="ghost"
+          className="h-8 gap-2 rounded-md px-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white md:hidden"
+        >
+          <Home size={14} />
+          <span>User Side</span>
+        </Button>
         <Button
           onClick={handleLogout}
           variant="ghost"
@@ -92,6 +105,15 @@ const AdminSidebar = ({ user, activeTab, setActiveTab, handleLogout }) => {
             <span className="text-[10px] text-slate-500">Administrator</span>
           </div>
         </div>
+
+        <Button
+          onClick={() => navigate("/home")}
+          variant="ghost"
+          className="mb-2 h-9 w-full justify-start gap-2.5 rounded-md px-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white"
+        >
+          <Home size={14} />
+          <span>User Side</span>
+        </Button>
 
         <Button
           onClick={handleLogout}

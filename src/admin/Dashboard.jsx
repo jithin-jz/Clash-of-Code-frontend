@@ -16,6 +16,7 @@ import Analytics from "./analytics";
 import AdminBroadcast from "./AdminBroadcast";
 import AdminAuditLogs from "./AdminAuditLogs";
 import AdminStore from "./AdminStore";
+import AdminReports from "./AdminReports";
 import AppBackdrop from "../components/AppBackdrop";
 
 const normalizeText = (value) => String(value || "").toLowerCase();
@@ -26,6 +27,7 @@ const validAdminTabs = new Set([
   "store",
   "broadcast",
   "audit",
+  "reports",
 ]);
 
 const userMatchesQuery = (user, query) => {
@@ -398,6 +400,12 @@ const AdminDashboard = () => {
             {activeTab === "audit" && (
               <div className="animate-in slide-in-from-bottom-4 duration-500">
                 <AdminAuditLogs />
+              </div>
+            )}
+
+            {activeTab === "reports" && (
+              <div className="animate-in slide-in-from-bottom-4 duration-500">
+                <AdminReports />
               </div>
             )}
           </div>

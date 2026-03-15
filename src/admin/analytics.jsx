@@ -53,6 +53,7 @@ const Analytics = () => {
     top_challenges,
     top_items,
     community_leaders,
+    system_health,
   } = data;
 
   return (
@@ -169,6 +170,9 @@ const Analytics = () => {
                     Challenge
                   </TableHead>
                   <TableHead className="text-[10px] uppercase font-bold text-neutral-500 py-3 text-right">
+                    Attempts
+                  </TableHead>
+                  <TableHead className="text-[10px] uppercase font-bold text-neutral-500 py-3 text-right">
                     Completions
                   </TableHead>
                   <TableHead className="text-[10px] uppercase font-bold text-neutral-500 py-3 text-right px-4">
@@ -184,6 +188,9 @@ const Analytics = () => {
                   >
                     <TableCell className="py-3 px-4 text-sm font-medium text-neutral-200 truncate max-w-[180px]">
                       {c.title}
+                    </TableCell>
+                    <TableCell className="py-3 text-right text-xs text-neutral-400 font-mono">
+                      {c.attempts}
                     </TableCell>
                     <TableCell className="py-3 text-right">
                       <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 text-xs text-neutral-300 font-mono">
@@ -246,6 +253,24 @@ const Analytics = () => {
           </div>
         </CardSection>
       </div>
+
+      <CardSection
+        icon={<Box size={18} className="text-neutral-200" />}
+        title="System Health"
+      >
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {Object.entries(system_health || {}).map(([key, value]) => (
+            <div key={key} className="admin-subpanel p-3">
+              <div className="text-[10px] uppercase tracking-[0.16em] text-neutral-500">
+                {key.replace(/_/g, " ")}
+              </div>
+              <div className="mt-1 text-sm text-neutral-200">
+                {String(value || "N/A")}
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardSection>
 
       {/* 5. Population Leaders */}
       <div className="space-y-4">

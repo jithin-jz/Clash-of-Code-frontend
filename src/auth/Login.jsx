@@ -29,7 +29,6 @@ const Login = () => {
   const [otpCooldownSeconds, setOtpCooldownSeconds] = useState(0);
 
   const getRedirectPath = (u) => {
-    if (u?.is_staff || u?.is_superuser) return "/admin/dashboard";
     return "/home";
   };
 

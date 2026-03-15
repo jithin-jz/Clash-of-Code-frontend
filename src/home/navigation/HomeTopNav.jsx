@@ -11,6 +11,7 @@ import {
   Home,
   Play,
   Gem,
+  Shield,
 } from "lucide-react";
 import useNotificationStore from "../../stores/useNotificationStore";
 
@@ -105,6 +106,14 @@ const HomeTopNav = ({
 
                 {/* Desktop: extra actions */}
                 <div className="hidden sm:flex items-center gap-1.5 ml-1">
+                  {(user?.is_staff || user?.is_superuser) && (
+                    <NavBtn
+                      onClick={() => navigate("/admin/dashboard")}
+                      title="Admin"
+                    >
+                      <Shield size={14} />
+                    </NavBtn>
+                  )}
                   <NavBtn
                     onClick={() => setCheckInOpen(true)}
                     title="Daily Check-in"
@@ -330,6 +339,20 @@ const HomeTopNav = ({
                   </button>
                 );
               })}
+              {(user?.is_staff || user?.is_superuser) && (
+                <button
+                  type="button"
+                  onClick={() => navigate("/admin/dashboard")}
+                  title="Admin"
+                  className="flex flex-col items-center gap-0.5 h-10 w-12 justify-center rounded-lg
+                             text-white/80 hover:text-white transition-colors"
+                >
+                  <Shield size={20} strokeWidth={1.8} />
+                  <span className="text-[9px] font-mono tracking-wide uppercase">
+                    Admin
+                  </span>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => navigate("/profile")}

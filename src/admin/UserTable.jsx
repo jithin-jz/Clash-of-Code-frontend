@@ -12,6 +12,9 @@ import { Input } from "../components/ui/input";
 import { RefreshCw, Eye, Trash } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AdminTableLoadingRow } from "./AdminSkeletons";
+import { authAPI } from "../services/api";
+import { notify } from "../services/notification";
+import AdminUserDetailsDrawer from "./AdminUserDetailsDrawer";
 
 const UserTable = ({
   userList,
@@ -26,6 +29,9 @@ const UserTable = ({
   const [searchValue, setSearchValue] = useState(userFilters?.search || "");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [selectedBulkAction, setSelectedBulkAction] = useState("block");
+  const [detailsUser, setDetailsUser] = useState(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -60,64 +66,151 @@ const UserTable = ({
     }
   }, [page, totalPages]);
 
+  useEffect(() => {
+    setSelectedUsers((current) =>
+      current.filter((username) =>
+        userList.some((user) => user.username === username),
+      ),
+    );
+  }, [userList]);
+
   const start = count > 0 ? (page - 1) * pageSize + 1 : 0;
   const end = count > 0 ? Math.min(page * pageSize, count) : 0;
+
+  const toggleSelectedUser = (username) => {
+    setSelectedUsers((current) =>
+      current.includes(username)
+        ? current.filter((item) => item !== username)
+        : current.concat(username),
+    );
+  };
+
+  const handleBulkAction = async () => {
+    if (selectedUsers.length === 0) {
+      notify.error("Select at least one user first");
+      return;
+    }
+    try {
+      const response = await authAPI.bulkUserAction({
+        action: selectedBulkAction,
+        usernames: selectedUsers,
+      });
+      const updatedCount = response.data?.updated?.length || 0;
+      const skippedCount = response.data?.skipped?.length || 0;
+      notify.success(
+        `Bulk action finished: ${updatedCount} updated${skippedCount ? `, ${skippedCount} skipped` : ""}`,
+      );
+      setSelectedUsers([]);
+      fetchUsers(userFilters);
+    } catch (error) {
+      notify.error(error.response?.data?.error || "Bulk action failed");
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const response = await authAPI.exportUsers(userFilters);
+      const blob = new Blob([response.data], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "admin-users.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      notify.error("Failed to export users");
+    }
+  };
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
-        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
-          <Input
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            placeholder="Search username or email..."
-            className="admin-control h-9 w-full min-w-0 sm:w-72 text-neutral-200"
-          />
-          <select
-            value={userFilters?.role || ""}
-            onChange={(e) => onUsersQueryChange?.({ role: e.target.value })}
-            className="admin-control h-9 w-full sm:w-auto rounded-md text-xs px-3"
-          >
-            <option value="">All Roles</option>
-            <option value="user">Users</option>
-            <option value="staff">Staff</option>
-            <option value="superuser">Superusers</option>
-          </select>
-          <select
-            value={userFilters?.status || ""}
-            onChange={(e) => onUsersQueryChange?.({ status: e.target.value })}
-            className="admin-control h-9 w-full sm:w-auto rounded-md text-xs px-3"
-          >
-            <option value="">All Status</option>
-            <option value="active">Active</option>
-            <option value="blocked">Blocked</option>
-          </select>
-          <select
-            value={String(pageSize)}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value));
-              setPage(1);
-            }}
-            className="admin-control h-9 w-full sm:w-auto rounded-md text-xs px-3"
-          >
-            <option value="10">10 / page</option>
-            <option value="25">25 / page</option>
-            <option value="50">50 / page</option>
-          </select>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2">
+            <Input
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Search username or email..."
+              className="admin-control h-9 w-full min-w-0 sm:w-72 text-neutral-200"
+            />
+            <select
+              value={userFilters?.role || ""}
+              onChange={(e) => onUsersQueryChange?.({ role: e.target.value })}
+              className="admin-control h-9 w-full sm:w-auto rounded-md text-xs px-3"
+            >
+              <option value="">All Roles</option>
+              <option value="user">Users</option>
+              <option value="staff">Staff</option>
+              <option value="superuser">Superusers</option>
+            </select>
+            <select
+              value={userFilters?.status || ""}
+              onChange={(e) => onUsersQueryChange?.({ status: e.target.value })}
+              className="admin-control h-9 w-full sm:w-auto rounded-md text-xs px-3"
+            >
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="blocked">Blocked</option>
+            </select>
+            <select
+              value={String(pageSize)}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setPage(1);
+              }}
+              className="admin-control h-9 w-full sm:w-auto rounded-md text-xs px-3"
+            >
+              <option value="10">10 / page</option>
+              <option value="25">25 / page</option>
+              <option value="50">50 / page</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <select
+              value={selectedBulkAction}
+              onChange={(e) => setSelectedBulkAction(e.target.value)}
+              className="admin-control h-9 w-full rounded-md px-3 text-xs sm:w-auto"
+            >
+              <option value="block">Bulk block</option>
+              <option value="unblock">Bulk unblock</option>
+            </select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBulkAction}
+              disabled={selectedUsers.length === 0}
+              className="h-9 w-full rounded-md border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:w-auto"
+            >
+              Apply to {selectedUsers.length || 0}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExport}
+              className="h-9 w-full gap-2 rounded-md border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:w-auto"
+            >
+              Export CSV
+            </Button>
+          </div>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => fetchUsers(userFilters)}
-          disabled={tableLoading}
-          className="h-9 w-full gap-2 rounded-md border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:w-auto"
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-          <span className="text-xs font-medium uppercase tracking-wider">
-            {tableLoading ? "Refreshing..." : "Refresh"}
-          </span>
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fetchUsers(userFilters)}
+            disabled={tableLoading}
+            className="h-9 w-full gap-2 rounded-md border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.06] hover:text-white sm:w-auto"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            <span className="text-xs font-medium uppercase tracking-wider">
+              {tableLoading ? "Refreshing..." : "Refresh"}
+            </span>
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-3 md:hidden">
@@ -137,6 +230,12 @@ const UserTable = ({
             <div key={usr.username} className="admin-panel p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedUsers.includes(usr.username)}
+                    onChange={() => toggleSelectedUser(usr.username)}
+                    className="mt-1 h-4 w-4 rounded border-white/20 bg-transparent"
+                  />
                   <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
                     {usr.profile?.avatar_url ? (
                       <img
@@ -199,6 +298,14 @@ const UserTable = ({
                   <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() => setDetailsUser(usr.username)}
+                    className="h-8 px-2 text-[10px] uppercase tracking-wider text-neutral-400 hover:bg-white/10 hover:text-white rounded-md"
+                  >
+                    Manage
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     asChild
                     className="h-8 w-8 p-0 text-neutral-400 hover:bg-white/10 hover:text-white rounded-md"
                   >
@@ -240,6 +347,25 @@ const UserTable = ({
         <Table className="min-w-[760px]">
           <TableHeader>
             <TableRow className="border-white/10 bg-white/[0.02] hover:bg-transparent">
+              <TableHead className="w-[48px] py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
+                <input
+                  type="checkbox"
+                  checked={
+                    paginatedUsers.length > 0 &&
+                    paginatedUsers.every((user) =>
+                      selectedUsers.includes(user.username),
+                    )
+                  }
+                  onChange={(e) =>
+                    setSelectedUsers(
+                      e.target.checked
+                        ? paginatedUsers.map((u) => u.username)
+                        : [],
+                    )
+                  }
+                  className="h-4 w-4 rounded border-white/20 bg-transparent"
+                />
+              </TableHead>
               <TableHead className="w-[80px] py-3 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-500">
                 Avatar
               </TableHead>
@@ -260,12 +386,12 @@ const UserTable = ({
           <TableBody>
             {tableLoading ? (
               [...Array(6)].map((_, i) => (
-                <AdminTableLoadingRow key={i} colSpan={5} />
+                <AdminTableLoadingRow key={i} colSpan={6} />
               ))
             ) : userList.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="h-24 text-center text-neutral-500 text-sm italic"
                 >
                   No users found.
@@ -277,6 +403,14 @@ const UserTable = ({
                   key={usr.username}
                   className="border-white/10 hover:bg-white/5 transition-colors group"
                 >
+                  <TableCell className="py-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedUsers.includes(usr.username)}
+                      onChange={() => toggleSelectedUser(usr.username)}
+                      className="h-4 w-4 rounded border-white/20 bg-transparent"
+                    />
+                  </TableCell>
                   <TableCell className="py-3">
                     <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-white/[0.04]">
                       {usr.profile?.avatar_url ? (
@@ -339,6 +473,15 @@ const UserTable = ({
                   </TableCell>
                   <TableCell className="text-right py-3">
                     <div className="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDetailsUser(usr.username)}
+                        className="h-8 px-2 text-[10px] uppercase tracking-wider text-neutral-400 hover:text-white hover:bg-white/10 rounded-md"
+                      >
+                        Manage
+                      </Button>
+
                       <Button
                         variant="ghost"
                         size="sm"
@@ -410,6 +553,17 @@ const UserTable = ({
           </Button>
         </div>
       </div>
+
+      <AdminUserDetailsDrawer
+        username={detailsUser}
+        open={Boolean(detailsUser)}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) {
+            setDetailsUser(null);
+          }
+        }}
+        onRefreshUsers={() => fetchUsers(userFilters)}
+      />
     </div>
   );
 };
