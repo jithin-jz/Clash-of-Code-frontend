@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Trophy, Lock } from "lucide-react";
 import { motion as Motion, AnimatePresence } from "framer-motion";
-import { authAPI } from "../../services/api";
+import api from "../../services/api";
 
 const ICON_MAP = {
   Zap: "⚡",
@@ -32,7 +32,7 @@ const AchievementBadges = ({ username }) => {
     if (!username) return;
     const fetchAchievements = async () => {
       try {
-        const res = await authAPI.get(`/api/achievements/user/${username}/`);
+        const res = await api.get(`/api/achievements/user/${username}/`);
         setAchievements(res.data);
       } catch (err) {
         console.error("Failed to fetch achievements:", err);
