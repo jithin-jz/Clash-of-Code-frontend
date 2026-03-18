@@ -1,7 +1,9 @@
-import React, { memo, useState, useMemo, useEffect } from "react";
+import React, { memo, useState, useMemo, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Lock, MessageCircle, User, Edit, Trash2, Check, X } from "lucide-react";
-import { motion as Motion } from "framer-motion";
+import { Lock, MessageCircle, User, Edit, Trash2, Check, X, Pin, Smile } from "lucide-react";
+import { motion as Motion, AnimatePresence } from "framer-motion";
+
+const REACTION_EMOJIS = ["👍", "🔥", "😂", "❤️", "🎉", "💯"];
 
 const ChatAvatar = ({ isOwn, avatarUrl, username }) => {
   const [hasError, setHasError] = useState(false);
@@ -31,7 +33,110 @@ const ChatAvatar = ({ isOwn, avatarUrl, username }) => {
   );
 };
 
-const MessageList = ({ user, messages, viewportHeight, editMessage, deleteMessage }) => {
+// Render message text with @mentions highlighted
+const RenderMessage = ({ text }) => {
+  if (!text) return null;
+  const parts = text.split(/(@\w+)/g);
+  return (
+    <p className="break-words font-medium">
+      {parts.map((part, i) =>
+        part.startsWith("@") ? (
+          <Link
+            key={i}
+            to={`/profile/${part.slice(1)}`}
+            className="text-amber-400 hover:text-amber-300 font-bold transition-colors"
+          >
+            {part}
+          </Link>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </p>
+  );
+};
+
+// Reaction display & picker
+const ReactionBar = ({ reactions, onReact, username }) => {
+  const [showPicker, setShowPicker] = useState(false);
+  const pickerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target)) {
+        setShowPicker(false);
+      }
+    };
+    if (showPicker) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showPicker]);
+
+  const hasReactions =
+    reactions && Object.keys(reactions).length > 0;
+
+  return (
+    <div className="flex items-center gap-1 flex-wrap mt-1 relative">
+      {hasReactions &&
+        Object.entries(reactions).map(([emoji, users]) => (
+          <button
+            key={emoji}
+            onClick={() => onReact(emoji)}
+            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] border transition-all ${
+              users.includes(username)
+                ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
+                : "bg-white/5 border-white/10 text-neutral-400 hover:bg-white/10"
+            }`}
+            title={users.join(", ")}
+          >
+            <span>{emoji}</span>
+            <span className="font-mono text-[9px]">{users.length}</span>
+          </button>
+        ))}
+      <div className="relative" ref={pickerRef}>
+        <button
+          onClick={() => setShowPicker(!showPicker)}
+          className="w-5 h-5 rounded-full flex items-center justify-center text-neutral-600 hover:text-neutral-400 hover:bg-white/5 transition-all"
+          title="Add reaction"
+        >
+          <Smile size={10} />
+        </button>
+        <AnimatePresence>
+          {showPicker && (
+            <Motion.div
+              initial={{ opacity: 0, scale: 0.9,  y: 5 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 5 }}
+              className="absolute bottom-7 left-0 z-50 flex gap-1 p-1.5 bg-[#111] border border-[#222] rounded-lg shadow-xl"
+            >
+              {REACTION_EMOJIS.map((emoji) => (
+                <button
+                  key={emoji}
+                  onClick={() => {
+                    onReact(emoji);
+                    setShowPicker(false);
+                  }}
+                  className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 transition-colors text-sm"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </Motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+const MessageList = ({
+  user,
+  messages,
+  viewportHeight,
+  editMessage,
+  deleteMessage,
+  toggleReaction,
+  pinMessage,
+}) => {
   const scrollRef = React.useRef(null);
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
   const [editingMsgId, setEditingMsgId] = useState(null);
@@ -185,7 +290,7 @@ const MessageList = ({ user, messages, viewportHeight, editMessage, deleteMessag
 
             {/* Message Content */}
             <div
-              className={`flex flex-col gap-1.5 max-w-[80%] ${isOwn ? "items-end" : "items-start"}`}
+              className={`flex flex-col gap-1 max-w-[80%] ${isOwn ? "items-end" : "items-start"}`}
             >
               {/* Username & Time */}
               <div
@@ -211,84 +316,122 @@ const MessageList = ({ user, messages, viewportHeight, editMessage, deleteMessag
               </div>
 
               {/* Message Bubble & Actions */}
-              <div className={`flex items-center gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
-              <div
-                className={`
-                  relative px-2.5 py-1.5 text-[11px] leading-normal transition-all duration-300 rounded-lg shrink-0 max-w-full
-                  ${
-                    isOwn
-                      ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-100 rounded-tr-sm"
-                      : "bg-[#161616] border border-[#222] text-neutral-300 rounded-tl-sm hover:bg-[#1a1a1a]"
-                  }
-                  ${msg.message?.startsWith("IMAGE:") ? "p-1" : ""}
-                `}
-              >
-                {msg.message?.startsWith("IMAGE:") ? (
-                  (() => {
-                    const [imageUrl, ownerUsername] = msg.message
-                      .replace("IMAGE:", "")
-                      .split("|");
-                    return (
-                      <div className="space-y-2">
-                        <Link
-                          to={`/profile/${ownerUsername}`}
-                          className="block overflow-hidden rounded-lg border border-white/5 shadow-lg"
-                        >
-                          <img
-                            src={imageUrl}
-                            alt=""
-                            className="w-full h-auto"
-                          />
-                        </Link>
-                        <div className="flex items-center justify-between px-1 py-0.5">
-                          <p className="text-[8px] font-bold uppercase tracking-widest text-neutral-600">
-                            Transmission
-                          </p>
+              <div className={`flex items-start gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
+                <div
+                  className={`
+                    relative px-2.5 py-1.5 text-[11px] leading-normal transition-all duration-300 rounded-lg shrink-0 max-w-full
+                    ${
+                      isOwn
+                        ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-100 rounded-tr-sm"
+                        : "bg-[#161616] border border-[#222] text-neutral-300 rounded-tl-sm hover:bg-[#1a1a1a]"
+                    }
+                    ${msg.message?.startsWith("IMAGE:") ? "p-1" : ""}
+                  `}
+                >
+                  {msg.message?.startsWith("IMAGE:") ? (
+                    (() => {
+                      const [imageUrl, ownerUsername] = msg.message
+                        .replace("IMAGE:", "")
+                        .split("|");
+                      return (
+                        <div className="space-y-2">
                           <Link
                             to={`/profile/${ownerUsername}`}
-                            className="text-[8px] font-bold uppercase tracking-widest text-emerald-500 hover:underline"
+                            className="block overflow-hidden rounded-lg border border-white/5 shadow-lg"
                           >
-                            Verify
+                            <img
+                              src={imageUrl}
+                              alt=""
+                              className="w-full h-auto"
+                            />
                           </Link>
+                          <div className="flex items-center justify-between px-1 py-0.5">
+                            <p className="text-[8px] font-bold uppercase tracking-widest text-neutral-600">
+                              Transmission
+                            </p>
+                            <Link
+                              to={`/profile/${ownerUsername}`}
+                              className="text-[8px] font-bold uppercase tracking-widest text-emerald-500 hover:underline"
+                            >
+                              Verify
+                            </Link>
+                          </div>
                         </div>
+                      );
+                    })()
+                  ) : editingMsgId === msg.timestamp ? (
+                    <div className="flex flex-col gap-2 relative z-50">
+                      <input
+                        type="text"
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        className="bg-black/40 border border-emerald-500/50 rounded px-2 py-1.5 text-emerald-100 outline-none w-full min-w-[200px]"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleEditSave(msg.timestamp);
+                          if (e.key === "Escape") setEditingMsgId(null);
+                        }}
+                        autoFocus
+                      />
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          onClick={() => setEditingMsgId(null)}
+                          className="text-white/50 hover:text-white p-1 bg-black/50 rounded"
+                        >
+                          <X size={12} />
+                        </button>
+                        <button
+                          onClick={() => handleEditSave(msg.timestamp)}
+                          className="text-emerald-500 hover:text-emerald-400 p-1 bg-black/50 rounded"
+                        >
+                          <Check size={12} />
+                        </button>
                       </div>
-                    );
-                  })()
-                ) : editingMsgId === msg.timestamp ? (
-                  <div className="flex flex-col gap-2 relative z-50">
-                    <input 
-                      type="text" 
-                      value={editContent} 
-                      onChange={(e) => setEditContent(e.target.value)}
-                      className="bg-black/40 border border-emerald-500/50 rounded px-2 py-1.5 text-emerald-100 outline-none w-full min-w-[200px]"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleEditSave(msg.timestamp);
-                        if (e.key === 'Escape') setEditingMsgId(null);
-                      }}
-                      autoFocus
-                    />
-                    <div className="flex gap-2 justify-end">
-                      <button onClick={() => setEditingMsgId(null)} className="text-white/50 hover:text-white p-1 bg-black/50 rounded"><X size={12}/></button>
-                      <button onClick={() => handleEditSave(msg.timestamp)} className="text-emerald-500 hover:text-emerald-400 p-1 bg-black/50 rounded"><Check size={12}/></button>
                     </div>
+                  ) : (
+                    <RenderMessage text={msg.message} />
+                  )}
+                </div>
+
+                {/* Action Buttons (visible on hover) */}
+                {editingMsgId !== msg.timestamp && (
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 shrink-0 pt-0.5">
+                    {isOwn && (
+                      <>
+                        <button
+                          onClick={() => handleEditInit(msg)}
+                          className="text-neutral-600 hover:text-emerald-500 transition-colors p-1 rounded hover:bg-white/5"
+                          title="Edit"
+                        >
+                          <Edit size={11} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(msg.timestamp)}
+                          className="text-neutral-600 hover:text-red-500 transition-colors p-1 rounded hover:bg-white/5"
+                          title="Delete"
+                        >
+                          <Trash2 size={11} />
+                        </button>
+                      </>
+                    )}
+                    {user?.is_admin && (
+                      <button
+                        onClick={() => pinMessage(msg.timestamp, msg.message)}
+                        className="text-neutral-600 hover:text-amber-400 transition-colors p-1 rounded hover:bg-white/5"
+                        title="Pin message"
+                      >
+                        <Pin size={11} />
+                      </button>
+                    )}
                   </div>
-                ) : (
-                  <p className="break-words font-medium">{msg.message}</p>
                 )}
               </div>
-                
-                {/* Action Buttons */}
-                {isOwn && editingMsgId !== msg.timestamp && (
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 shrink-0">
-                    <button onClick={() => handleEditInit(msg)} className="text-neutral-600 hover:text-emerald-500 transition-colors p-1 rounded hover:bg-white/5" title="Edit">
-                      <Edit size={12} />
-                    </button>
-                    <button onClick={() => handleDelete(msg.timestamp)} className="text-neutral-600 hover:text-red-500 transition-colors p-1 rounded hover:bg-white/5" title="Delete">
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
-                )}
-              </div>
+
+              {/* Reaction Bar */}
+              <ReactionBar
+                reactions={msg.reactions}
+                onReact={(emoji) => toggleReaction(msg.timestamp, emoji)}
+                username={user?.username}
+              />
             </div>
           </Motion.div>
         );
@@ -299,4 +442,3 @@ const MessageList = ({ user, messages, viewportHeight, editMessage, deleteMessag
 };
 
 export default memo(MessageList);
-

@@ -9,6 +9,7 @@ import { motion as Motion } from "framer-motion";
 import CursorEffects from "./CursorEffects";
 import VictoryAnimation from "./VictoryAnimation";
 import ChallengeWorkspaceSkeleton from "./ChallengeWorkspaceSkeleton";
+import ShareCard from "./components/ShareCard";
 import { generateLocalCodeReview } from "../utils/localCodeReview";
 
 // Subcomponents
@@ -40,6 +41,7 @@ const ChallengeWorkspace = () => {
   const [code, setCode] = useState("");
   const [completionData, setCompletionData] = useState(null);
   const [mobileTab, setMobileTab] = useState("problem");
+  const [showShareCard, setShowShareCard] = useState(false);
 
   // AI Hint State
   const [hint, setHint] = useState("");
@@ -683,6 +685,13 @@ const ChallengeWorkspace = () => {
               )}
 
               <div className="flex flex-col w-full gap-2 mt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowShareCard(true)}
+                  className="w-full h-10 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 font-bold uppercase text-xs transition-colors"
+                >
+                  Share Result
+                </button>
                 {completionData.next_level_slug ? (
                   <button
                     type="button"
@@ -707,6 +716,16 @@ const ChallengeWorkspace = () => {
                   Dashboard
                 </button>
               </div>
+
+              <ShareCard
+                isOpen={showShareCard}
+                onClose={() => setShowShareCard(false)}
+                challengeTitle={challenge?.title || "Challenge"}
+                stars={completionData.stars || 0}
+                timeSeconds={completionData.time_seconds || 0}
+                xpEarned={completionData.xp_earned || 0}
+                username={user?.username || "player"}
+              />
             </div>
           </Motion.div>
         </div>

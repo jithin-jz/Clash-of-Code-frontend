@@ -31,6 +31,8 @@ const useChatStore = create((set, get) => ({
   onlineCount: 0,
   error: null,
   shouldReconnect: false,
+  typingUsers: [], // [{username, timeout}]
+  pinnedMessage: null, // {timestamp, message, pinned_by}
 
   // Actions
   connect: () => {
@@ -62,29 +64,19 @@ const useChatStore = create((set, get) => ({
 
         if (data.type === "chat_message") {
           set((state) => {
-            // De-duplication check: if message with same ID or same content/user/timestamp exists
-            // We use a looser check for messages without IDs
             const isDuplicate = state.messages.some((msg) => {
               if (data.id && msg.id === data.id) return true;
-
               const msgTime = new Date(msg.timestamp).getTime();
               const dataTime = new Date(data.timestamp).getTime();
               const isTimeClose = Math.abs(msgTime - dataTime) < 1000;
-
               return (
                 msg.message === data.message &&
                 msg.user_id === data.user_id &&
                 isTimeClose
               );
             });
-
-            if (isDuplicate) {
-              return state;
-            }
-
-            return {
-              messages: [...state.messages, data],
-            };
+            if (isDuplicate) return state;
+            return { messages: [...state.messages, data] };
           });
         } else if (data.type === "chat_edit") {
           set((state) => ({
@@ -100,6 +92,53 @@ const useChatStore = create((set, get) => ({
               (msg) => msg.timestamp !== data.timestamp
             ),
           }));
+        } else if (data.type === "chat_react") {
+          set((state) => ({
+            messages: state.messages.map((msg) => {
+              if (msg.timestamp !== data.timestamp) return msg;
+              const reactions = { ...(msg.reactions || {}) };
+              const users = reactions[data.emoji] || [];
+              if (users.includes(data.username)) {
+                const filtered = users.filter((u) => u !== data.username);
+                if (filtered.length === 0) {
+                  delete reactions[data.emoji];
+                } else {
+                  reactions[data.emoji] = filtered;
+                }
+              } else {
+                reactions[data.emoji] = [...users, data.username];
+              }
+              return { ...msg, reactions };
+            }),
+          }));
+        } else if (data.type === "typing") {
+          set((state) => {
+            // Remove existing entry for this user
+            const filtered = state.typingUsers.filter(
+              (t) => t.username !== data.username
+            );
+            // Auto-remove after 3 seconds
+            const timeout = setTimeout(() => {
+              set((s) => ({
+                typingUsers: s.typingUsers.filter(
+                  (t) => t.username !== data.username
+                ),
+              }));
+            }, 3000);
+            return {
+              typingUsers: [...filtered, { username: data.username, timeout }],
+            };
+          });
+        } else if (data.type === "chat_pin") {
+          set({
+            pinnedMessage: {
+              timestamp: data.timestamp,
+              message: data.message,
+              pinned_by: data.pinned_by,
+            },
+          });
+        } else if (data.type === "chat_unpin") {
+          set({ pinnedMessage: null });
         } else if (data.type === "history") {
           set({ messages: data.messages });
         } else if (data.type === "presence") {
@@ -133,38 +172,58 @@ const useChatStore = create((set, get) => ({
     const { socket } = get();
     if (socket) {
       socket.close();
-      set({ socket: null, isConnected: false, messages: [], shouldReconnect: false });
+      set({
+        socket: null,
+        isConnected: false,
+        messages: [],
+        shouldReconnect: false,
+        typingUsers: [],
+        pinnedMessage: null,
+      });
+    }
+  },
+
+  _send: (payload) => {
+    const { socket, isConnected } = get();
+    if (socket && isConnected && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify(payload));
     }
   },
 
   sendMessage: (content) => {
-    const { socket, isConnected } = get();
-    if (socket && isConnected && socket.readyState === WebSocket.OPEN) {
-      const payload = {
-        type: "chat_message",
-        action: "send",
-        message: content,
-      };
-      socket.send(JSON.stringify(payload));
-    } else {
-      console.error("Cannot send message: Socket not open", socket?.readyState);
-    }
+    get()._send({ action: "send", message: content });
   },
 
   editMessage: (timestamp, newContent) => {
-    const { socket, isConnected } = get();
-    if (socket && isConnected && socket.readyState === WebSocket.OPEN) {
-      const payload = { type: "chat_message", action: "edit", target_timestamp: timestamp, message: newContent };
-      socket.send(JSON.stringify(payload));
-    }
+    get()._send({
+      action: "edit",
+      target_timestamp: timestamp,
+      message: newContent,
+    });
   },
 
   deleteMessage: (timestamp) => {
-    const { socket, isConnected } = get();
-    if (socket && isConnected && socket.readyState === WebSocket.OPEN) {
-      const payload = { type: "chat_message", action: "delete", target_timestamp: timestamp, message: "deleted" };
-      socket.send(JSON.stringify(payload));
-    }
+    get()._send({
+      action: "delete",
+      target_timestamp: timestamp,
+      message: "deleted",
+    });
+  },
+
+  sendTyping: () => {
+    get()._send({ action: "typing" });
+  },
+
+  toggleReaction: (timestamp, emoji) => {
+    get()._send({ action: "react", target_timestamp: timestamp, emoji });
+  },
+
+  pinMessage: (timestamp, message) => {
+    get()._send({ action: "pin", target_timestamp: timestamp, message });
+  },
+
+  unpinMessage: (timestamp) => {
+    get()._send({ action: "unpin", target_timestamp: timestamp });
   },
 
   clearMessages: () => set({ messages: [] }),

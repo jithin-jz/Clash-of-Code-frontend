@@ -1,12 +1,25 @@
 import React, { useState, useEffect, useRef, memo, useCallback } from "react";
-import { X, MessageSquare, Users, Sparkles, Send } from "lucide-react";
+import { X, Pin } from "lucide-react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import useChatStore from "../../stores/useChatStore";
 import ChatInput from "../components/ChatInput";
 import MessageList from "../components/MessageList";
 
 const ChatDrawer = ({ isOpen, setOpen, user }) => {
-  const { messages, sendMessage, onlineCount, connect, editMessage, deleteMessage } = useChatStore();
+  const {
+    messages,
+    sendMessage,
+    onlineCount,
+    connect,
+    editMessage,
+    deleteMessage,
+    sendTyping,
+    toggleReaction,
+    pinMessage,
+    unpinMessage,
+    typingUsers,
+    pinnedMessage,
+  } = useChatStore();
   const [showPicker, setShowPicker] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
@@ -32,7 +45,7 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [showPicker]);
 
-  // Visual Viewport API for flexible mobile heights (prevents keyboard hiding input)
+  // Visual Viewport API for flexible mobile heights
   useEffect(() => {
     if (!window.visualViewport) return;
 
@@ -55,13 +68,10 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
   useEffect(() => {
     if (isOpen) {
       connect();
-      // Auto-focus input when opened
       setTimeout(() => {
         if (inputRef.current) inputRef.current.focus();
       }, 200);
     }
-    // We don't disconnect immediately on close to keep history/messages
-    // and because users might toggle it frequently.
   }, [isOpen, connect]);
 
   const handleSendMessage = useCallback(
@@ -72,14 +82,14 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
     [sendMessage],
   );
 
-  // Removed unread/markRead logic as it's not in the store yet
-  // If needed, it should be implemented in useChatStore first.
+  // Filter out own typing indicator
+  const otherTyping = typingUsers.filter((t) => t.username !== user?.username);
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop (Glass) */}
+          {/* Backdrop */}
           <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -91,7 +101,7 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
             className="fixed inset-0 z-50 bg-black/20"
           />
 
-          {/* Drawer Wrapper (Flexible Height Control) */}
+          {/* Drawer */}
           <Motion.div
             ref={drawerRef}
             initial={{ x: "-100%" }}
@@ -104,7 +114,7 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
             }}
             className="fixed left-0 z-[60] w-full md:max-w-[360px] bg-[#050505] shadow-2xl flex flex-col md:border-r border-[#1a1a1a]"
           >
-            {/* Glossy Header */}
+            {/* Header */}
             <header className="shrink-0 h-12 flex items-center justify-between px-4 border-b border-[#1a1a1a] bg-[#0a0a0a]">
               <div className="flex items-center gap-2">
                 <div className="flex flex-col">
@@ -129,7 +139,34 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
               </button>
             </header>
 
-            {/* Messages Area - Constrained for scrolling */}
+            {/* Pinned Message Banner */}
+            <AnimatePresence>
+              {pinnedMessage && (
+                <Motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="shrink-0 border-b border-[#1a1a1a] bg-[#0d0d0d] overflow-hidden"
+                >
+                  <div className="flex items-center gap-2 px-3 py-2">
+                    <Pin size={12} className="text-amber-400 shrink-0" />
+                    <p className="text-[11px] text-neutral-400 truncate flex-1">
+                      {pinnedMessage.message}
+                    </p>
+                    {user?.is_admin && (
+                      <button
+                        onClick={() => unpinMessage(pinnedMessage.timestamp)}
+                        className="text-[9px] text-neutral-600 hover:text-red-400 transition-colors shrink-0"
+                      >
+                        Unpin
+                      </button>
+                    )}
+                  </div>
+                </Motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Messages Area */}
             <main className="flex-1 min-h-0 relative flex flex-col bg-[#050505]">
               <div className="relative z-10 flex-1 min-h-0 h-full">
                 <MessageList
@@ -138,11 +175,33 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
                   viewportHeight={viewportHeight}
                   editMessage={editMessage}
                   deleteMessage={deleteMessage}
+                  toggleReaction={toggleReaction}
+                  pinMessage={pinMessage}
                 />
               </div>
             </main>
 
-            {/* Input Hook */}
+            {/* Typing Indicator */}
+            <AnimatePresence>
+              {otherTyping.length > 0 && (
+                <Motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="shrink-0 px-4 py-1 bg-[#050505]"
+                >
+                  <span className="text-[10px] text-neutral-500 italic">
+                    {otherTyping.length === 1
+                      ? `${otherTyping[0].username} is typing...`
+                      : otherTyping.length === 2
+                        ? `${otherTyping[0].username} and ${otherTyping[1].username} are typing...`
+                        : `${otherTyping[0].username} and ${otherTyping.length - 1} others are typing...`}
+                  </span>
+                </Motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Input */}
             <div className="shrink-0 relative z-20">
               <ChatInput
                 user={user}
@@ -152,6 +211,7 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
                 inputRef={inputRef}
                 pickerRef={pickerRef}
                 emojiButtonRef={emojiButtonRef}
+                sendTyping={sendTyping}
               />
             </div>
 

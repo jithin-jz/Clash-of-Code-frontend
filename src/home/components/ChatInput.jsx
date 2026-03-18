@@ -12,6 +12,7 @@ const ChatInput = ({
   inputRef,
   pickerRef,
   emojiButtonRef,
+  sendTyping,
 }) => {
   const [inputMessage, setInputMessage] = React.useState("");
 
@@ -24,6 +25,17 @@ const ChatInput = ({
 
   const handleEmojiClick = (emojiData) => {
     setInputMessage((prev) => prev + emojiData.emoji);
+  };
+
+  // Throttled typing indicator
+  const lastTypingSent = React.useRef(0);
+  const handleInputChange = (e) => {
+    setInputMessage(e.target.value);
+    const now = Date.now();
+    if (sendTyping && now - lastTypingSent.current > 2000) {
+      lastTypingSent.current = now;
+      sendTyping();
+    }
   };
 
   return (
@@ -73,7 +85,7 @@ const ChatInput = ({
             placeholder={user ? "Message..." : "Sign in to chat"}
             disabled={!user}
             value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             className="w-full bg-[#111] border-[#1a1a1a] focus-visible:border-[#333] rounded-lg px-3 h-8 text-white text-[11px] transition-all placeholder:text-neutral-600 focus-visible:ring-0 focus-visible:ring-offset-0"
           />

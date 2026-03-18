@@ -178,6 +178,7 @@ export const Users = adapt(UsersIcon);
 export const X = adapt(XIcon);
 export const Youtube = adapt(YoutubeIcon);
 export const Zap = adapt(BatteryChargingIcon);
+export const Pin = adapt(MapPinIcon);
 
 // Extra aliases used by marketplace data and seeded backend icon_name values.
 export const Rainbow = adapt(RainbowIcon);

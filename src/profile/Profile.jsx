@@ -26,6 +26,7 @@ import ProfileSkeleton from "./ProfileSkeleton";
 import CreatePostDialog from "../posts/CreatePostDialog";
 import PostGrid from "../posts/PostGrid";
 import ContributionGraph from "./components/ContributionGraph";
+import AchievementBadges from "./components/AchievementBadges";
 import {
   Card,
   CardContent,
@@ -581,6 +582,11 @@ const Profile = () => {
                   )}
 
                   {!profileUser?.profile?.bio && <div className="mb-4"></div>}
+
+                  {/* Achievements */}
+                  <div className="mb-4">
+                    <AchievementBadges username={profileUser?.username} />
+                  </div>
 
                   {/* Follow/Following Stats */}
                   <div className="flex items-center justify-center gap-8 mb-6 border-t border-white/5 pt-4">
