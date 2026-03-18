@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Share2, Download, X, Trophy, Zap, Star } from "lucide-react";
+import { Share2, Copy, X, Trophy, Zap, Star } from "lucide-react";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 
 const ShareCard = ({
@@ -158,7 +158,7 @@ const ShareCard = ({
                 onClick={handleCopyShare}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#1a1a1a] text-white rounded-xl font-bold text-sm border border-white/10 hover:bg-[#222] transition-colors"
               >
-                <Download size={16} />
+                <Copy size={16} />
                 {copied ? "Copied!" : "Copy Text"}
               </button>
             </div>
