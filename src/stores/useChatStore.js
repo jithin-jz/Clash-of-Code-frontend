@@ -168,7 +168,10 @@ const useChatStore = create((set, get) => ({
     set({ socket });
   },
 
-  setChatOpen: (isOpen) => set({ isChatOpen: isOpen }),
+  setChatOpen: (val) =>
+    set((state) => ({
+      isChatOpen: typeof val === "function" ? val(state.isChatOpen) : val,
+    })),
 
 
   // REMOVED: startDM
