@@ -32,7 +32,7 @@ const AchievementBadges = ({ username }) => {
     if (!username) return;
     const fetchAchievements = async () => {
       try {
-        const res = await api.get(`/api/achievements/user/${username}/`);
+        const res = await api.get(`/achievements/user/${username}/`);
         setAchievements(res.data);
       } catch (err) {
         console.error("Failed to fetch achievements:", err);
