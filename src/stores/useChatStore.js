@@ -1,5 +1,7 @@
 import { create } from "zustand";
 
+import useAuthStore from "./useAuthStore";
+
 const WS_URL = (() => {
   const explicitWS = import.meta.env.VITE_CHAT_URL || import.meta.env.VITE_WS_URL;
   if (explicitWS) return explicitWS;
@@ -174,8 +176,11 @@ const useChatStore = create((set, get) => ({
 
   startDM: (targetUser) => {
     // Generate DM room name: dm_{minId}_{maxId}
-    const myId = JSON.parse(localStorage.getItem("auth-storage") || "{}")?.state?.user?.id;
-    if (!myId || !targetUser.id) return;
+    const myId = useAuthStore.getState().user?.id;
+    if (!myId || !targetUser.id) {
+       console.warn("[Chat] Cannot start DM: Missing user IDs", { myId, targetId: targetUser.id });
+       return;
+    }
     
     const ids = [parseInt(myId), parseInt(targetUser.id)].sort((a, b) => a - b);
     const roomName = `dm_${ids[0]}_${ids[1]}`;
