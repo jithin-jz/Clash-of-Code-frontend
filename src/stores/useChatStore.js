@@ -12,9 +12,11 @@ const useChatStore = create((set, get) => ({
   messages: [],
   onlineCount: 0,
   error: null,
+  shouldReconnect: false,
 
   // Actions
   connect: () => {
+    set({ shouldReconnect: true });
     const { socket: existingSocket } = get();
 
     // Prevent multiple connections
@@ -93,10 +95,11 @@ const useChatStore = create((set, get) => ({
       }
     };
 
-    socket.onclose = (event) => {
+    socket.onclose = () => {
       set({ isConnected: false, socket: null });
-      if (event.code === 1008) {
-        set({ error: "Authentication failed" });
+      if (get().shouldReconnect) {
+        console.warn("Chat WebSocket closed. Retrying in 5s...");
+        setTimeout(() => get().connect(), 5000);
       }
     };
 
@@ -112,7 +115,7 @@ const useChatStore = create((set, get) => ({
     const { socket } = get();
     if (socket) {
       socket.close();
-      set({ socket: null, isConnected: false, messages: [] });
+      set({ socket: null, isConnected: false, messages: [], shouldReconnect: false });
     }
   },
 
