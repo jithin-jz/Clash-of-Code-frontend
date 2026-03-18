@@ -1,9 +1,27 @@
 import { create } from "zustand";
 
-const WS_URL =
-  import.meta.env.VITE_CHAT_URL ||
-  import.meta.env.VITE_WS_URL ||
-  `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/ws/chat`;
+const WS_URL = (() => {
+  const explicitWS = import.meta.env.VITE_CHAT_URL || import.meta.env.VITE_WS_URL;
+  if (explicitWS) return explicitWS;
+
+  const apiUrl = import.meta.env.VITE_API_URL;
+  if (apiUrl) {
+    if (apiUrl.startsWith("/")) {
+      const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+      return `${wsProtocol}://${window.location.host}/ws/chat`;
+    }
+    try {
+      const parsed = new URL(apiUrl, window.location.origin);
+      const wsProtocol = parsed.protocol === "https:" ? "wss" : "ws";
+      return `${wsProtocol}://${parsed.host}/ws/chat`;
+    } catch (err) {
+      console.warn("[Chat] Failed to parse VITE_API_URL:", err);
+    }
+  }
+
+  const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+  return `${wsProtocol}://${window.location.host}/ws/chat`;
+})();
 
 const useChatStore = create((set, get) => ({
   // State
