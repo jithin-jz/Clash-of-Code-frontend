@@ -1,6 +1,6 @@
 import React, { memo, useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Lock, MessageCircle, User } from "lucide-react";
+import { Lock, MessageCircle, User, Edit2, Trash2, Check, X } from "lucide-react";
 import { motion as Motion } from "framer-motion";
 
 const ChatAvatar = ({ isOwn, avatarUrl, username }) => {
@@ -31,9 +31,29 @@ const ChatAvatar = ({ isOwn, avatarUrl, username }) => {
   );
 };
 
-const MessageList = ({ user, messages, viewportHeight }) => {
+const MessageList = ({ user, messages, viewportHeight, editMessage, deleteMessage }) => {
   const scrollRef = React.useRef(null);
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
+  const [editingMsgId, setEditingMsgId] = useState(null);
+  const [editContent, setEditContent] = useState("");
+
+  const handleEditInit = (msg) => {
+    setEditingMsgId(msg.timestamp);
+    setEditContent(msg.message);
+  };
+
+  const handleEditSave = (timestamp) => {
+    if (editContent.trim()) {
+      editMessage(timestamp, editContent);
+    }
+    setEditingMsgId(null);
+  };
+
+  const handleDelete = (timestamp) => {
+    if (window.confirm("Delete this message?")) {
+      deleteMessage(timestamp);
+    }
+  };
 
   const scrollToBottom = () => {
     if (scrollRef.current) {
@@ -192,10 +212,11 @@ const MessageList = ({ user, messages, viewportHeight }) => {
                 </span>
               </div>
 
-              {/* Message Bubble */}
+              {/* Message Bubble & Actions */}
+              <div className={`flex items-center gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
               <div
                 className={`
-                  relative px-2.5 py-1.5 text-[11px] leading-normal transition-all duration-300 rounded-lg
+                  relative px-2.5 py-1.5 text-[11px] leading-normal transition-all duration-300 rounded-lg shrink-0 max-w-full
                   ${
                     isOwn
                       ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-100 rounded-tr-sm"
@@ -235,8 +256,39 @@ const MessageList = ({ user, messages, viewportHeight }) => {
                       </div>
                     );
                   })()
+                ) : editingMsgId === msg.timestamp ? (
+                  <div className="flex flex-col gap-2 relative z-50">
+                    <input 
+                      type="text" 
+                      value={editContent} 
+                      onChange={(e) => setEditContent(e.target.value)}
+                      className="bg-black/40 border border-emerald-500/50 rounded px-2 py-1.5 text-emerald-100 outline-none w-full min-w-[200px]"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleEditSave(msg.timestamp);
+                        if (e.key === 'Escape') setEditingMsgId(null);
+                      }}
+                      autoFocus
+                    />
+                    <div className="flex gap-2 justify-end">
+                      <button onClick={() => setEditingMsgId(null)} className="text-white/50 hover:text-white p-1 bg-black/50 rounded"><X size={12}/></button>
+                      <button onClick={() => handleEditSave(msg.timestamp)} className="text-emerald-500 hover:text-emerald-400 p-1 bg-black/50 rounded"><Check size={12}/></button>
+                    </div>
+                  </div>
                 ) : (
                   <p className="break-words font-medium">{msg.message}</p>
+                )}
+              </div>
+                
+                {/* Action Buttons */}
+                {isOwn && editingMsgId !== msg.timestamp && (
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 shrink-0">
+                    <button onClick={() => handleEditInit(msg)} className="text-neutral-600 hover:text-emerald-500 transition-colors p-1 rounded hover:bg-white/5" title="Edit">
+                      <Edit2 size={12} />
+                    </button>
+                    <button onClick={() => handleDelete(msg.timestamp)} className="text-neutral-600 hover:text-red-500 transition-colors p-1 rounded hover:bg-white/5" title="Delete">
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

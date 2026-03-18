@@ -66,6 +66,20 @@ const useChatStore = create((set, get) => ({
               messages: [...state.messages, data],
             };
           });
+        } else if (data.type === "chat_edit") {
+          set((state) => ({
+            messages: state.messages.map((msg) =>
+              msg.timestamp === data.timestamp
+                ? { ...msg, message: data.message }
+                : msg
+            ),
+          }));
+        } else if (data.type === "chat_delete") {
+          set((state) => ({
+            messages: state.messages.filter(
+              (msg) => msg.timestamp !== data.timestamp
+            ),
+          }));
         } else if (data.type === "history") {
           set({ messages: data.messages });
         } else if (data.type === "presence") {
@@ -107,11 +121,28 @@ const useChatStore = create((set, get) => ({
     if (socket && isConnected && socket.readyState === WebSocket.OPEN) {
       const payload = {
         type: "chat_message",
+        action: "send",
         message: content,
       };
       socket.send(JSON.stringify(payload));
     } else {
       console.error("Cannot send message: Socket not open", socket?.readyState);
+    }
+  },
+
+  editMessage: (timestamp, newContent) => {
+    const { socket, isConnected } = get();
+    if (socket && isConnected && socket.readyState === WebSocket.OPEN) {
+      const payload = { type: "chat_message", action: "edit", target_timestamp: timestamp, message: newContent };
+      socket.send(JSON.stringify(payload));
+    }
+  },
+
+  deleteMessage: (timestamp) => {
+    const { socket, isConnected } = get();
+    if (socket && isConnected && socket.readyState === WebSocket.OPEN) {
+      const payload = { type: "chat_message", action: "delete", target_timestamp: timestamp, message: "deleted" };
+      socket.send(JSON.stringify(payload));
     }
   },
 

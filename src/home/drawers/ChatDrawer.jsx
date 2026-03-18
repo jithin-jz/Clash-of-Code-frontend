@@ -6,7 +6,7 @@ import ChatInput from "../components/ChatInput";
 import MessageList from "../components/MessageList";
 
 const ChatDrawer = ({ isOpen, setOpen, user }) => {
-  const { messages, sendMessage, onlineCount, connect } = useChatStore();
+  const { messages, sendMessage, onlineCount, connect, editMessage, deleteMessage } = useChatStore();
   const [showPicker, setShowPicker] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
@@ -55,6 +55,10 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
   useEffect(() => {
     if (isOpen) {
       connect();
+      // Auto-focus input when opened
+      setTimeout(() => {
+        if (inputRef.current) inputRef.current.focus();
+      }, 200);
     }
     // We don't disconnect immediately on close to keep history/messages
     // and because users might toggle it frequently.
@@ -132,6 +136,8 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
                   user={user}
                   messages={messages}
                   viewportHeight={viewportHeight}
+                  editMessage={editMessage}
+                  deleteMessage={deleteMessage}
                 />
               </div>
             </main>
