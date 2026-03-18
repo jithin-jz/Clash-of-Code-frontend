@@ -1,6 +1,6 @@
 import React, { memo, useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Lock, MessageCircle, User, Edit2, Trash2, Check, X } from "lucide-react";
+import { Lock, MessageCircle, User, Edit, Trash2, Check, X } from "lucide-react";
 import { motion as Motion } from "framer-motion";
 
 const ChatAvatar = ({ isOwn, avatarUrl, username }) => {
@@ -283,7 +283,7 @@ const MessageList = ({ user, messages, viewportHeight, editMessage, deleteMessag
                 {isOwn && editingMsgId !== msg.timestamp && (
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 shrink-0">
                     <button onClick={() => handleEditInit(msg)} className="text-neutral-600 hover:text-emerald-500 transition-colors p-1 rounded hover:bg-white/5" title="Edit">
-                      <Edit2 size={12} />
+                      <Edit size={12} />
                     </button>
                     <button onClick={() => handleDelete(msg.timestamp)} className="text-neutral-600 hover:text-red-500 transition-colors p-1 rounded hover:bg-white/5" title="Delete">
                       <Trash2 size={12} />
