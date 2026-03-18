@@ -50,9 +50,7 @@ const MessageList = ({ user, messages, viewportHeight, editMessage, deleteMessag
   };
 
   const handleDelete = (timestamp) => {
-    if (window.confirm("Delete this message?")) {
-      deleteMessage(timestamp);
-    }
+    deleteMessage(timestamp);
   };
 
   const scrollToBottom = () => {
