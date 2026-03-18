@@ -13,6 +13,7 @@ const ChatInput = ({
   pickerRef,
   emojiButtonRef,
   sendTyping,
+  placeholder,
 }) => {
   const [inputMessage, setInputMessage] = React.useState("");
 
@@ -82,7 +83,7 @@ const ChatInput = ({
           <Input
             ref={inputRef}
             type="text"
-            placeholder={user ? "Message..." : "Sign in to chat"}
+            placeholder={user ? (placeholder || "Message...") : "Sign in to chat"}
             disabled={!user}
             value={inputMessage}
             onChange={handleInputChange}

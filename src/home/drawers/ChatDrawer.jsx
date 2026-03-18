@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, memo, useCallback } from "react";
+import React, { useState, useEffect, useRef, memo, useCallback, useMemo } from "react";
 import { X, Pin, MessageSquare, Map, Users, ArrowLeft } from "lucide-react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import useChatStore from "../../stores/useChatStore";
@@ -91,10 +91,15 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
   const otherTyping = typingUsers.filter((t) => t.username !== user?.username);
 
   const isGlobal = currentRoom === "global";
-  const dmTarget = !isGlobal ? activeDMs.find(dm => {
-    const ids = currentRoom.split("_").slice(1);
-    return ids.includes(String(dm.id));
-  }) : null;
+  const dmTarget = useMemo(() => {
+    if (isGlobal || !currentRoom.startsWith("dm_")) return null;
+    const roomIds = currentRoom.split("_").slice(1).map(Number);
+    return activeDMs.find(dm => roomIds.includes(Number(dm.id)));
+  }, [isGlobal, currentRoom, activeDMs]);
+
+  const chatPlaceholder = isGlobal 
+    ? "Message global chat..." 
+    : (dmTarget ? `Message @${dmTarget.username}...` : "Message private chat...");
 
   return (
     <AnimatePresence>
@@ -298,6 +303,7 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
                     pickerRef={pickerRef}
                     emojiButtonRef={emojiButtonRef}
                     sendTyping={sendTyping}
+                    placeholder={chatPlaceholder}
                   />
                 </div>
               </>

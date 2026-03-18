@@ -42,17 +42,17 @@ const useChatStore = create((set, get) => ({
   // Actions
   connect: (roomName = "global") => {
     set({ shouldReconnect: true, currentRoom: roomName });
-    const { socket: existingSocket } = get();
 
     // Prevent multiple connections to the SAME room
-    if (existingSocket) {
-      // If we are already connected to this room, just ignore
-      if (get().currentRoom === roomName && (existingSocket.readyState === WebSocket.OPEN || existingSocket.readyState === WebSocket.CONNECTING)) {
+    const state = get();
+    if (state.socket) {
+      if (state.currentRoom === roomName && (state.socket.readyState === WebSocket.OPEN || state.socket.readyState === WebSocket.CONNECTING)) {
           return;
       }
-      // Otherwise, close the current socket to switch rooms
-      existingSocket.close();
+      state.socket.close();
     }
+
+    set({ shouldReconnect: true, currentRoom: roomName, isConnected: false });
 
     const wsUrl = `${WS_URL}/${roomName}`;
     const socket = new WebSocket(wsUrl);
@@ -170,7 +170,8 @@ const useChatStore = create((set, get) => ({
 
   setChatOpen: (isOpen) => set({ isChatOpen: isOpen }),
   switchRoom: (roomName) => {
-    set({ messages: [], currentRoom: roomName });
+    // Immediately clear state for the new room
+    set({ messages: [], typingUsers: [], currentRoom: roomName, error: null });
     get().connect(roomName);
   },
 
