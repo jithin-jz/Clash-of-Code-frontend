@@ -33,25 +33,26 @@ const useChatStore = create((set, get) => ({
   shouldReconnect: false,
   typingUsers: [], // [{username, timeout}]
   pinnedMessage: null, // {timestamp, message, pinned_by}
+  currentRoom: "global",
+  activeDMs: [], // [{id, username, avatar_url}]
+  isChatOpen: false,
 
   // Actions
-  connect: () => {
-    set({ shouldReconnect: true });
+  connect: (roomName = "global") => {
+    set({ shouldReconnect: true, currentRoom: roomName });
     const { socket: existingSocket } = get();
 
-    // Prevent multiple connections
+    // Prevent multiple connections to the SAME room
     if (existingSocket) {
-      if (
-        existingSocket.readyState === WebSocket.OPEN ||
-        existingSocket.readyState === WebSocket.CONNECTING
-      ) {
-        return;
+      // If we are already connected to this room, just ignore
+      if (get().currentRoom === roomName && (existingSocket.readyState === WebSocket.OPEN || existingSocket.readyState === WebSocket.CONNECTING)) {
+          return;
       }
-      // Close stale socket
+      // Otherwise, close the current socket to switch rooms
       existingSocket.close();
     }
 
-    const wsUrl = `${WS_URL}/global`;
+    const wsUrl = `${WS_URL}/${roomName}`;
     const socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
@@ -113,11 +114,9 @@ const useChatStore = create((set, get) => ({
           }));
         } else if (data.type === "typing") {
           set((state) => {
-            // Remove existing entry for this user
             const filtered = state.typingUsers.filter(
               (t) => t.username !== data.username
             );
-            // Auto-remove after 3 seconds
             const timeout = setTimeout(() => {
               set((s) => ({
                 typingUsers: s.typingUsers.filter(
@@ -155,8 +154,7 @@ const useChatStore = create((set, get) => ({
     socket.onclose = () => {
       set({ isConnected: false, socket: null });
       if (get().shouldReconnect) {
-        console.warn("Chat WebSocket closed. Retrying in 5s...");
-        setTimeout(() => get().connect(), 5000);
+        setTimeout(() => get().connect(get().currentRoom), 5000);
       }
     };
 
@@ -166,6 +164,31 @@ const useChatStore = create((set, get) => ({
     };
 
     set({ socket });
+  },
+
+  setChatOpen: (isOpen) => set({ isChatOpen: isOpen }),
+  switchRoom: (roomName) => {
+    set({ messages: [], currentRoom: roomName });
+    get().connect(roomName);
+  },
+
+  startDM: (targetUser) => {
+    // Generate DM room name: dm_{minId}_{maxId}
+    const myId = JSON.parse(localStorage.getItem("auth-storage") || "{}")?.state?.user?.id;
+    if (!myId || !targetUser.id) return;
+    
+    const ids = [parseInt(myId), parseInt(targetUser.id)].sort((a, b) => a - b);
+    const roomName = `dm_${ids[0]}_${ids[1]}`;
+    
+    // Add to active DMs list if not present
+    set((state) => ({
+      activeDMs: state.activeDMs.some(dm => dm.id === targetUser.id)
+        ? state.activeDMs
+        : [targetUser, ...state.activeDMs]
+    }));
+
+    get().switchRoom(roomName);
+    set({ isChatOpen: true });
   },
 
   disconnect: () => {
@@ -179,6 +202,7 @@ const useChatStore = create((set, get) => ({
         shouldReconnect: false,
         typingUsers: [],
         pinnedMessage: null,
+        currentRoom: "global"
       });
     }
   },

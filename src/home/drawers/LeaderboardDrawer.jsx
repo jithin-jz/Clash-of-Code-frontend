@@ -1,10 +1,11 @@
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
-import { Trophy, Crown, Medal, Users, X, Gem, ArrowRight } from "lucide-react";
+import { Trophy, Crown, Medal, Users, X, Gem, ArrowRight, MessageSquare } from "lucide-react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import { SkeletonBase } from "../../common/SkeletonPrimitives";
 import api from "../../services/api";
 import useAuthStore from "../../stores/useAuthStore";
+import useChatStore from "../../stores/useChatStore";
 
 const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
   const [users, setUsers] = useState([]);
@@ -205,6 +206,25 @@ const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
                         </div>
 
                         {/* Action Icon */}
+                        {!isMe && (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const { startDM } = useChatStore.getState();
+                              startDM({
+                                id: rankUser.id,
+                                username: rankUser.username,
+                                avatar_url: rankUser.avatar,
+                              });
+                              setLeaderboardOpen(false);
+                            }}
+                            className="p-1.5 rounded-md hover:bg-blue-500/20 text-neutral-600 hover:text-blue-400 transition-all"
+                          >
+                            <MessageSquare size={14} />
+                          </button>
+                        )}
+
                         <ArrowRight
                           size={14}
                           className="text-neutral-600 group-hover:text-primary transition-colors duration-300"

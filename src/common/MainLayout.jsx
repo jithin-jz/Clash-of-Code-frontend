@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useShallow } from "zustand/react/shallow";
 import useAuthStore from "../stores/useAuthStore";
 import useChallengesStore from "../stores/useChallengesStore";
+import useChatStore from "../stores/useChatStore";
 import {
   HomeTopNav,
   ChatDrawer,
@@ -41,7 +42,11 @@ const MainLayout = memo(({ children }) => {
     );
 
   // ---- Local UI State ----
-  const [isChatOpen, setChatOpen] = useState(false);
+  // ---- Zustand Chat State ----
+  const { isChatOpen, setChatOpen } = useChatStore(
+    useShallow((s) => ({ isChatOpen: s.isChatOpen, setChatOpen: s.setChatOpen })),
+  );
+
   const [isLeaderboardOpen, setLeaderboardOpen] = useState(false);
   const [isNotificationOpen, setNotificationOpen] = useState(false);
   const [checkInOpen, setCheckInOpen] = useState(false);
@@ -167,7 +172,7 @@ const MainLayout = memo(({ children }) => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [user, navigate]);
+  }, [user, navigate, setChatOpen]);
 
   // ---- Early exit for gameplay screens ----
   if (hideNav) return children;

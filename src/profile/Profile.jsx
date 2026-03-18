@@ -614,19 +614,38 @@ const Profile = () => {
                     </button>
                   </div>
 
-                  {/* Action Button */}
-                  {!isOwnProfile && (
-                    <Button
-                      onClick={handleFollowToggle}
-                      className={`w-full h-10 font-bold ${
-                        profileUser?.is_following
-                          ? "bg-zinc-800 text-white hover:bg-zinc-700"
-                          : "bg-white text-black hover:bg-zinc-200"
-                      }`}
-                    >
-                      {profileUser?.is_following ? "Following" : "Follow"}
-                    </Button>
-                  )}
+                   {/* Action Button */}
+                   {!isOwnProfile && (
+                     <div className="flex gap-2 w-full mt-4">
+                       <Button
+                         onClick={handleFollowToggle}
+                         className={`flex-1 h-10 font-bold ${
+                           profileUser.is_following
+                             ? "bg-zinc-800 text-white hover:bg-zinc-700"
+                             : "bg-white text-black hover:bg-zinc-200"
+                         }`}
+                       >
+                         {profileUser.is_following ? "Following" : "Follow"}
+                       </Button>
+                       <Button
+                         variant="outline"
+                         onClick={() => {
+                           const { startDM } = useChatStore.getState();
+                           startDM({
+                             id: profileUser.id,
+                             username: profileUser.username,
+                             avatar_url: profileUser.avatar_url,
+                           });
+                           // Note: We might need to trigger setChatOpen(true) here
+                           // Since ChatDrawer is usually global, we'll assume there's a way to open it.
+                           // For now we'll just trigger the DM logic.
+                         }}
+                         className="flex-1 h-10 font-bold border-white/10 hover:bg-white/5"
+                       >
+                         Message
+                       </Button>
+                     </div>
+                   )}
                 </CardContent>
               </Card>
 
