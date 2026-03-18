@@ -39,4 +39,3 @@ This project should follow a **Feature-First + Design System** architecture:
 2. Move repeated section shells into `src/common` reusable wrappers.
 3. Standardize status chips and metric cards through shared variants.
 4. Add visual regression checks (Storybook or screenshot testing) for key screens.
-

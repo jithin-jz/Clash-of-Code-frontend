@@ -92,10 +92,10 @@ const ShareCard = ({
                   <Trophy size={12} />
                   Challenge Complete
                 </div>
-                <h3 className="text-lg font-bold text-white">{challengeTitle}</h3>
-                <p className="text-xs text-neutral-500 mt-1">
-                  by @{username}
-                </p>
+                <h3 className="text-lg font-bold text-white">
+                  {challengeTitle}
+                </h3>
+                <p className="text-xs text-neutral-500 mt-1">by @{username}</p>
               </div>
 
               {/* Stats Grid */}

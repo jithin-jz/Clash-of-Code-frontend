@@ -165,7 +165,9 @@ const AdminStore = () => {
       await api.patch(`/store/items/${item.id}/`, {
         [field]: !item[field],
       });
-      notify.success(`${field === "featured" ? "Featured" : "Visibility"} updated`);
+      notify.success(
+        `${field === "featured" ? "Featured" : "Visibility"} updated`,
+      );
       fetchItems();
     } catch {
       notify.error("Failed to update item");

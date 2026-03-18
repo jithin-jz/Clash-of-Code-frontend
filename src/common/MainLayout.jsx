@@ -44,7 +44,10 @@ const MainLayout = memo(({ children }) => {
   // ---- Local UI State ----
   // ---- Zustand Chat State ----
   const { isChatOpen, setChatOpen } = useChatStore(
-    useShallow((s) => ({ isChatOpen: s.isChatOpen, setChatOpen: s.setChatOpen })),
+    useShallow((s) => ({
+      isChatOpen: s.isChatOpen,
+      setChatOpen: s.setChatOpen,
+    })),
   );
 
   const [isLeaderboardOpen, setLeaderboardOpen] = useState(false);

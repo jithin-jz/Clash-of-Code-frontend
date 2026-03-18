@@ -108,7 +108,7 @@ const Profile = () => {
   const fetchProfile = useCallback(
     async (targetUsername) => {
       if (!targetUsername) return;
-      // Only show top-level loading if we don't have this user yet 
+      // Only show top-level loading if we don't have this user yet
       // AND it's not our own profile (for which we already have currentUser data)
       if (profileUser?.username !== targetUsername && !isOwnProfile) {
         setLoading(true);
@@ -223,7 +223,12 @@ const Profile = () => {
       fetchSuggestions();
       fetchContributions(currentUser.username);
     }
-  }, [isOwnProfile, currentUser?.username, fetchSuggestions, fetchContributions]);
+  }, [
+    isOwnProfile,
+    currentUser?.username,
+    fetchSuggestions,
+    fetchContributions,
+  ]);
 
   const handleImageUpload = async (event, type) => {
     const file = event.target.files[0];
@@ -605,21 +610,21 @@ const Profile = () => {
                     </button>
                   </div>
 
-                   {/* Action Button */}
-                   {!isOwnProfile && (
-                     <div className="flex gap-2 w-full mt-4">
-                       <Button
-                         onClick={handleFollowToggle}
-                         className={`flex-1 h-10 font-bold ${
-                           profileUser.is_following
-                             ? "bg-zinc-800 text-white hover:bg-zinc-700"
-                             : "bg-white text-black hover:bg-zinc-200"
-                         }`}
-                       >
-                         {profileUser.is_following ? "Following" : "Follow"}
-                       </Button>
-                     </div>
-                   )}
+                  {/* Action Button */}
+                  {!isOwnProfile && (
+                    <div className="flex gap-2 w-full mt-4">
+                      <Button
+                        onClick={handleFollowToggle}
+                        className={`flex-1 h-10 font-bold ${
+                          profileUser.is_following
+                            ? "bg-zinc-800 text-white hover:bg-zinc-700"
+                            : "bg-white text-black hover:bg-zinc-200"
+                        }`}
+                      >
+                        {profileUser.is_following ? "Following" : "Follow"}
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

@@ -273,7 +273,7 @@ const AdminTasks = () => {
   };
 
   return (
-      <div className="space-y-4">
+    <div className="space-y-4">
       {!editingTask ? (
         <>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

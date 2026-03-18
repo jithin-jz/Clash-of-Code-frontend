@@ -1,5 +1,11 @@
 import React, { useMemo } from "react";
-import { ArrowRight, Crown, Lock, TrendingUp, CheckCircle2 } from "lucide-react";
+import {
+  ArrowRight,
+  Crown,
+  Lock,
+  TrendingUp,
+  CheckCircle2,
+} from "lucide-react";
 import LevelButton from "../../game/LevelButton";
 import { getTrackMeta } from "../../utils/challengeMeta";
 
@@ -262,7 +268,7 @@ const ChallengeMap = ({ levels, handleLevelClick }) => {
                 <div className="mt-6 relative z-10">
                   <div className="flex justify-between items-end mb-2.5">
                     <div className="flex items-center gap-2">
-                       <p className="text-[11px] font-bold text-white/40 uppercase tracking-wider font-mono">
+                      <p className="text-[11px] font-bold text-white/40 uppercase tracking-wider font-mono">
                         Progress: {completedChallenges} / {totalChallenges}
                       </p>
                     </div>

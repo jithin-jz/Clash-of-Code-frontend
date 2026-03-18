@@ -83,7 +83,7 @@ const ChatInput = ({
           <Input
             ref={inputRef}
             type="text"
-            placeholder={user ? (placeholder || "Message...") : "Sign in to chat"}
+            placeholder={user ? placeholder || "Message..." : "Sign in to chat"}
             disabled={!user}
             value={inputMessage}
             onChange={handleInputChange}

@@ -1,6 +1,16 @@
 import React, { memo, useState, useMemo, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Lock, MessageCircle, User, Edit, Trash2, Check, X, Pin, Smile } from "lucide-react";
+import {
+  Lock,
+  MessageCircle,
+  User,
+  Edit,
+  Trash2,
+  Check,
+  X,
+  Pin,
+  Smile,
+} from "lucide-react";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 
 const REACTION_EMOJIS = ["👍", "🔥", "😂", "❤️", "🎉", "💯"];
@@ -50,7 +60,7 @@ const RenderMessage = ({ text }) => {
           </Link>
         ) : (
           <span key={i}>{part}</span>
-        )
+        ),
       )}
     </p>
   );
@@ -71,8 +81,7 @@ const ReactionBar = ({ reactions, onReact, username }) => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [showPicker]);
 
-  const hasReactions =
-    reactions && Object.keys(reactions).length > 0;
+  const hasReactions = reactions && Object.keys(reactions).length > 0;
 
   return (
     <div className="flex items-center gap-1 flex-wrap mt-1 relative">
@@ -103,7 +112,7 @@ const ReactionBar = ({ reactions, onReact, username }) => {
         <AnimatePresence>
           {showPicker && (
             <Motion.div
-              initial={{ opacity: 0, scale: 0.9,  y: 5 }}
+              initial={{ opacity: 0, scale: 0.9, y: 5 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 5 }}
               className="absolute bottom-7 left-0 z-50 flex gap-1 p-1.5 bg-[#111] border border-[#222] rounded-lg shadow-xl"
@@ -316,7 +325,9 @@ const MessageList = ({
               </div>
 
               {/* Message Bubble & Actions */}
-              <div className={`flex items-start gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
+              <div
+                className={`flex items-start gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}
+              >
                 <div
                   className={`
                     relative px-2.5 py-1.5 text-[11px] leading-normal transition-all duration-300 rounded-lg shrink-0 max-w-full

@@ -172,7 +172,9 @@ const AdminBroadcast = () => {
                   className="admin-subpanel flex flex-col gap-3 p-3 sm:flex-row sm:items-start sm:justify-between"
                 >
                   <div>
-                    <div className="text-sm text-neutral-200">{item.message}</div>
+                    <div className="text-sm text-neutral-200">
+                      {item.message}
+                    </div>
                     <div className="mt-1 text-[11px] text-neutral-500">
                       {item.recipient_count} recipients • {item.admin} •{" "}
                       {new Date(item.timestamp).toLocaleString()}

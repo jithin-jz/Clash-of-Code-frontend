@@ -37,10 +37,12 @@ The **Clash of Code Frontend** is a modern, interactive web application built wi
 ## 🔧 Setup & Installation
 
 ### Prerequisites
+
 - Node.js 18+
 - npm or yarn
 
 ### Local Development
+
 1. **Navigate to the frontend directory:**
    ```bash
    cd frontend
@@ -62,8 +64,11 @@ The **Clash of Code Frontend** is a modern, interactive web application built wi
    ```
 
 ## 🏗️ Build & Production
+
 To create a production-optimized build:
+
 ```bash
 npm run build
 ```
+
 The output will be in the `dist/` directory.

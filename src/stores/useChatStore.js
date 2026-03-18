@@ -1,9 +1,8 @@
 import { create } from "zustand";
 
-
-
 const WS_URL = (() => {
-  const explicitWS = import.meta.env.VITE_CHAT_URL || import.meta.env.VITE_WS_URL;
+  const explicitWS =
+    import.meta.env.VITE_CHAT_URL || import.meta.env.VITE_WS_URL;
   if (explicitWS) return explicitWS;
 
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -46,8 +45,11 @@ const useChatStore = create((set, get) => ({
     // Prevent multiple connections to the SAME room
     const state = get();
     if (state.socket) {
-      if (state.socket.readyState === WebSocket.OPEN || state.socket.readyState === WebSocket.CONNECTING) {
-          return;
+      if (
+        state.socket.readyState === WebSocket.OPEN ||
+        state.socket.readyState === WebSocket.CONNECTING
+      ) {
+        return;
       }
       state.socket.close();
     }
@@ -86,13 +88,13 @@ const useChatStore = create((set, get) => ({
             messages: state.messages.map((msg) =>
               msg.timestamp === data.timestamp
                 ? { ...msg, message: data.message }
-                : msg
+                : msg,
             ),
           }));
         } else if (data.type === "chat_delete") {
           set((state) => ({
             messages: state.messages.filter(
-              (msg) => msg.timestamp !== data.timestamp
+              (msg) => msg.timestamp !== data.timestamp,
             ),
           }));
         } else if (data.type === "chat_react") {
@@ -117,12 +119,12 @@ const useChatStore = create((set, get) => ({
         } else if (data.type === "typing") {
           set((state) => {
             const filtered = state.typingUsers.filter(
-              (t) => t.username !== data.username
+              (t) => t.username !== data.username,
             );
             const timeout = setTimeout(() => {
               set((s) => ({
                 typingUsers: s.typingUsers.filter(
-                  (t) => t.username !== data.username
+                  (t) => t.username !== data.username,
                 ),
               }));
             }, 3000);
@@ -173,7 +175,6 @@ const useChatStore = create((set, get) => ({
       isChatOpen: typeof val === "function" ? val(state.isChatOpen) : val,
     })),
 
-
   // REMOVED: startDM
 
   disconnect: () => {
@@ -187,7 +188,7 @@ const useChatStore = create((set, get) => ({
         shouldReconnect: false,
         typingUsers: [],
         pinnedMessage: null,
-        currentRoom: "global"
+        currentRoom: "global",
       });
     }
   },

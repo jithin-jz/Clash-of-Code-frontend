@@ -1,11 +1,19 @@
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
-import { Trophy, Crown, Medal, Users, X, Gem, ArrowRight, MessageSquare } from "lucide-react";
+import {
+  Trophy,
+  Crown,
+  Medal,
+  Users,
+  X,
+  Gem,
+  ArrowRight,
+  MessageSquare,
+} from "lucide-react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import { SkeletonBase } from "../../common/SkeletonPrimitives";
 import api from "../../services/api";
 import useAuthStore from "../../stores/useAuthStore";
-
 
 const LeaderboardDrawer = ({ isLeaderboardOpen, setLeaderboardOpen }) => {
   const [users, setUsers] = useState([]);

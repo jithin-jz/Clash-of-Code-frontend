@@ -124,7 +124,7 @@ const useNotificationStore = create((set, get) => ({
         } else if (data.type === "mention") {
           get()._showToast(
             "You were mentioned",
-            `@${data.sender} mentioned you in ${data.room}`
+            `@${data.sender} mentioned you in ${data.room}`,
           );
         }
       } catch (err) {
