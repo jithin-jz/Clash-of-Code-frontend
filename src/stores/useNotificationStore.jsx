@@ -121,11 +121,6 @@ const useNotificationStore = create((set, get) => ({
         const data = JSON.parse(event.data);
         if (data.type === "notification") {
           get()._showToast(data.title, data.body);
-        } else if (data.type === "dm_notification") {
-          get()._showToast(
-            `Message from ${data.sender}`,
-            data.message || "New message received"
-          );
         } else if (data.type === "mention") {
           get()._showToast(
             "You were mentioned",

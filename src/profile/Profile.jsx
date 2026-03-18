@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useShallow } from "zustand/react/shallow";
 import useAuthStore from "../stores/useAuthStore";
 import useUserStore from "../stores/useUserStore";
-import useChatStore from "../stores/useChatStore";
 import { notify } from "../services/notification";
 import {
   Camera,
@@ -57,17 +56,9 @@ const Profile = () => {
     })),
   );
   const { updateProfile, followUser, redeemReferral } = useUserStore();
-  const { connect, isConnected } = useChatStore();
 
   const isOwnProfile =
     !username || (currentUser && username === currentUser.username);
-
-  // Connect to chat for sharing functionality
-  useEffect(() => {
-    if (!isConnected) {
-      connect();
-    }
-  }, [isConnected, connect]);
   // Initialize state based on available data to prevent flashing
   const [profileUser, setProfileUser] = useState(() => {
     if (isOwnProfile && currentUser) return currentUser;
@@ -626,23 +617,6 @@ const Profile = () => {
                          }`}
                        >
                          {profileUser.is_following ? "Following" : "Follow"}
-                       </Button>
-                       <Button
-                         variant="outline"
-                         onClick={() => {
-                           const { startDM } = useChatStore.getState();
-                           startDM({
-                             id: profileUser.id,
-                             username: profileUser.username,
-                             avatar_url: profileUser.avatar_url,
-                           });
-                           // Note: We might need to trigger setChatOpen(true) here
-                           // Since ChatDrawer is usually global, we'll assume there's a way to open it.
-                           // For now we'll just trigger the DM logic.
-                         }}
-                         className="flex-1 h-10 font-bold border-white/10 hover:bg-white/5"
-                       >
-                         Message
                        </Button>
                      </div>
                    )}

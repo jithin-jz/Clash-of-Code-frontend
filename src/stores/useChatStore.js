@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import useAuthStore from "./useAuthStore";
+
 
 const WS_URL = (() => {
   const explicitWS = import.meta.env.VITE_CHAT_URL || import.meta.env.VITE_WS_URL;
@@ -36,17 +36,17 @@ const useChatStore = create((set, get) => ({
   typingUsers: [], // [{username, timeout}]
   pinnedMessage: null, // {timestamp, message, pinned_by}
   currentRoom: "global",
-  activeDMs: [], // [{id, username, avatar_url}]
   isChatOpen: false,
 
   // Actions
-  connect: (roomName = "global") => {
+  connect: () => {
+    const roomName = "global";
     set({ shouldReconnect: true, currentRoom: roomName });
 
     // Prevent multiple connections to the SAME room
     const state = get();
     if (state.socket) {
-      if (state.currentRoom === roomName && (state.socket.readyState === WebSocket.OPEN || state.socket.readyState === WebSocket.CONNECTING)) {
+      if (state.socket.readyState === WebSocket.OPEN || state.socket.readyState === WebSocket.CONNECTING) {
           return;
       }
       state.socket.close();
@@ -169,33 +169,9 @@ const useChatStore = create((set, get) => ({
   },
 
   setChatOpen: (isOpen) => set({ isChatOpen: isOpen }),
-  switchRoom: (roomName) => {
-    // Immediately clear state for the new room
-    set({ messages: [], typingUsers: [], currentRoom: roomName, error: null });
-    get().connect(roomName);
-  },
 
-  startDM: (targetUser) => {
-    // Generate DM room name: dm_{minId}_{maxId}
-    const myId = useAuthStore.getState().user?.id;
-    if (!myId || !targetUser.id) {
-       console.warn("[Chat] Cannot start DM: Missing user IDs", { myId, targetId: targetUser.id });
-       return;
-    }
-    
-    const ids = [parseInt(myId), parseInt(targetUser.id)].sort((a, b) => a - b);
-    const roomName = `dm_${ids[0]}_${ids[1]}`;
-    
-    // Add to active DMs list if not present
-    set((state) => ({
-      activeDMs: state.activeDMs.some(dm => dm.id === targetUser.id)
-        ? state.activeDMs
-        : [targetUser, ...state.activeDMs]
-    }));
 
-    get().switchRoom(roomName);
-    set({ isChatOpen: true });
-  },
+  // REMOVED: startDM
 
   disconnect: () => {
     const { socket } = get();
