@@ -885,7 +885,7 @@ const Profile = () => {
                               className="flex items-center gap-3 min-w-0 hover:opacity-80 transition-opacity"
                             >
                               <Avatar className="w-8 h-8 shrink-0">
-                                <AvatarImage src={user.profile?.avatar_url} />
+                                <AvatarImage src={user.avatar_url} />
                                 <AvatarFallback className="bg-[#1a1a1a] text-[10px] text-zinc-400">
                                   {user.username[0]?.toUpperCase()}
                                 </AvatarFallback>
