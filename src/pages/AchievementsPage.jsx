@@ -1,209 +1,209 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   Trophy, 
+  Award, 
   Target, 
   Users, 
   Calendar, 
   Star, 
-  Lock, 
-  CheckCircle2,
-  ArrowRight
+  ArrowLeft,
+  ChevronRight,
+  Medal,
+  Activity,
+  Zap,
+  Lock,
+  CheckCircle2
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { achievementsApi } from "../services/achievementsApi";
-import { SkeletonGenericPage } from "../common/SkeletonPrimitives";
-import { toast } from "sonner";
+import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
 
-/**
- * AchievementsPage — A dedicated landing page for users to see all possible trophies
- * and instructions on how to earn them.
- */
+const CATEGORIES = [
+  { id: "all", label: "All Hall", icon: Trophy },
+  { id: "CODING", label: "Coding", icon: Target },
+  { id: "COMMUNITY", label: "Community", icon: Users },
+  { id: "CONSISTENCY", label: "Consistency", icon: Activity },
+  { id: "SPECIAL", label: "Special", icon: Medal },
+];
+
 const AchievementsPage = () => {
+  const navigate = useNavigate();
   const [achievements, setAchievements] = useState([]);
+  const [userAchievements, setUserAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState("all");
+  const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
       try {
-        const data = await achievementsApi.getAllAchievements();
-        setAchievements(data);
+        const [allRes, userRes] = await Promise.all([
+          achievementsApi.getAllAchievements(),
+          achievementsApi.getUserAchievements()
+        ]);
+        setAchievements(allRes.data);
+        setUserAchievements(userRes.data);
       } catch (err) {
-        toast.error("Failed to load achievements");
-        console.error(err);
+        console.error("Failed to fetch achievements:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetch();
+    fetchData();
   }, []);
 
-  const categories = [
-    { id: "all", label: "All Hall", icon: Trophy },
-    { id: "challenge", label: "Coding", icon: Target },
-    { id: "social", label: "Community", icon: Users },
-    { id: "streak", label: "Consistency", icon: Calendar },
-    { id: "special", label: "Special", icon: Star },
-  ];
+  const filteredAchievements = useMemo(() => {
+    if (activeTab === "all") return achievements;
+    return achievements.filter(a => a.category === activeTab);
+  }, [achievements, activeTab]);
 
-  const filtered = activeCategory === "all" 
-    ? achievements 
-    : achievements.filter(a => a.category === activeCategory);
+  const isUnlocked = (achievementId) => {
+    return userAchievements.some(ua => ua.achievement.id === achievementId);
+  };
 
-  if (loading) return <SkeletonGenericPage />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
+          <Trophy className="text-white/20 w-8 h-8" />
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-black px-4 py-8 sm:px-6 lg:px-8">
-      {/* Header Section */}
-      <section className="mx-auto max-w-7xl text-center mb-16 pt-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary mb-6"
-        >
-          <Trophy className="h-4 w-4" />
-          <span>Champion's Hall</span>
-        </motion.div>
-        
-        <motion.h1 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="text-4xl font-bold tracking-tight text-white sm:text-6xl mb-6"
-        >
-          Forge Your <span className="text-primary italic">Legacy</span>
-        </motion.h1>
-        
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mx-auto max-w-2xl text-lg text-zinc-400"
-        >
-          Unlock rare trophies and earn bonus XP by mastering the art of code, 
-          maintaining consistency, and building the community.
-        </motion.p>
-      </section>
+    <div className="min-h-screen bg-black text-white selection:bg-white/10 pb-20 sm:pb-0">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-30 border-b border-[#1e1e1e] bg-black/95 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="h-8 w-8 text-neutral-500 hover:text-white hover:bg-[#1c1c1c] shrink-0"
+          >
+            <ArrowLeft size={16} />
+          </Button>
 
-      {/* Category Filter */}
-      <div className="mx-auto max-w-7xl mb-12">
-        <div className="flex flex-wrap justify-center gap-3">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border transition-all duration-300 ${
-                activeCategory === cat.id 
-                ? "bg-primary border-primary text-black font-bold shadow-lg shadow-primary/20" 
-                : "bg-zinc-900/50 border-white/10 text-zinc-400 hover:border-white/20 hover:bg-zinc-800"
-              }`}
-            >
-              <cat.icon className="h-4 w-4" />
-              <span>{cat.label}</span>
-            </button>
-          ))}
+          <div className="w-px h-4 bg-[#222]" />
+
+          <h1 className="text-xs font-bold uppercase tracking-[0.2em] font-mono text-neutral-400">
+            Achievements Hall
+          </h1>
         </div>
       </div>
 
-      {/* Achievements Grid */}
-      <div className="mx-auto max-w-7xl">
-        <motion.div 
-          layout
-          className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          <AnimatePresence mode="popLayout">
-            {filtered.map((achievement, idx) => (
-              <motion.div
-                key={achievement.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.2, delay: idx * 0.05 }}
-                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/40 p-6 hover:border-primary/40 transition-colors"
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Simple Tabs */}
+        <div className="flex items-center gap-2 mb-10 overflow-x-auto no-scrollbar pb-2">
+          {CATEGORIES.map(cat => {
+            const Icon = cat.icon;
+            const isActive = activeTab === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setActiveTab(cat.id)}
+                className={`
+                  flex items-center gap-2 px-4 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all border font-mono whitespace-nowrap
+                  ${isActive 
+                    ? "bg-[#161616] text-white border-[#333] shadow-lg" 
+                    : "text-neutral-500 border-transparent hover:text-neutral-300 hover:bg-[#0d0d0d] hover:border-[#1a1a1a]"
+                  }
+                `}
               >
-                {/* Glow Effect */}
-                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/5 blur-3xl group-hover:bg-primary/10 transition-colors" />
-
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`p-3 rounded-2xl bg-zinc-800 border border-white/5 ${achievement.is_unlocked ? 'text-primary' : 'text-zinc-500 opacity-50'}`}>
-                    {/* Placeholder for Dynamic Icon - will need a mapper for names to components */}
-                    <Trophy className="h-8 w-8" />
-                  </div>
-                  
-                  {achievement.is_unlocked ? (
-                    <div className="flex items-center gap-1 text-xs font-bold text-primary uppercase tracking-widest">
-                      <CheckCircle2 className="h-3 w-3" />
-                      <span>Unlocked</span>
-                    </div>
-                  ) : (
-                    <Lock className="h-4 w-4 text-zinc-700" />
-                  )}
-                </div>
-
-                <h3 className={`text-xl font-bold mb-2 ${achievement.is_unlocked ? 'text-white' : 'text-zinc-500'}`}>
-                  {achievement.title}
-                </h3>
-                
-                <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
-                  {achievement.description}
-                </p>
-
-                <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                  <div className="flex items-center gap-1.5">
-                    <Star className="h-4 w-4 text-primary fill-primary" />
-                    <span className="text-sm font-bold text-white">+{achievement.xp_reward} <span className="text-zinc-500 font-normal">XP</span></span>
-                  </div>
-                  
-                  {!achievement.is_unlocked && (
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 group-hover:text-zinc-400 transition-colors">
-                      Incomplete
-                    </span>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
-        
-        {filtered.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-zinc-500 text-lg italic">No achievements found in this category.</p>
-          </div>
-        )}
-      </div>
-
-      {/* Reward Cycle Hint */}
-      <section className="mx-auto max-w-4xl mt-32 mb-16">
-        <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-primary/5 p-8 md:p-12">
-          <div className="absolute right-0 top-0 h-64 w-64 bg-primary/10 blur-[100px] -translate-y-1/2 translate-x-1/2" />
-          
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-4">Daily Check-In Rewards</h2>
-              <p className="text-zinc-400 mb-6">
-                Consistency pays off. Complete your daily check-in streak to unlock exclusive 
-                milestone trophies and multipliers.
-              </p>
-              <button 
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="group flex items-center gap-2 text-primary font-bold hover:text-white transition-colors"
-              >
-                <span>Track your streak</span>
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <Icon size={14} />
+                {cat.label}
               </button>
+            );
+          })}
+        </div>
+
+        {/* Stats Summary - Very Minimal */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] p-4 rounded-xl flex items-center justify-between group hover:border-[#333] transition-colors">
+            <div>
+              <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1 font-mono">Completed</p>
+              <h3 className="text-xl font-mono">{userAchievements.length} / {achievements.length}</h3>
             </div>
-            
-            <div className="grid grid-cols-3 gap-3">
-              {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="aspect-square rounded-xl bg-zinc-900/80 border border-white/5 flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-zinc-600" />
-                </div>
-              ))}
+            <CheckCircle2 className="text-neutral-800 group-hover:text-white transition-colors" size={24} />
+          </div>
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] p-4 rounded-xl flex items-center justify-between group hover:border-[#333] transition-colors">
+            <div>
+              <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1 font-mono">Trophy Score</p>
+              <h3 className="text-xl font-mono">{userAchievements.length * 10}</h3>
             </div>
+            <Zap className="text-neutral-800 group-hover:text-white transition-colors" size={24} />
           </div>
         </div>
-      </section>
+
+        {/* Achievement Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <AnimatePresence mode="popLayout">
+            {filteredAchievements.map((achievement) => {
+              const unlocked = isUnlocked(achievement.id);
+              return (
+                <motion.div
+                  key={achievement.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                >
+                  <Card className={`
+                    h-full bg-[#0a0a0a] border border-[#1a1a1a] overflow-hidden group transition-all duration-300
+                    ${unlocked ? "hover:border-[#333]" : "opacity-60"}
+                  `}>
+                    <CardContent className="p-5 flex flex-col h-full">
+                      {/* Icon Header */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className={`
+                          w-12 h-12 rounded-xl flex items-center justify-center border transition-all duration-500
+                          ${unlocked 
+                            ? "bg-white/5 border-white/10 text-white group-hover:scale-110 group-hover:bg-white group-hover:text-black" 
+                            : "bg-black border-[#1a1a1a] text-neutral-700"}
+                        `}>
+                          <Trophy size={20} className={unlocked ? "" : "opacity-30"} />
+                        </div>
+                        
+                        {!unlocked && <Lock size={14} className="text-neutral-800" />}
+                        {unlocked && <Star size={14} className="text-white fill-white/20" />}
+                      </div>
+
+                      {/* Info */}
+                      <div className="space-y-1">
+                        <h3 className={`text-[13px] font-bold tracking-tight ${unlocked ? "text-white" : "text-neutral-500"}`}>
+                          {achievement.title}
+                        </h3>
+                        <p className="text-[11px] text-neutral-600 leading-relaxed min-h-[32px]">
+                          {achievement.description}
+                        </p>
+                      </div>
+
+                      {/* Footer */}
+                      <div className="mt-auto pt-4 flex items-center justify-between border-t border-white/[0.03]">
+                        <div className="flex items-center gap-1.5">
+                          <Zap size={10} className={unlocked ? "text-white" : "text-neutral-800"} />
+                          <span className={`text-[10px] font-mono font-bold ${unlocked ? "text-neutral-400" : "text-neutral-800"}`}>
+                            {achievement.xp_reward} XP
+                          </span>
+                        </div>
+                        
+                        {unlocked && (
+                          <span className="text-[9px] font-mono font-bold text-neutral-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                            UNLOCKED
+                          </span>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      </div>
     </div>
   );
 };
