@@ -180,6 +180,15 @@ const HomeTopNav = ({
           <div className="flex items-center justify-end gap-3">
             {user ? (
               <>
+                {/* Mobile Hall shortcut */}
+                <button
+                  type="button"
+                  onClick={() => navigate("/achievements")}
+                  className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/5 text-white sm:hidden"
+                >
+                  <Award size={14} />
+                </button>
+
                 {/* Mobile Check-in shortcut */}
                 <button
                   type="button"
@@ -324,11 +333,6 @@ const HomeTopNav = ({
                   Icon: ShoppingBag,
                   label: "Store",
                   action: () => navigate("/store"),
-                },
-                {
-                  Icon: Award,
-                  label: "Hall",
-                  action: () => navigate("/achievements"),
                 },
               ].map((item) => {
                 const Icon = item.Icon;
