@@ -153,7 +153,7 @@ const Profile = () => {
     try {
       if (getSuggestedUsers) {
         const response = await getSuggestedUsers();
-        setSuggestedUsers(response.data?.slice(0, 5) || []);
+        setSuggestedUsers(response.data || []);
       }
     } catch (error) {
       console.error("Failed to fetch suggestions", error);
@@ -582,6 +582,12 @@ const Profile = () => {
                   {/* Achievements */}
                   <div className="mb-4">
                     <AchievementBadges username={profileUser?.username} />
+                    <button 
+                      onClick={() => navigate("/achievements")}
+                      className="text-[10px] font-bold text-primary hover:text-primary/80 uppercase tracking-widest mt-2 transition-colors"
+                    >
+                      View All Achievements
+                    </button>
                   </div>
 
                   {/* Follow/Following Stats */}
@@ -864,7 +870,7 @@ const Profile = () => {
                       Suggested for you
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-4 space-y-4">
+                  <CardContent className="p-4 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar-thin">
                     {suggestedUsers.length > 0 ? (
                       <div className="space-y-4">
                         {suggestedUsers.map((user) => (

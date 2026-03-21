@@ -12,6 +12,7 @@ import {
   Play,
   Gem,
   Shield,
+  Award,
 } from "lucide-react";
 import useNotificationStore from "../../stores/useNotificationStore";
 
@@ -124,6 +125,9 @@ const HomeTopNav = ({
                     }
                   >
                     <Calendar size={14} />
+                  </NavBtn>
+                  <NavBtn onClick={() => navigate("/achievements")} title="Achievements Hall">
+                    <Award size={14} />
                   </NavBtn>
                   <NavBtn onClick={() => navigate("/store")} title="Store">
                     <ShoppingBag size={14} />
@@ -320,6 +324,11 @@ const HomeTopNav = ({
                   Icon: ShoppingBag,
                   label: "Store",
                   action: () => navigate("/store"),
+                },
+                {
+                  Icon: Award,
+                  label: "Hall",
+                  action: () => navigate("/achievements"),
                 },
               ].map((item) => {
                 const Icon = item.Icon;

@@ -31,6 +31,7 @@ const CertificateVerification = lazy(
 
 const ChallengeWorkspace = lazy(() => import("./game/ChallengeWorkspace"));
 const MarketplacePage = lazy(() => import("./marketplace/MarketplacePage"));
+const AchievementsPage = lazy(() => import("./pages/AchievementsPage"));
 
 // Skeletons (eagerly loaded — tiny)
 import {
@@ -232,6 +233,17 @@ const AppContent = memo(() => {
               <ProtectedRoute>
                 <Suspense fallback={<MarketplacePageSkeleton />}>
                   <MarketplacePage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/achievements"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<SkeletonGenericPage />}>
+                  <AchievementsPage />
                 </Suspense>
               </ProtectedRoute>
             }
