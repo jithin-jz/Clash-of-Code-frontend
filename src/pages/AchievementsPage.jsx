@@ -21,6 +21,31 @@ import useAuthStore from "../stores/useAuthStore";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
+import { 
+  SkeletonPage, 
+  SkeletonCard, 
+  SkeletonText, 
+  SkeletonCircle 
+} from "../common/SkeletonPrimitives";
+
+const AchievementsSkeleton = () => (
+  <SkeletonPage className="bg-black p-4 sm:p-8">
+    <div className="max-w-7xl mx-auto space-y-8">
+      <div className="flex gap-4 items-center">
+        <SkeletonCircle className="w-10 h-10" />
+        <SkeletonText width="200px" height="1.5rem" />
+      </div>
+      <div className="flex gap-2 overflow-x-auto pb-4">
+        {[1,2,3,4,5].map(i => <SkeletonText key={i} width="100px" height="2.5rem" className="rounded-lg shrink-0" />)}
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[1,2,3,4,5,6,7,8].map(i => (
+          <SkeletonCard key={i} className="h-48" variant="solid" />
+        ))}
+      </div>
+    </div>
+  </SkeletonPage>
+);
 
 const CATEGORIES = [
   { id: "all", label: "All Hall", icon: Trophy },
@@ -55,7 +80,7 @@ const AchievementsPage = () => {
       } catch (err) {
         console.error("Failed to fetch achievements:", err);
       } finally {
-        setLoading(false);
+        setTimeout(() => setLoading(false), 500); // Small smooth delay
       }
     };
     fetchData();
@@ -70,15 +95,7 @@ const AchievementsPage = () => {
     return userAchievements.some(ua => ua.achievement.id === achievementId);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
-          <Trophy className="text-white/20 w-8 h-8" />
-        </motion.div>
-      </div>
-    );
-  }
+  if (loading) return <AchievementsSkeleton />;
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white/10 pb-20 sm:pb-0">
@@ -180,10 +197,10 @@ const AchievementsPage = () => {
 
                       {/* Info */}
                       <div className="space-y-1">
-                        <h3 className={`text-[13px] font-bold tracking-tight ${unlocked ? "text-white" : "text-neutral-400"}`}>
+                        <h3 className={`text-[13px] font-bold tracking-tight ${unlocked ? "text-white" : "text-neutral-200"}`}>
                           {achievement.title}
                         </h3>
-                        <p className={`text-[11px] leading-relaxed min-h-[32px] ${unlocked ? "text-neutral-300" : "text-neutral-500"}`}>
+                        <p className={`text-[11px] leading-relaxed min-h-[32px] ${unlocked ? "text-neutral-300" : "text-neutral-400"}`}>
                           {achievement.description}
                         </p>
                       </div>
@@ -191,15 +208,15 @@ const AchievementsPage = () => {
                       {/* Footer */}
                       <div className="mt-auto pt-4 flex items-center justify-between border-t border-white/[0.03]">
                         <div className="flex items-center gap-1.5">
-                          <Zap size={10} className={unlocked ? "text-white" : "text-neutral-800"} />
-                          <span className={`text-[10px] font-mono font-bold ${unlocked ? "text-neutral-400" : "text-neutral-800"}`}>
+                          <Zap size={10} className={unlocked ? "text-white" : "text-neutral-700"} />
+                          <span className={`text-[10px] font-mono font-bold ${unlocked ? "text-neutral-200" : "text-neutral-600"}`}>
                             {achievement.xp_reward} XP
                           </span>
                         </div>
                         
                         {unlocked && (
-                          <span className="text-[9px] font-mono font-bold text-neutral-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                            UNLOCKED
+                          <span className="text-[9px] font-mono font-bold text-white/50 opacity-0 group-hover:opacity-100 transition-opacity uppercase">
+                            Unlocked
                           </span>
                         )}
                       </div>
