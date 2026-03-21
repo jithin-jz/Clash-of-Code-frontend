@@ -8,9 +8,9 @@ import {
   Calendar, 
   Star, 
   ArrowLeft,
-  ChevronRight,
+  ArrowRight,
   Medal,
-  Activity,
+  TrendingUp,
   Zap,
   Lock,
   CheckCircle2
@@ -25,7 +25,7 @@ const CATEGORIES = [
   { id: "all", label: "All Hall", icon: Trophy },
   { id: "CODING", label: "Coding", icon: Target },
   { id: "COMMUNITY", label: "Community", icon: Users },
-  { id: "CONSISTENCY", label: "Consistency", icon: Activity },
+  { id: "CONSISTENCY", label: "Consistency", icon: TrendingUp },
   { id: "SPECIAL", label: "Special", icon: Medal },
 ];
 
