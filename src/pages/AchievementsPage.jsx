@@ -160,7 +160,7 @@ const AchievementsPage = () => {
                 >
                   <Card className={`
                     h-full bg-[#0a0a0a] border border-[#1a1a1a] overflow-hidden group transition-all duration-300
-                    ${unlocked ? "hover:border-[#333]" : "opacity-60"}
+                    ${unlocked ? "hover:border-[#333] border-white/10" : "opacity-80"}
                   `}>
                     <CardContent className="p-5 flex flex-col h-full">
                       {/* Icon Header */}
@@ -168,22 +168,22 @@ const AchievementsPage = () => {
                         <div className={`
                           w-12 h-12 rounded-xl flex items-center justify-center border transition-all duration-500
                           ${unlocked 
-                            ? "bg-white/5 border-white/10 text-white group-hover:scale-110 group-hover:bg-white group-hover:text-black" 
-                            : "bg-black border-[#1a1a1a] text-neutral-700"}
+                            ? "bg-white/10 border-white/20 text-white group-hover:scale-110 group-hover:bg-white group-hover:text-black shadow-[0_0_20px_rgba(255,255,255,0.05)]" 
+                            : "bg-black border-[#1a1a1a] text-neutral-600"}
                         `}>
-                          <Trophy size={20} className={unlocked ? "" : "opacity-30"} />
+                          <Trophy size={20} className={unlocked ? "" : "opacity-40"} />
                         </div>
                         
-                        {!unlocked && <Lock size={14} className="text-neutral-800" />}
-                        {unlocked && <Star size={14} className="text-white fill-white/20" />}
+                        {!unlocked && <Lock size={12} className="text-neutral-700" />}
+                        {unlocked && <Star size={12} className="text-white fill-white/20" />}
                       </div>
 
                       {/* Info */}
                       <div className="space-y-1">
-                        <h3 className={`text-[13px] font-bold tracking-tight ${unlocked ? "text-white" : "text-neutral-500"}`}>
+                        <h3 className={`text-[13px] font-bold tracking-tight ${unlocked ? "text-white" : "text-neutral-400"}`}>
                           {achievement.title}
                         </h3>
-                        <p className="text-[11px] text-neutral-600 leading-relaxed min-h-[32px]">
+                        <p className={`text-[11px] leading-relaxed min-h-[32px] ${unlocked ? "text-neutral-300" : "text-neutral-500"}`}>
                           {achievement.description}
                         </p>
                       </div>
