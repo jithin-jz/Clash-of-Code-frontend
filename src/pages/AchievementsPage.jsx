@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { achievementsApi } from "../services/achievementsApi";
+import useAuthStore from "../stores/useAuthStore";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
@@ -31,20 +32,26 @@ const CATEGORIES = [
 
 const AchievementsPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [achievements, setAchievements] = useState([]);
   const [userAchievements, setUserAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
+    if (!user?.username) {
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const [allRes, userRes] = await Promise.all([
           achievementsApi.getAllAchievements(),
-          achievementsApi.getUserAchievements()
+          achievementsApi.getUserAchievements(user.username)
         ]);
-        setAchievements(allRes.data);
-        setUserAchievements(userRes.data);
+        setAchievements(allRes || []);
+        setUserAchievements(userRes || []);
       } catch (err) {
         console.error("Failed to fetch achievements:", err);
       } finally {
@@ -52,7 +59,7 @@ const AchievementsPage = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [user]);
 
   const filteredAchievements = useMemo(() => {
     if (activeTab === "all") return achievements;
@@ -125,14 +132,14 @@ const AchievementsPage = () => {
           <div className="bg-[#0a0a0a] border border-[#1a1a1a] p-4 rounded-xl flex items-center justify-between group hover:border-[#333] transition-colors">
             <div>
               <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1 font-mono">Completed</p>
-              <h3 className="text-xl font-mono">{userAchievements.length} / {achievements.length}</h3>
+              <h3 className="text-xl font-mono">{userAchievements?.length || 0} / {achievements?.length || 0}</h3>
             </div>
             <CheckCircle2 className="text-neutral-800 group-hover:text-white transition-colors" size={24} />
           </div>
           <div className="bg-[#0a0a0a] border border-[#1a1a1a] p-4 rounded-xl flex items-center justify-between group hover:border-[#333] transition-colors">
             <div>
               <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-1 font-mono">Trophy Score</p>
-              <h3 className="text-xl font-mono">{userAchievements.length * 10}</h3>
+              <h3 className="text-xl font-mono">{(userAchievements?.length || 0) * 10}</h3>
             </div>
             <Zap className="text-neutral-800 group-hover:text-white transition-colors" size={24} />
           </div>
