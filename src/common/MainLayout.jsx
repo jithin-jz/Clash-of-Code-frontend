@@ -181,9 +181,10 @@ const MainLayout = memo(({ children }) => {
   if (hideNav) return children;
 
   return (
-    <div className="relative min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-black text-foreground selection:bg-primary/20">
-      {/* Global pure-black background */}
-      <div className="fixed inset-0 z-0 pointer-events-none bg-black" />
+    <div className="relative min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-black text-foreground selection:bg-primary/20 ds-spotlight">
+      {/* Global pure-black background with subtle texture */}
+      <div className="fixed inset-0 z-0 pointer-events-none bg-black app-grid-overlay opacity-[0.03]" />
+      <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.02),transparent_100%)]" />
 
       <div className="relative z-10 flex min-h-screen flex-col">
         <HomeTopNav

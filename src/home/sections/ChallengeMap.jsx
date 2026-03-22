@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { motion as Motion } from "framer-motion";
 import {
   ArrowRight,
   Crown,
@@ -130,10 +131,17 @@ const ChallengeMap = ({ levels, handleLevelClick }) => {
             const isComplete = prog.solved === prog.total && prog.total > 0;
 
             return (
-              <section
+              <Motion.section
                 key={track}
-                className="px-4 py-4 sm:px-4 animate-in fade-in slide-in-from-bottom-2 duration-300"
-                style={{ animationDelay: `${trackIdx * 40}ms` }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{
+                  duration: 0.6,
+                  delay: trackIdx * 0.1,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="px-4 py-4 sm:px-4"
               >
                 {/* Track header */}
                 <div className="mb-4 flex items-start justify-between gap-4">
@@ -180,7 +188,7 @@ const ChallengeMap = ({ levels, handleLevelClick }) => {
                     );
                   })}
                 </div>
-              </section>
+              </Motion.section>
             );
           })}
 

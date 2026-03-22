@@ -1,4 +1,5 @@
 import React from "react";
+import { motion as Motion } from "framer-motion";
 import {
   ArrowRight,
   CheckCircle2,
@@ -62,7 +63,7 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
   const cardBase = isCompleted
     ? "bg-[#0a0a0a] border-l-2 border-l-emerald-500 border-white/20 shadow-sm"
     : isUnlocked
-      ? "bg-black border-[#333] hover:border-[#666] hover:bg-[#0a0a0a] transition-all duration-200"
+      ? `bg-black border-[#333] hover:border-[#666] hover:bg-[#0a0a0a] transition-all duration-200 ${isCurrentLevel ? "ds-glow-purple" : ""}`
       : "bg-black border-white/60 shadow-inner";
 
   const iconBg = isCertificate
@@ -76,9 +77,15 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
         : "bg-black border-white/20 text-white";
 
   return (
-    <button
+    <Motion.button
       onClick={onClick}
       disabled={isLocked}
+      animate={isCurrentLevel && isUnlocked ? { y: [-1, 1, -1] } : {}}
+      transition={
+        isCurrentLevel && isUnlocked
+          ? { duration: 4, repeat: Infinity, ease: "easeInOut" }
+          : {}
+      }
       className={`
         w-full text-left rounded-xl border p-3.5 min-h-[120px]
         transition-all duration-150 group relative overflow-hidden
@@ -86,6 +93,10 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
         ${isUnlocked ? "cursor-pointer hover:-translate-y-px active:scale-[0.99]" : "cursor-not-allowed"}
       `}
     >
+      {/* Glow highlight for active level */}
+      {isCurrentLevel && isUnlocked && (
+        <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/5 to-transparent pointer-events-none animate-ds-glow-breathe" />
+      )}
       {/* Top: icon + title + status */}
       <div className="flex items-start justify-between gap-2 relative z-10">
         <div className="flex items-start gap-2.5 min-w-0">
@@ -187,7 +198,7 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
           {level.unlock_message || "Complete all levels to unlock"}
         </p>
       )}
-    </button>
+    </Motion.button>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   User,
@@ -60,6 +60,15 @@ const HomeTopNav = ({
   const navigate = useNavigate();
   const userId = user?.id;
   const { unreadCount, fetchNotifications } = useNotificationStore();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (userId) fetchNotifications();
@@ -71,7 +80,13 @@ const HomeTopNav = ({
     <>
       {/* ── TOP NAV ── */}
       <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
-        <nav className="app-top-nav pointer-events-auto grid h-12 w-full grid-cols-[1fr_auto_1fr] items-center px-7 sm:px-9">
+        <nav
+          className={`
+            pointer-events-auto grid h-12 w-full grid-cols-[1fr_auto_1fr] items-center px-7 sm:px-9
+            transition-all duration-300 ease-in-out
+            ${isScrolled ? "bg-glass-premium border-b border-white/10 h-14" : "app-top-nav"}
+          `}
+        >
           {/* LEFT */}
           <div className="flex items-center justify-start gap-3 min-w-0">
             {user ? (

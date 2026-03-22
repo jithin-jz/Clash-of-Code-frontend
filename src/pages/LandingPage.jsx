@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion as Motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Layers, Zap, Terminal } from "lucide-react";
+import Magnetic from "../components/ui/Magnetic";
 
 const stats = [
   { label: "Skill Tracks", value: "12+", sub: "structured paths" },
@@ -41,6 +42,15 @@ def solve(nums: list[int]) -> int:
 const LandingPage = () => {
   const navigate = useNavigate();
   const [typed, setTyped] = useState("");
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+
+  const handleMouseMove = (e) => {
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+    const x = (clientX / innerWidth) * 100;
+    const y = (clientY / innerHeight) * 100;
+    setMousePos({ x, y });
+  };
 
   useEffect(() => {
     let i = 0;
@@ -56,7 +66,16 @@ const LandingPage = () => {
   }, []);
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden bg-black">
+    <div
+      className="relative min-h-[calc(100vh-4rem)] overflow-hidden bg-black ds-spotlight"
+      onMouseMove={handleMouseMove}
+      style={{
+        "--mouse-x": `${mousePos.x}%`,
+        "--mouse-y": `${mousePos.y}%`,
+      }}
+    >
+      {/* BACKGROUND TEXTURE */}
+      <div className="absolute inset-0 z-0 app-grid-overlay opacity-40 pointer-events-none" />
       {/* HERO */}
       <section className="relative z-10 app-page-width flex min-h-[calc(100vh-9rem)] flex-col items-center justify-center px-5 py-12 sm:px-8">
         <Motion.div
@@ -82,19 +101,23 @@ const LandingPage = () => {
 
           {/* CTA */}
           <div className="mt-10 flex justify-center">
-            <button
-              onClick={() => navigate("/login")}
-              className="ds-btn ds-btn-primary h-12 px-10 text-base font-bold rounded-xl group relative overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98]"
-              id="hero-cta-start"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Start Learning Free
-                <ArrowRight
-                  size={18}
-                  className="group-hover:translate-x-1 transition-transform"
-                />
-              </span>
-            </button>
+            <Magnetic strength={0.3}>
+              <button
+                onClick={() => navigate("/login")}
+                className="ds-btn ds-btn-primary h-12 px-10 text-base font-bold rounded-xl group relative overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                id="hero-cta-start"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Start Learning Free
+                  <ArrowRight
+                    size={18}
+                    className="group-hover:translate-x-1 transition-transform"
+                  />
+                </span>
+                {/* Subtle shine effect */}
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              </button>
+            </Magnetic>
           </div>
 
           {/* Stats bar */}
