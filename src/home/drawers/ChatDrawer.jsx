@@ -117,23 +117,36 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
               height: isKeyboardVisible ? `${viewportHeight}px` : "100dvh",
               bottom: 0,
             }}
-            className="fixed left-0 z-[60] w-full md:max-w-[360px] bg-[#050505] shadow-2xl flex flex-col md:border-r border-[#1a1a1a]"
+            className="fixed left-0 z-[60] w-full md:max-w-[360px] bg-[#050505] shadow-2xl flex flex-col md:border-r border-white/5 overflow-hidden"
           >
+            {/* Ambient Background Glow */}
+            <div className="absolute inset-0 pointer-events-none opacity-20">
+              <div className="absolute top-[-10%] right-[-10%] w-[300px] h-[300px] bg-emerald-500/10 blur-[100px] rounded-full" />
+              <div className="absolute bottom-[-5%] left-[-10%] w-[250px] h-[250px] bg-purple-500/10 blur-[80px] rounded-full" />
+            </div>
+
             {/* Header */}
-            <header className="shrink-0 h-14 flex items-center justify-between px-4 border-b border-[#1a1a1a] bg-[#0a0a0a]">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400 transition-all">
-                  <Map size={14} />
+            <header className="shrink-0 h-16 flex items-center justify-between px-5 border-b border-white/5 bg-black/40 backdrop-blur-xl relative z-10">
+              <div className="flex items-center gap-3.5">
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-tr from-emerald-500 to-cyan-500 rounded-full blur opacity-25 group-hover:opacity-50 transition-all duration-500" />
+                  <div className="relative h-9 w-9 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-emerald-400 shadow-inner overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 to-transparent" />
+                    <Map size={16} className="relative z-10 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+                  </div>
                 </div>
 
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-bold tracking-[0.2em] text-[#444] uppercase font-mono">
+                  <span className="text-[11px] font-black tracking-[0.25em] text-neutral-100 uppercase font-mono drop-shadow-sm">
                     Global Chat
                   </span>
-                  <div className="flex items-center gap-1 leading-none">
-                    <span className="w-1 h-1 rounded-full bg-emerald-500" />
-                    <span className="text-[8px] font-bold text-neutral-600 uppercase tracking-tighter">
-                      {onlineCount || 0} online
+                  <div className="flex items-center gap-1.5 leading-none mt-0.5">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-[9px] font-black text-neutral-500 uppercase tracking-wider">
+                      {onlineCount || 0} active in forge
                     </span>
                   </div>
                 </div>
@@ -142,11 +155,12 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="h-6 w-6 rounded-md flex items-center justify-center text-neutral-600 hover:text-white hover:bg-[#1a1a1a] transition-all"
+                className="h-8 w-8 rounded-xl flex items-center justify-center text-neutral-500 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-all duration-300"
               >
-                <X size={14} />
+                <X size={16} />
               </button>
             </header>
+
 
             {/* Pinned Message Banner */}
             <AnimatePresence>

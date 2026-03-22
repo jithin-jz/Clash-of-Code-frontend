@@ -32,8 +32,11 @@ const ChatAvatar = ({ isOwn, avatarUrl, username }) => {
       {showPlaceholder && (
         <div
           className={`w-full h-full flex items-center justify-center text-[10px] font-black tracking-tighter ${
-            isOwn ? "bg-primary/20 text-primary" : "bg-accent/20 text-accent"
-          }`}
+            isOwn 
+              ? "bg-gradient-to-br from-emerald-500/30 via-emerald-500/20 to-emerald-500/40 text-emerald-400" 
+              : "bg-gradient-to-br from-purple-500/30 via-purple-500/20 to-purple-500/40 text-purple-400"
+          } animate-pulse`}
+          style={{ animationDuration: '3s' }}
         >
           {username?.charAt(0).toUpperCase() || <User size={12} />}
         </div>
@@ -206,31 +209,38 @@ const MessageList = ({
 
   if (!user) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-center p-8 bg-[#03070c]">
+      <div className="h-full flex flex-col items-center justify-center text-center p-8 bg-transparent">
         <Motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           className="relative mb-8"
         >
-          <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center border border-primary/20 shadow-[0_0_40px_rgba(0,175,155,0.15)] relative z-10">
-            <Lock size={32} className="text-primary" />
+          <div className="w-24 h-24 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-md rounded-[2rem] flex items-center justify-center border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10 group overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-transparent to-purple-500/10 opacity-50" />
+            <Lock size={36} className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] group-hover:scale-110 transition-transform duration-500" />
           </div>
-          <div className="absolute -inset-6 bg-primary/10 rounded-full blur-[40px] opacity-50" />
+          <div className="absolute -inset-8 bg-emerald-500/20 rounded-full blur-[60px] opacity-30 animate-pulse" />
+          <div className="absolute -inset-8 bg-purple-500/20 rounded-full blur-[60px] opacity-20 left-10 top-10" />
         </Motion.div>
 
-        <h3 className="text-xl font-bold text-white mb-2 uppercase tracking-widest">
-          Secure Forge
+        <h3 className="text-2xl font-black text-white mb-3 uppercase tracking-[0.3em] font-mono drop-shadow-md">
+          Forge Link
         </h3>
-        <p className="text-neutral-500 text-sm mb-8 max-w-[240px] leading-relaxed font-medium">
-          The inner circle is restricted. Authenticate to join the real-time
-          transmission.
+        <p className="text-neutral-500 text-[11px] mb-10 max-w-[220px] leading-relaxed font-bold uppercase tracking-wider opacity-80">
+          Neural connection required. <br/> 
+          Join the inner circle to access transmission.
         </p>
 
         <Link
           to="/login"
-          className="px-8 py-3.5 bg-primary text-primary-foreground rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:brightness-110 active:scale-95 shadow-[0_10px_30px_rgba(0,175,155,0.3)]"
+          className="group relative px-10 py-4 overflow-hidden rounded-2xl transition-all active:scale-95"
         >
-          Initiate Access
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-cyan-600 transition-all group-hover:scale-110" />
+          <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <span className="relative text-black font-black text-xs uppercase tracking-[0.25em] flex items-center gap-2">
+            Initiate Link
+            <MessageCircle size={14} />
+          </span>
         </Link>
       </div>
     );
@@ -243,16 +253,22 @@ const MessageList = ({
       className="h-full overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar bg-transparent scroll-smooth"
     >
       {messages.length === 0 && (
-        <div className="flex flex-col items-center justify-center h-full text-center">
-          <div className="w-16 h-16 bg-white/[0.03] rounded-3xl flex items-center justify-center mb-5 border border-white/[0.06] shadow-inner">
-            <MessageCircle size={28} className="text-neutral-700" />
+        <div className="flex flex-col items-center justify-center h-full text-center py-20 px-6">
+          <div className="relative mb-8">
+            <div className="absolute -inset-4 bg-gradient-to-tr from-emerald-500/20 to-purple-500/20 rounded-full blur-2xl opacity-50" />
+            <div className="w-20 h-20 bg-white/[0.02] backdrop-blur-sm rounded-[2.5rem] flex items-center justify-center border border-white/[0.05] shadow-2xl relative z-10">
+              <MessageCircle size={32} className="text-neutral-800" />
+            </div>
           </div>
-          <p className="text-neutral-400 text-sm font-bold uppercase tracking-widest">
-            Quiet in the forge
+          <p className="text-neutral-400 text-xs font-black uppercase tracking-[0.4em] mb-3">
+            Silence in Transmission
           </p>
-          <p className="text-neutral-600 text-[10px] mt-2 font-mono uppercase tracking-tighter">
-            Waiting for transmission...
-          </p>
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <p className="text-neutral-600 text-[10px] font-bold uppercase tracking-widest">
+              Awaiting signal...
+            </p>
+          </div>
         </div>
       )}
 
@@ -330,15 +346,18 @@ const MessageList = ({
               >
                 <div
                   className={`
-                    relative px-2.5 py-1.5 text-[11px] leading-normal transition-all duration-300 rounded-lg shrink-0 max-w-full
+                    relative px-3.5 py-2.5 text-[12px] leading-relaxed transition-all duration-300 rounded-2xl shrink-0 max-w-full shadow-lg
                     ${
                       isOwn
-                        ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-100 rounded-tr-sm"
-                        : "bg-[#161616] border border-[#222] text-neutral-300 rounded-tl-sm hover:bg-[#1a1a1a]"
+                        ? "bg-gradient-to-br from-emerald-500/20 via-emerald-600/10 to-emerald-400/20 border border-emerald-500/30 text-emerald-50 shadow-emerald-950/20 rounded-tr-none"
+                        : "bg-white/[0.03] backdrop-blur-md border border-white/[0.08] text-neutral-200 rounded-tl-none hover:bg-white/[0.05]"
                     }
-                    ${msg.message?.startsWith("IMAGE:") ? "p-1" : ""}
+                    ${msg.message?.startsWith("IMAGE:") ? "p-1.5 !rounded-lg" : ""}
                   `}
                 >
+                  {isOwn && (
+                    <div className="absolute top-0 right-[-4px] w-2 h-2 bg-emerald-500/40 rounded-full blur-[4px] opacity-0 group-hover:opacity-100 transition-opacity" />
+                  )}
                   {msg.message?.startsWith("IMAGE:") ? (
                     (() => {
                       const [imageUrl, ownerUsername] = msg.message

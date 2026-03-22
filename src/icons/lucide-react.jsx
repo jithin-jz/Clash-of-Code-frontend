@@ -77,6 +77,7 @@ import RainbowIcon from "./itshover/rainbow-icon";
 import BulbSvg from "./itshover/bulb-svg";
 import Cloud1Icon from "./itshover/cloud-1-icon";
 import RadioIcon from "./itshover/radio-icon";
+import Loader2Icon from "./itshover/loader-2-icon";
 
 const adapt = (IconComponent, baseClassName = "") => {
   const WrappedIcon = forwardRef((props, ref) => {
@@ -139,6 +140,7 @@ export const LogOut = adapt(LogoutIcon);
 export const Mail = adapt(MailFilledIcon);
 export const Map = adapt(WorldIcon);
 export const MapPin = adapt(MapPinIcon);
+export const Loader2 = adapt(Loader2Icon);
 export const Medal = adapt(RosetteDiscountCheckIcon);
 export const Menu = adapt(DotsHorizontalIcon);
 export const MessageCircle = adapt(MessageCircleIcon);

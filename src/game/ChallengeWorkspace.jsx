@@ -50,6 +50,13 @@ const ChallengeWorkspace = () => {
   const [review, setReview] = useState("");
   const [isReviewLoading, setIsReviewLoading] = useState(false);
 
+  const getAiErrorMessage = (err, fallbackMessage) => {
+    if (err?.response?.status === 504) {
+      return "AI processing is taking longer than expected. Please try again.";
+    }
+    return err?.response?.data?.error || fallbackMessage;
+  };
+
   const handleGetHint = async () => {
     if (!challenge || !code) return;
     setIsHintLoading(true);
@@ -63,8 +70,10 @@ const ChallengeWorkspace = () => {
       setHintLevel((prev) => Math.min(prev + 1, 3));
     } catch (err) {
       console.error("Hint Error:", err);
-      const errorMsg =
-        err.response?.data?.error || "AI Assistant is currently unavailable.";
+      const errorMsg = getAiErrorMessage(
+        err,
+        "AI Assistant is currently unavailable.",
+      );
       setOutput((prev) => [
         ...prev,
         { type: "error", content: `🤖 AI Assistant: ${errorMsg}` },
@@ -207,8 +216,10 @@ const ChallengeWorkspace = () => {
         });
       } else {
         console.error("AI Review Error:", err);
-        const errorMsg =
-          err.response?.data?.error || "AI review is currently unavailable.";
+        const errorMsg = getAiErrorMessage(
+          err,
+          "AI review is currently unavailable.",
+        );
         toast.error("AI Review Failed", { description: errorMsg });
         setOutput((prev) => [
           ...prev,

@@ -228,7 +228,7 @@ export const postsAPI = {
 };
 
 export const notificationsAPI = {
-  getNotifications: () => api.get("/notifications/"),
+  getNotifications: (params = {}) => api.get("/notifications/", { params }),
   markRead: (id) => api.post(`/notifications/${id}/mark_read/`),
   markAllRead: () => api.post("/notifications/mark_all_read/"),
   clearAll: () => api.delete("/notifications/clear_all/"),

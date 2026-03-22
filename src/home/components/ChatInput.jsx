@@ -40,14 +40,14 @@ const ChatInput = ({
   };
 
   return (
-    <div className="relative px-4 py-3 bg-[#0a0a0a] border-t border-[#1a1a1a]">
+    <div className="relative px-5 py-4 bg-black/40 backdrop-blur-xl border-t border-white/5 space-y-3">
       {/* Emoji Picker */}
       {showPicker && (
         <div
           ref={pickerRef}
-          className="absolute bottom-full left-0 w-full p-4 mb-2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300"
+          className="absolute bottom-full left-0 w-full p-4 mb-2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-500"
         >
-          <div className="bg-[#000000] rounded-2xl border border-white/[0.1] shadow-2xl shadow-black/80 overflow-hidden h-[380px] flex">
+          <div className="bg-black/80 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.8)] overflow-hidden h-[380px] flex">
             <EmojiPicker
               onEmojiClick={handleEmojiClick}
               theme="dark"
@@ -62,33 +62,34 @@ const ChatInput = ({
         </div>
       )}
 
-      <div className="flex gap-2.5 items-center">
+      <div className="flex gap-3 items-center">
         {/* Emoji Button */}
         <button
           ref={emojiButtonRef}
           type="button"
           onClick={() => setShowPicker(!showPicker)}
           disabled={!user}
-          className={`flex items-center justify-center h-8 w-8 min-w-8 rounded-lg transition-all ${
+          className={`group relative flex items-center justify-center h-10 w-10 min-w-10 rounded-xl transition-all duration-300 ${
             showPicker
-              ? "bg-[#1a1a1a] text-white"
-              : "bg-transparent text-neutral-500 hover:text-neutral-300"
-          } disabled:opacity-20`}
+              ? "bg-white/10 text-white border-white/20"
+              : "bg-white/[0.03] text-neutral-500 hover:text-neutral-200 border-transparent hover:border-white/10 hover:bg-white/5"
+          } border disabled:opacity-20`}
         >
-          {showPicker ? <X size={16} /> : <Smile size={16} />}
+          {showPicker ? <X size={18} /> : <Smile size={18} className="group-hover:scale-110 transition-transform" />}
         </button>
 
         {/* Input Wrapper */}
-        <div className="relative flex-1">
+        <div className="relative flex-1 group">
+          <div className="absolute -inset-[1px] bg-gradient-to-r from-emerald-500/0 via-emerald-500/20 to-emerald-500/0 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
           <Input
             ref={inputRef}
             type="text"
-            placeholder={user ? placeholder || "Message..." : "Sign in to chat"}
+            placeholder={user ? placeholder || "Forge a message..." : "Lock in to chat"}
             disabled={!user}
             value={inputMessage}
             onChange={handleInputChange}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            className="w-full bg-[#111] border-[#1a1a1a] focus-visible:border-[#333] rounded-lg px-3 h-8 text-white text-[11px] transition-all placeholder:text-neutral-600 focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="relative w-full bg-white/[0.03] border-white/5 focus-visible:border-emerald-500/30 rounded-xl px-4 h-10 text-white text-[12px] transition-all placeholder:text-neutral-600 focus-visible:ring-0 focus-visible:ring-offset-0 font-medium"
           />
         </div>
 
@@ -96,18 +97,22 @@ const ChatInput = ({
         <button
           disabled={!user || !inputMessage.trim()}
           onClick={handleSend}
-          className={`flex items-center justify-center h-8 w-8 min-w-8 rounded-lg transition-all ${
+          className={`group relative flex items-center justify-center h-10 w-10 min-w-10 rounded-xl transition-all duration-500 overflow-hidden ${
             inputMessage.trim()
-              ? "bg-white text-black hover:bg-neutral-200"
-              : "bg-[#111] text-neutral-700"
+              ? "bg-emerald-500 text-black shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-105 active:scale-95"
+              : "bg-white/[0.03] text-neutral-700 border border-transparent"
           } disabled:opacity-10`}
         >
+          {inputMessage.trim() && (
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          )}
           <Send
-            size={14}
-            className={inputMessage.trim() ? "translate-x-0.5" : ""}
+            size={16}
+            className={`relative z-10 transition-transform duration-300 ${inputMessage.trim() ? "translate-x-0.5 -translate-y-0.5 rotate-[-10deg] group-hover:translate-x-1 group-hover:-translate-y-1" : ""}`}
           />
         </button>
       </div>
+
 
       {/* Bottom safety margin for mobile */}
       <div className="h-2 w-full sm:hidden" />

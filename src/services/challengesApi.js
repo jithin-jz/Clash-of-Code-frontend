@@ -2,6 +2,35 @@ import api from "./api";
 
 let aiAnalyzeUnavailable = false;
 let aiAnalyzeUnavailableUntil = 0;
+const AI_TASK_POLL_INTERVAL_MS = 1000;
+const AI_TASK_POLL_TIMEOUT_MS = 90000;
+
+const waitForAITaskResult = async (taskId) => {
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < AI_TASK_POLL_TIMEOUT_MS) {
+    const response = await api.get(`/challenges/ai-tasks/${taskId}/status/`);
+    const payload = response.data || {};
+
+    if (payload.status === "success") {
+      return payload.result || {};
+    }
+
+    if (payload.status === "failed") {
+      const err = new Error(payload.error || "AI task failed");
+      err.response = { status: 503, data: payload };
+      throw err;
+    }
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, AI_TASK_POLL_INTERVAL_MS);
+    });
+  }
+
+  const err = new Error("AI task timed out");
+  err.response = { status: 504 };
+  throw err;
+};
 
 export const challengesApi = {
   getAll: async () => {
@@ -26,6 +55,9 @@ export const challengesApi = {
   },
   getAIHint: async (slug, data) => {
     const response = await api.post(`/challenges/${slug}/ai-hint/`, data);
+    if (response.status === 202 && response.data?.task_id) {
+      return waitForAITaskResult(response.data.task_id);
+    }
     return response.data;
   },
   aiAnalyze: async (slug, user_code) => {
@@ -51,6 +83,9 @@ export const challengesApi = {
     for (const path of candidatePaths) {
       try {
         const response = await api.post(path, payload);
+        if (response.status === 202 && response.data?.task_id) {
+          return waitForAITaskResult(response.data.task_id);
+        }
         return response.data;
       } catch (err) {
         const statusCode = err?.response?.status;

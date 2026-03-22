@@ -12,6 +12,7 @@ import {
   ArrowRight,
   Shield,
   Zap,
+  Loader2,
 } from "lucide-react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
@@ -25,8 +26,12 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
   const {
     notifications,
     unreadCount,
+    totalCount,
+    hasMore,
     isLoading,
+    isLoadingMore,
     fetchNotifications,
+    loadMoreNotifications,
     markAsRead,
     markAllAsRead,
     clearAll,
@@ -134,7 +139,7 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
                       className={`w-1 h-1 rounded-full ${unreadCount > 0 ? "bg-amber-500 animate-pulse shadow-[0_0_4px_rgba(245,158,11,0.5)]" : "bg-neutral-600"}`}
                     />
                     <span className="text-[8px] font-bold text-neutral-600 uppercase tracking-tighter">
-                      {unreadCount} Signal{unreadCount !== 1 ? "s" : ""}
+                      {unreadCount} Unread / {totalCount} Total
                     </span>
                   </div>
                 </div>
@@ -246,6 +251,29 @@ const NotificationDrawer = ({ isOpen, onClose }) => {
                       </Motion.div>
                     );
                   })}
+
+                  {hasMore && (
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        onClick={loadMoreNotifications}
+                        disabled={isLoadingMore}
+                        className="w-full h-10 rounded-lg border border-[#222] bg-[#0d0d0d] text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-500 hover:text-white hover:border-[#333] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                      >
+                        {isLoadingMore ? (
+                          <>
+                            <Loader2 size={12} className="animate-spin" />
+                            Loading More
+                          </>
+                        ) : (
+                          <>
+                            <ArrowRight size={12} />
+                            Load More
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </main>

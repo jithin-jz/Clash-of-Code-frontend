@@ -11,7 +11,13 @@ const useNotificationStore = create((set, get) => ({
   // State
   notifications: [],
   unreadCount: 0,
+  totalCount: 0,
+  currentPage: 1,
+  pageSize: 50,
+  totalPages: 1,
+  hasMore: false,
   isLoading: false,
+  isLoadingMore: false,
   error: null,
   lastFetched: null,
   fcmToken: null,
@@ -324,9 +330,12 @@ const useNotificationStore = create((set, get) => ({
   /**
    * Fetch all notifications with caching.
    */
-  fetchNotifications: async (force = false) => {
+  fetchNotifications: async (force = false, options = {}) => {
     const state = get();
     const now = Date.now();
+    const page = Math.max(options.page || 1, 1);
+    const append = Boolean(options.append && page > 1);
+    const pageSize = Math.max(options.pageSize || state.pageSize || 50, 1);
 
     // De-duplicate concurrent calls from multiple mounted components
     if (state._fetchPromise) {
@@ -336,6 +345,7 @@ const useNotificationStore = create((set, get) => ({
     // Use cache if valid
     if (
       !force &&
+      page === 1 &&
       state.lastFetched &&
       now - state.lastFetched < state.CACHE_DURATION &&
       state.notifications.length > 0
@@ -344,19 +354,60 @@ const useNotificationStore = create((set, get) => ({
     }
 
     const fetchPromise = (async () => {
-      set({ isLoading: true, error: null });
+      set({
+        isLoading: !append,
+        isLoadingMore: append,
+        error: null,
+      });
 
       try {
-        const response = await notificationsAPI.getNotifications();
-        const notifications = response.data;
-
-        // Calculate unread count
-        const unreadCount = notifications.filter((n) => !n.is_read).length;
+        const response = await notificationsAPI.getNotifications({
+          page,
+          page_size: pageSize,
+        });
+        const payload = Array.isArray(response.data)
+          ? {
+              count: response.data.length,
+              unread_count: response.data.filter((n) => !n.is_read).length,
+              page,
+              page_size: pageSize,
+              total_pages: 1,
+              results: response.data,
+            }
+          : (response.data ?? {});
+        const fetchedNotifications = Array.isArray(payload.results)
+          ? payload.results
+          : [];
+        const notifications = append
+          ? [
+              ...state.notifications,
+              ...fetchedNotifications.filter(
+                (nextItem) =>
+                  !state.notifications.some(
+                    (existing) => existing.id === nextItem.id,
+                  ),
+              ),
+            ]
+          : fetchedNotifications;
+        const unreadCount =
+          typeof payload.unread_count === "number"
+            ? payload.unread_count
+            : notifications.filter((n) => !n.is_read).length;
+        const totalPages = Math.max(
+          payload.total_pages || Math.ceil((payload.count || 0) / pageSize) || 1,
+          1,
+        );
 
         set({
           notifications,
           unreadCount,
+          totalCount: payload.count ?? notifications.length,
+          currentPage: payload.page || page,
+          pageSize: payload.page_size || pageSize,
+          totalPages,
+          hasMore: (payload.page || page) < totalPages,
           isLoading: false,
+          isLoadingMore: false,
           lastFetched: Date.now(),
           error: null,
         });
@@ -366,6 +417,7 @@ const useNotificationStore = create((set, get) => ({
         console.error("Failed to fetch notifications:", error);
         set({
           isLoading: false,
+          isLoadingMore: false,
           error: error.response?.data?.error || "Failed to load notifications",
         });
         return [];
@@ -378,6 +430,19 @@ const useNotificationStore = create((set, get) => ({
     return fetchPromise;
   },
 
+  loadMoreNotifications: async () => {
+    const state = get();
+    if (state.isLoading || state.isLoadingMore || !state.hasMore) {
+      return state.notifications;
+    }
+
+    return get().fetchNotifications(true, {
+      page: state.currentPage + 1,
+      pageSize: state.pageSize,
+      append: true,
+    });
+  },
+
   /**
    * Mark a notification as read.
    */
@@ -387,16 +452,17 @@ const useNotificationStore = create((set, get) => ({
 
       // Update local state
       set((state) => {
+        const target = state.notifications.find((n) => n.id === notificationId);
         const updatedNotifications = state.notifications.map((n) =>
           n.id === notificationId ? { ...n, is_read: true } : n,
         );
-        const unreadCount = updatedNotifications.filter(
-          (n) => !n.is_read,
-        ).length;
 
         return {
           notifications: updatedNotifications,
-          unreadCount,
+          unreadCount:
+            target && !target.is_read
+              ? Math.max(state.unreadCount - 1, 0)
+              : state.unreadCount,
         };
       });
 
@@ -440,6 +506,10 @@ const useNotificationStore = create((set, get) => ({
       set({
         notifications: [],
         unreadCount: 0,
+        totalCount: 0,
+        currentPage: 1,
+        totalPages: 1,
+        hasMore: false,
       });
 
       return { success: true };
@@ -456,6 +526,7 @@ const useNotificationStore = create((set, get) => ({
     set((state) => ({
       notifications: [notification, ...state.notifications],
       unreadCount: state.unreadCount + 1,
+      totalCount: state.totalCount + 1,
     }));
   },
 
@@ -475,6 +546,11 @@ const useNotificationStore = create((set, get) => ({
     set({
       notifications: [],
       unreadCount: 0,
+      totalCount: 0,
+      currentPage: 1,
+      pageSize: 50,
+      totalPages: 1,
+      hasMore: false,
       lastFetched: null,
       error: null,
       fcmToken: null,
@@ -485,6 +561,7 @@ const useNotificationStore = create((set, get) => ({
       socket: null,
       isWSConnected: false,
       wsShouldReconnect: false,
+      isLoadingMore: false,
     });
   },
 }));
