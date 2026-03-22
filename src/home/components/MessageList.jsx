@@ -32,11 +32,11 @@ const ChatAvatar = ({ isOwn, avatarUrl, username }) => {
       {showPlaceholder && (
         <div
           className={`w-full h-full flex items-center justify-center text-[10px] font-black tracking-tighter ${
-            isOwn 
-              ? "bg-gradient-to-br from-emerald-500/30 via-emerald-500/20 to-emerald-500/40 text-emerald-400" 
+            isOwn
+              ? "bg-gradient-to-br from-emerald-500/30 via-emerald-500/20 to-emerald-500/40 text-emerald-400"
               : "bg-gradient-to-br from-purple-500/30 via-purple-500/20 to-purple-500/40 text-purple-400"
           } animate-pulse`}
-          style={{ animationDuration: '3s' }}
+          style={{ animationDuration: "3s" }}
         >
           {username?.charAt(0).toUpperCase() || <User size={12} />}
         </div>
@@ -217,7 +217,10 @@ const MessageList = ({
         >
           <div className="w-24 h-24 bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-md rounded-[2rem] flex items-center justify-center border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10 group overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-transparent to-purple-500/10 opacity-50" />
-            <Lock size={36} className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] group-hover:scale-110 transition-transform duration-500" />
+            <Lock
+              size={36}
+              className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] group-hover:scale-110 transition-transform duration-500"
+            />
           </div>
           <div className="absolute -inset-8 bg-emerald-500/20 rounded-full blur-[60px] opacity-30 animate-pulse" />
           <div className="absolute -inset-8 bg-purple-500/20 rounded-full blur-[60px] opacity-20 left-10 top-10" />
@@ -227,7 +230,7 @@ const MessageList = ({
           Forge Link
         </h3>
         <p className="text-neutral-500 text-[11px] mb-10 max-w-[220px] leading-relaxed font-bold uppercase tracking-wider opacity-80">
-          Neural connection required. <br/> 
+          Neural connection required. <br />
           Join the inner circle to access transmission.
         </p>
 

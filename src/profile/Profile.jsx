@@ -582,7 +582,7 @@ const Profile = () => {
                   {/* Achievements */}
                   <div className="mb-4">
                     <AchievementBadges username={profileUser?.username} />
-                    <button 
+                    <button
                       onClick={() => navigate("/achievements")}
                       className="text-[10px] font-bold text-primary hover:text-primary/80 uppercase tracking-widest mt-2 transition-colors"
                     >

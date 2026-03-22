@@ -141,7 +141,10 @@ const HomeTopNav = ({
                   >
                     <Calendar size={14} />
                   </NavBtn>
-                  <NavBtn onClick={() => navigate("/achievements")} title="Achievements Hall">
+                  <NavBtn
+                    onClick={() => navigate("/achievements")}
+                    title="Achievements Hall"
+                  >
                     <Award size={14} />
                   </NavBtn>
                   <NavBtn onClick={() => navigate("/store")} title="Store">

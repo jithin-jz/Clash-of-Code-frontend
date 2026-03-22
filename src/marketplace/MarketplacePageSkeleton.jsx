@@ -4,37 +4,34 @@ import {
   SkeletonPage,
   SkeletonCard,
   SkeletonText,
-  SkeletonButton,
 } from "../common/SkeletonPrimitives";
 
 const MarketplacePageSkeleton = () => {
   return (
-    <SkeletonPage className="flex flex-col bg-black">
+    <SkeletonPage className="flex flex-col bg-black relative">
       {/* Category Tabs Skeleton */}
-      <div className="sticky top-14 z-20 border-b border-[#1e1e1e] bg-[#0a0a0a]/92 backdrop-blur-xl">
-        <div className="w-full px-4 sm:px-6 lg:px-8 min-w-0">
-          <div className="flex items-center gap-2 sm:gap-4 py-2 sm:py-3">
-            <SkeletonBase className="h-8 w-8 rounded-md bg-white/5 shrink-0" />
-            <div className="hidden sm:block w-px h-4 bg-[#222] shrink-0" />
-            <div className="flex items-center gap-1 sm:gap-1.5 flex-1 overflow-x-auto no-scrollbar">
-              {[...Array(4)].map((_, i) => (
+      <div className="sticky top-0 z-20 border-b border-white/5 bg-black/80 backdrop-blur-2xl">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-4 py-3 sm:py-4">
+            <SkeletonBase className="h-10 w-10 rounded-xl bg-white/5 shrink-0" />
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-1">
+              {[...Array(6)].map((_, i) => (
                 <SkeletonBase
                   key={i}
-                  className="h-7 w-20 rounded-md bg-white/5 border border-white/5 shrink-0"
+                  className="h-10 w-28 rounded-xl shrink-0"
                 />
               ))}
             </div>
-            <SkeletonBase className="h-7 w-16 bg-white/5 rounded-md border border-white/5 shrink-0" />
           </div>
         </div>
       </div>
 
       {/* Main Content Grid */}
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 space-y-12 relative z-10">
         {/* Section Heading */}
-        <div className="space-y-4">
-          <SkeletonText width="240px" height="2rem" />
-          <SkeletonText width="400px" height="1rem" className="opacity-40" />
+        <div className="space-y-3">
+          <SkeletonText width="280px" height="2.5rem" className="opacity-90" />
+          <SkeletonText width="450px" height="0.85rem" className="opacity-30" />
         </div>
 
         {/* Marketplace Items Grid */}
@@ -42,36 +39,41 @@ const MarketplacePageSkeleton = () => {
           {[...Array(10)].map((_, i) => (
             <SkeletonCard
               key={i}
-              className="group p-0 border border-white/5 bg-black hover:border-white/10 transition-colors"
+              className="group p-0 overflow-hidden"
+              variant="solid"
             >
               {/* Item Preview Skeleton */}
-              <div className="aspect-video relative overflow-hidden bg-white/[0.02]">
-                <SkeletonBase className="h-full w-full rounded-none" />
-                <div className="absolute top-3 left-3 flex gap-2">
-                  <SkeletonBase className="h-6 w-16 rounded-full" />
+              <div className="aspect-video relative overflow-hidden bg-white/[0.01]">
+                <SkeletonBase className="h-full w-full rounded-none border-0" />
+                <div className="absolute top-4 left-4 flex gap-2">
+                  <SkeletonBase className="h-6 w-20 rounded-full" />
                 </div>
               </div>
 
               {/* Item Info */}
-              <div className="p-5 space-y-5">
+              <div className="p-6 space-y-6">
                 <div className="flex justify-between items-start gap-4">
-                  <div className="space-y-2 flex-1 min-w-0">
-                    <SkeletonText width="80%" height="1.1rem" />
+                  <div className="space-y-2.5 flex-1 min-w-0 pt-1">
+                    <SkeletonText width="90%" height="1.25rem" />
                     <SkeletonText
-                      width="50%"
-                      height="0.6rem"
-                      className="opacity-40"
+                      width="60%"
+                      height="0.65rem"
+                      className="opacity-30"
                     />
                   </div>
-                  <SkeletonBase className="h-8 w-8 rounded-lg border border-white/5" />
+                  <SkeletonBase className="h-11 w-11 rounded-2xl border border-white/5" />
                 </div>
 
                 <div className="flex items-center justify-between pt-2">
-                  <div className="flex items-center gap-1.5 font-bold text-white">
-                    <SkeletonBase className="h-5 w-5 rounded-md" />
-                    <SkeletonText width="60px" height="1rem" />
+                  <div className="flex items-center gap-2 relative">
+                    <SkeletonBase className="h-6 w-6 rounded-lg opacity-40" />
+                    <SkeletonText
+                      width="70px"
+                      height="1.1rem"
+                      className="opacity-80"
+                    />
                   </div>
-                  <SkeletonBase className="h-10 w-24 rounded-xl" />
+                  <SkeletonBase className="h-11 w-28 rounded-2xl" />
                 </div>
               </div>
             </SkeletonCard>

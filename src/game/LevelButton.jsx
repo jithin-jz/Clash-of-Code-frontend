@@ -63,8 +63,8 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
   const cardBase = isCompleted
     ? "bg-[#0a0a0a] border-l-2 border-l-emerald-500 border-white/20 shadow-sm"
     : isUnlocked
-      ? `bg-black border-[#333] hover:border-[#666] hover:bg-[#0a0a0a] transition-all duration-200 ${isCurrentLevel ? "ds-glow-purple" : ""}`
-      : "bg-black border-white/60 shadow-inner";
+      ? `bg-white/[0.02] border-emerald-500/20 hover:border-emerald-500/40 hover:bg-emerald-500/[0.04] transition-all duration-300 ${isCurrentLevel ? "border-emerald-500/60 shadow-[0_0_25px_rgba(16,185,129,0.2)]" : ""}`
+      : "bg-white/[0.01] border-white/20 shadow-inner";
 
   const iconBg = isCertificate
     ? isUnlocked
@@ -182,7 +182,9 @@ const LevelButton = ({ level, isCurrentLevel, onClick }) => {
       {/* Current level badge */}
       {isCurrentLevel && isUnlocked && (
         <div className="mt-2 relative z-10">
-          <span className="ds-pill ds-pill-purple text-[9px]">In Progress</span>
+          <span className="ds-pill ds-pill-success text-[9px] border-emerald-500/40 bg-emerald-500/20 text-emerald-400">
+            In Progress
+          </span>
         </div>
       )}
 

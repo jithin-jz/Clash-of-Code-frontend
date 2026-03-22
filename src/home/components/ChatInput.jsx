@@ -75,7 +75,14 @@ const ChatInput = ({
               : "bg-white/[0.03] text-neutral-500 hover:text-neutral-200 border-transparent hover:border-white/10 hover:bg-white/5"
           } border disabled:opacity-20`}
         >
-          {showPicker ? <X size={18} /> : <Smile size={18} className="group-hover:scale-110 transition-transform" />}
+          {showPicker ? (
+            <X size={18} />
+          ) : (
+            <Smile
+              size={18}
+              className="group-hover:scale-110 transition-transform"
+            />
+          )}
         </button>
 
         {/* Input Wrapper */}
@@ -84,7 +91,9 @@ const ChatInput = ({
           <Input
             ref={inputRef}
             type="text"
-            placeholder={user ? placeholder || "Forge a message..." : "Lock in to chat"}
+            placeholder={
+              user ? placeholder || "Forge a message..." : "Lock in to chat"
+            }
             disabled={!user}
             value={inputMessage}
             onChange={handleInputChange}
@@ -112,7 +121,6 @@ const ChatInput = ({
           />
         </button>
       </div>
-
 
       {/* Bottom safety margin for mobile */}
       <div className="h-2 w-full sm:hidden" />

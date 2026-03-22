@@ -3,57 +3,137 @@ import {
   SkeletonBase,
   SkeletonPage,
   SkeletonCode,
+  SkeletonText,
+  SkeletonCard,
 } from "../common/SkeletonPrimitives";
 
 const ChallengeWorkspaceSkeleton = () => {
   return (
-    <SkeletonPage className="flex flex-col h-dvh bg-black">
-      {/* Global pure-black foundation */}
-      <div className="absolute inset-0 pointer-events-none bg-black" />
+    <SkeletonPage className="flex flex-col h-dvh bg-black overflow-hidden relative">
+      {/* Background gradients */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/[0.03] blur-[150px] rounded-full" />
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/[0.02] blur-[130px] rounded-full" />
 
-      {/* Subtle industrial depth */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_-20%,rgba(255,255,255,0.02),transparent)]" />
-
-      <div className="relative z-10 h-14 bg-black border-b border-white/5 flex items-center justify-between px-4">
-        <div className="flex items-center gap-4">
-          <SkeletonBase className="w-9 h-9 rounded-md" />
-          <SkeletonBase className="w-48 h-4 rounded-md opacity-40" />
+      {/* Top Navbar Skeleton */}
+      <div className="relative z-20 h-16 bg-black/40 backdrop-blur-3xl border-b border-white/[0.05] flex items-center justify-between px-6">
+        <div className="flex items-center gap-6">
+          <SkeletonBase className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10" />
+          <div className="space-y-2 pt-1 hidden sm:block">
+            <SkeletonText width="180px" height="1rem" className="opacity-90" />
+            <SkeletonText
+              width="120px"
+              height="0.65rem"
+              className="opacity-30"
+            />
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <SkeletonBase className="w-4 h-4 rounded-sm" />
-          <SkeletonBase className="w-24 h-10 rounded-xl" />
+        <div className="flex items-center gap-4">
+          <SkeletonBase className="w-10 h-10 rounded-xl sm:hidden" />
+          <div className="hidden sm:flex items-center gap-3">
+            <SkeletonBase className="w-24 h-5 rounded-full opacity-20" />
+            <SkeletonBase className="w-32 h-11 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 shadow-lg" />
+          </div>
         </div>
       </div>
 
-      <div className="relative z-10 flex-1 p-0 sm:p-3 gap-0 sm:gap-3 flex flex-col lg:flex-row overflow-hidden">
-        <div className="w-full lg:w-[24rem] sm:rounded-xl sm:border border-white/5 bg-black p-4 space-y-4 shadow-2xl">
-          <SkeletonBase className="h-4 w-44 opacity-20" />
-          <SkeletonBase className="h-10 w-full rounded-lg" />
-          {[...Array(4)].map((_, i) => (
-            <SkeletonBase key={i} className="h-24 w-full rounded-xl" />
-          ))}
+      {/* Main Workspace Layout */}
+      <div className="relative z-10 flex-1 p-0 sm:p-3 sm:gap-4 flex flex-col lg:flex-row overflow-hidden min-h-0">
+        {/* Left Sidebar - Problem Desc */}
+        <div className="w-full lg:w-[26rem] sm:rounded-2xl sm:border border-white/[0.05] bg-white/[0.015] backdrop-blur-2xl p-6 flex flex-col gap-6 shadow-2xl overflow-y-auto hidden lg:flex">
+          <div className="space-y-2">
+            <SkeletonText
+              width="140px"
+              height="0.75rem"
+              className="opacity-40"
+            />
+            <SkeletonText width="100%" height="2rem" />
+          </div>
+          <div className="space-y-4 pt-4 border-t border-white/5 flex-1">
+            {[...Array(4)].map((_, i) => (
+              <SkeletonCard
+                key={i}
+                className="h-28 rounded-2xl"
+                variant="solid"
+              />
+            ))}
+          </div>
+          <SkeletonBase className="h-14 w-full rounded-2xl bg-white/5 opacity-40 shrink-0" />
         </div>
 
-        <div className="flex-1 min-w-0 sm:rounded-xl sm:border border-white/5 bg-black overflow-hidden flex flex-col shadow-2xl">
-          <div className="flex-1 p-2">
-            <SkeletonCode lines={18} className="h-full border-none" />
+        {/* Center - Code Editor */}
+        <div className="flex-1 min-w-0 sm:rounded-2xl sm:border border-white/[0.05] bg-black/40 backdrop-blur-xl overflow-hidden flex flex-col shadow-2xl">
+          <div className="h-11 bg-white/[0.02] border-b border-white/5 flex items-center px-4 gap-2">
+            <SkeletonBase className="h-6 w-32 rounded-lg" />
+            <SkeletonBase className="h-6 w-24 rounded-lg opacity-20" />
           </div>
-          <div className="h-[35%] sm:h-[32%] min-h-[180px] border-t border-white/5 p-4 space-y-3">
-            <SkeletonBase className="h-3 w-24 opacity-20" />
-            <SkeletonBase className="h-10 w-full rounded-lg opacity-10" />
-            <SkeletonBase className="h-10 w-5/6 rounded-lg opacity-10" />
+          <div className="flex-1 p-2 bg-[#050505]">
+            <SkeletonCode
+              lines={24}
+              className="h-full border-none bg-transparent"
+            />
+          </div>
+          {/* Output / Terminal Area */}
+          <div className="h-[28rem] sm:h-[32%] min-h-[220px] border-t border-white/5 bg-black/60 p-6 space-y-4">
+            <div className="flex justify-between items-center px-1">
+              <SkeletonText
+                width="120px"
+                height="0.75rem"
+                className="opacity-40"
+              />
+              <div className="flex gap-2">
+                <SkeletonBase className="h-5 w-5 rounded-md opacity-20" />
+                <SkeletonBase className="h-5 w-5 rounded-md opacity-20" />
+              </div>
+            </div>
+            <div className="space-y-3 font-mono">
+              <SkeletonText
+                width="100%"
+                height="0.65rem"
+                className="opacity-10"
+              />
+              <SkeletonText
+                width="95%"
+                height="0.65rem"
+                className="opacity-10"
+              />
+              <SkeletonText
+                width="80%"
+                height="0.65rem"
+                className="opacity-10"
+              />
+            </div>
           </div>
         </div>
 
-        <div className="w-full lg:w-[22rem] sm:rounded-xl sm:border border-white/5 bg-black p-4 flex flex-col shadow-2xl">
-          <div className="flex items-center justify-between mb-4">
-            <SkeletonBase className="h-3 w-24 opacity-20" />
-            <SkeletonBase className="h-3 w-14 opacity-20" />
+        {/* Right Sidebar - AI Assistant / Stats */}
+        <div className="w-full lg:w-[24rem] sm:rounded-2xl sm:border border-white/[0.05] bg-white/[0.02] p-6 flex flex-col shadow-2xl hidden lg:flex">
+          <div className="flex items-center justify-between mb-8">
+            <SkeletonText
+              width="140px"
+              height="1.1rem"
+              className="opacity-90"
+            />
+            <SkeletonBase className="h-9 w-9 rounded-xl opacity-30" />
           </div>
-          <div className="flex-1">
-            <SkeletonBase className="h-full w-full rounded-lg" />
+          <div className="flex-1 space-y-6">
+            <SkeletonCard className="h-56 rounded-2xl" />
+            <div className="space-y-4 pt-6 mt-6 border-t border-white/5">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex gap-4 items-center">
+                  <SkeletonBase className="h-10 w-10 rounded-xl opacity-20" />
+                  <SkeletonText
+                    width="70%"
+                    height="0.85rem"
+                    className="opacity-60"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-          <SkeletonBase className="h-10 w-full rounded-lg mt-4 opacity-10" />
+          <div className="pt-6 mt-6 border-t border-white/5 flex gap-3">
+            <SkeletonBase className="h-12 flex-1 rounded-2xl bg-white/5" />
+            <SkeletonBase className="h-12 w-12 rounded-2xl bg-emerald-500/20" />
+          </div>
         </div>
       </div>
     </SkeletonPage>

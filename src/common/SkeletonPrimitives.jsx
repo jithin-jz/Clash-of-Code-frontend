@@ -5,8 +5,15 @@ import { cn } from "../lib/utils";
  * Shimmer Effect component
  * Industrial Standard: Smooth, translucent CSS animation
  */
+/**
+ * Shimmer Effect component
+ * High-end Performance: Fluid, technical CSS animation with subtle color drift
+ */
 export const Shimmer = () => (
-  <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-linear-to-r from-transparent via-white/[0.02] to-transparent pointer-events-none" />
+  <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2.5s_infinite] bg-linear-to-r from-transparent via-white/[0.03] to-transparent" />
+    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-overlay" />
+  </div>
 );
 
 /**
@@ -16,13 +23,13 @@ export const SkeletonBase = ({ className, children, ...props }) => {
   return (
     <div
       className={cn(
-        "relative overflow-hidden bg-white/[0.02] border border-white/[0.01] rounded-xl",
+        "relative overflow-hidden bg-white/[0.015] border border-white/[0.03] rounded-2xl backdrop-blur-sm",
         className,
       )}
       {...props}
     >
       <Shimmer />
-      {children}
+      <div className="relative z-10 w-full h-full">{children}</div>
     </div>
   );
 };
@@ -43,7 +50,7 @@ export const SkeletonText = ({
   ...props
 }) => (
   <SkeletonBase
-    className={cn("rounded-md", className)}
+    className={cn("rounded-lg", className)}
     style={{ width, height, ...props.style }}
     {...props}
   />
@@ -51,7 +58,7 @@ export const SkeletonText = ({
 
 export const SkeletonButton = ({ className, ...props }) => (
   <SkeletonBase
-    className={cn("h-11 w-full rounded-xl", className)}
+    className={cn("h-12 w-full rounded-2xl", className)}
     {...props}
   />
 );
@@ -73,22 +80,23 @@ export const SkeletonCard = ({
   ...props
 }) => {
   const variants = {
-    glass: "bg-[#000000]/80 backdrop-blur-md border border-white/5 shadow-2xl",
-    solid: "bg-black border border-white/5",
-    plain: "bg-transparent border border-white/5",
+    glass:
+      "bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] shadow-[0_20px_50px_rgba(0,0,0,0.5)]",
+    solid: "bg-black/60 border border-white/[0.05] backdrop-blur-md shadow-xl",
+    plain: "bg-transparent border border-white/[0.02]",
   };
 
   return (
     <div
       className={cn(
-        "p-4 rounded-xl relative overflow-hidden",
+        "p-5 rounded-[2rem] relative overflow-hidden",
         variants[variant],
         className,
       )}
       {...props}
     >
       <Shimmer />
-      {children}
+      <div className="relative z-10 w-full h-full">{children}</div>
     </div>
   );
 };
@@ -101,23 +109,23 @@ export const SkeletonCode = ({ lines = 12, className, ...props }) => {
   return (
     <div
       className={cn(
-        "bg-black rounded-xl border border-white/5 overflow-hidden font-mono",
+        "bg-black/40 backdrop-blur-xl rounded-[1.5rem] border border-white/[0.05] overflow-hidden font-mono",
         className,
       )}
       {...props}
     >
       <div className="flex">
-        <div className="w-12 bg-white/[0.02] border-r border-white/5 py-4 px-2 flex flex-col gap-2.5">
+        <div className="w-12 bg-white/[0.01] border-r border-white/5 py-5 px-3 flex flex-col gap-3">
           {[...Array(lines)].map((_, i) => (
-            <div key={i} className="h-3 w-6 bg-white/[0.03] rounded" />
+            <div key={i} className="h-3 w-6 bg-white/[0.03] rounded-sm" />
           ))}
         </div>
-        <div className="flex-1 p-4 space-y-2.5 relative overflow-hidden">
+        <div className="flex-1 p-5 space-y-3 relative overflow-hidden">
           <Shimmer />
           {[...Array(lines)].map((_, i) => (
             <div
               key={i}
-              className="h-3 bg-white/[0.04] rounded"
+              className="h-3 bg-white/[0.04] rounded-sm"
               style={{ width: `${lineWidths[i % lineWidths.length]}%` }}
             />
           ))}
@@ -128,11 +136,14 @@ export const SkeletonCode = ({ lines = 12, className, ...props }) => {
 };
 
 export const SkeletonStats = ({ className, ...props }) => (
-  <SkeletonCard className={cn("flex flex-col gap-3", className)} {...props}>
-    <SkeletonText width="60%" height="0.75rem" className="opacity-30" />
-    <SkeletonText width="40%" height="1.5rem" />
-    <div className="h-1.5 w-full bg-white/[0.02] rounded-full overflow-hidden mt-2">
-      <SkeletonBase className="h-full w-2/3 bg-blue-500/20" />
+  <SkeletonCard
+    className={cn("flex flex-col gap-4 bg-white/[0.01]", className)}
+    {...props}
+  >
+    <SkeletonText width="60%" height="0.65rem" className="opacity-40" />
+    <SkeletonText width="40%" height="2rem" className="opacity-80" />
+    <div className="h-2 w-full bg-white/[0.02] rounded-full overflow-hidden mt-1 relative">
+      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-emerald-500/20 to-transparent w-2/3" />
     </div>
   </SkeletonCard>
 );
@@ -140,8 +151,19 @@ export const SkeletonStats = ({ className, ...props }) => (
 /* --- Layout Wrapper --- */
 
 export const SkeletonPage = ({ children, className }) => (
-  <div className={cn("w-full min-h-screen text-zinc-400 relative", className)}>
-    {children}
+  <div
+    className={cn(
+      "w-full min-h-screen text-zinc-400 relative overflow-hidden bg-black",
+      className,
+    )}
+  >
+    {/* Background Decoration to match Home/Achievements */}
+    <div className="fixed inset-0 z-0 pointer-events-none">
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/5 blur-[120px] rounded-full opacity-30" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-500/5 blur-[100px] rounded-full opacity-20" />
+    </div>
+
+    <div className="relative z-10 w-full min-h-screen">{children}</div>
 
     <style>{`
       @keyframes shimmer {

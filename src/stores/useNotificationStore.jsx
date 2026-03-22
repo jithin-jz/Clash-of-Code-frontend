@@ -394,7 +394,9 @@ const useNotificationStore = create((set, get) => ({
             ? payload.unread_count
             : notifications.filter((n) => !n.is_read).length;
         const totalPages = Math.max(
-          payload.total_pages || Math.ceil((payload.count || 0) / pageSize) || 1,
+          payload.total_pages ||
+            Math.ceil((payload.count || 0) / pageSize) ||
+            1,
           1,
         );
 

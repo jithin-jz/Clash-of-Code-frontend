@@ -132,7 +132,10 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
                   <div className="absolute -inset-1 bg-gradient-to-tr from-emerald-500 to-cyan-500 rounded-full blur opacity-25 group-hover:opacity-50 transition-all duration-500" />
                   <div className="relative h-9 w-9 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-emerald-400 shadow-inner overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 to-transparent" />
-                    <Map size={16} className="relative z-10 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+                    <Map
+                      size={16}
+                      className="relative z-10 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]"
+                    />
                   </div>
                 </div>
 
@@ -160,7 +163,6 @@ const ChatDrawer = ({ isOpen, setOpen, user }) => {
                 <X size={16} />
               </button>
             </header>
-
 
             {/* Pinned Message Banner */}
             <AnimatePresence>
