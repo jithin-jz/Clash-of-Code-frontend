@@ -63,11 +63,24 @@ export default defineConfig({
     strictPort: false, // Allow fallback if 5173 is busy
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        target: "http://127.0.0.1",
+        changeOrigin: true,
+      },
+      "/ai": {
+        target: "http://127.0.0.1",
+        changeOrigin: true,
+      },
+      "/ws": {
+        target: "ws://127.0.0.1",
+        ws: true,
+        changeOrigin: true,
+      },
+      "/chat": {
+        target: "http://127.0.0.1",
         changeOrigin: true,
       },
       "/media": {
-        target: "http://localhost:8000",
+        target: "http://127.0.0.1",
         changeOrigin: true,
       },
     },

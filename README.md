@@ -53,15 +53,19 @@ The **Clash of Code Frontend** is a modern, interactive web application built wi
    ```
 3. **Environment Variables:**
    Configure `.env` with:
-   - `VITE_API_URL`: URL of the Core service.
-   - `VITE_CHAT_URL` (or `VITE_WS_URL`): WebSocket URL of the Chat service.
-   - `VITE_NOTIFICATIONS_WS_URL`: WebSocket URL for notifications.
-   - `VITE_AI_URL`: URL of the AI tutor service.
+   - `VITE_API_URL`: Core API base. Use `/api` locally, or `https://api.your-domain.com/api` in deployment.
+   - `VITE_CHAT_URL` (or `VITE_WS_URL`): Chat websocket base. Use `/ws/chat` locally, or `wss://api.your-domain.com/ws/chat` in deployment.
+   - `VITE_NOTIFICATIONS_WS_URL`: Notifications websocket base. Use `/ws/notifications` locally, or `wss://api.your-domain.com/ws/notifications` in deployment.
+   - `VITE_AI_URL`: AI service base. Use `/ai` locally, or `https://api.your-domain.com/ai` in deployment.
+
+   A ready-to-copy local template now lives at `frontend/.env.example`.
 
 4. **Start the development server:**
    ```bash
    npm run dev
    ```
+
+   The supported local setup is to keep backend services running through the root `docker-compose.yml`, while the frontend runs directly on `http://localhost:5173`.
 
 ## 🏗️ Build & Production
 

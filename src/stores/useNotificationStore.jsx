@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { notificationsAPI } from "../services/api";
 import { notify } from "../services/notification";
+import { buildWebSocketUrl } from "../utils/websocketUrl";
 
 /**
  * Centralized notification management.
@@ -89,32 +90,15 @@ const useNotificationStore = create((set, get) => ({
       state.socket.close();
     }
 
-    const explicitWS =
-      import.meta.env.VITE_NOTIFICATIONS_WS_URL ||
-      import.meta.env.VITE_WS_NOTIFICATIONS_URL;
-
-    const WS_URL = (() => {
-      if (explicitWS) return explicitWS;
-
-      const apiUrl = import.meta.env.VITE_API_URL;
-      if (apiUrl) {
-        if (apiUrl.startsWith("/")) {
-          const wsProtocol =
-            window.location.protocol === "https:" ? "wss" : "ws";
-          return `${wsProtocol}://${window.location.hostname}/ws/notifications`;
-        }
-        try {
-          const parsed = new URL(apiUrl, window.location.origin);
-          const wsProtocol = parsed.protocol === "https:" ? "wss" : "ws";
-          return `${wsProtocol}://${parsed.host}/ws/notifications`;
-        } catch (err) {
-          console.warn("[Notifications] Failed to parse VITE_API_URL:", err);
-        }
-      }
-
-      const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-      return `${wsProtocol}://${window.location.hostname}/ws/notifications`;
-    })();
+    const WS_URL = buildWebSocketUrl({
+      explicitUrl:
+        import.meta.env.VITE_NOTIFICATIONS_WS_URL ||
+        import.meta.env.VITE_WS_NOTIFICATIONS_URL,
+      apiUrl: import.meta.env.VITE_API_URL,
+      defaultPath: "/ws/notifications",
+      legacyPaths: ["/notifications", "/ws"],
+      label: "Notifications",
+    });
     const socket = new WebSocket(WS_URL);
 
     socket.onopen = () => {

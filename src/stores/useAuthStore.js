@@ -250,7 +250,10 @@ const useAuthStore = create((set, get) => ({
         window.location.origin,
       );
       // In production, you might want to force strict equality or a whitelist
-      const authorizedOrigin = new URL(import.meta.env.VITE_API_URL).origin;
+      const authorizedOrigin = new URL(
+        import.meta.env.VITE_API_URL,
+        window.location.origin,
+      ).origin;
       if (
         event.origin !== authorizedOrigin &&
         event.origin !== window.location.origin
